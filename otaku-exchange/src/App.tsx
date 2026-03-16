@@ -12,9 +12,11 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/react'
 import { useApi } from './hooks/useApi'
 import ProfilePage from './components/ProfilePage'
+import AdminView from './views/AdminView'
 import EventView from './views/EventView'
 import TopicView from './views/TopicView'
 import type { UUID } from './models/models'
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 const darkTheme = createTheme({
   palette: { mode: 'dark' },
@@ -66,7 +68,11 @@ function App() {
               Otaku-Exchange
             </Typography>
             {isSignedIn ? (
-              <UserButton />
+              <UserButton>
+                <UserButton.MenuItems>
+                  <UserButton.Link label="Administration" labelIcon={<AdminPanelSettingsIcon/>} href="/admin" />
+                </UserButton.MenuItems>
+              </UserButton>
             ) : (
               <>
                 <SignInButton mode="modal">
@@ -103,6 +109,7 @@ function App() {
           )}
           <Route path="/events/:eventId" element={<EventViewRoute />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/admin/*" element={<AdminView />} />
           <Route path="*" element={navTabs.length > 0 ? <Navigate to={navTabs[0].path} replace /> : <Box />} />
         </Routes>
       </Box>

@@ -27,3 +27,37 @@ export async function fetchMarkets(eventId: UUID, getToken: GetToken): Promise<M
   if (isDummy) return dummyMarkets[eventId] ?? []
   return fetch(`${API_URL}/events/${eventId}/markets`, { headers: await authHeaders(getToken) }).then((r) => r.json())
 }
+
+export interface CreateEventPayload {
+  topicId: UUID
+  format: string
+  name: string
+  description: string
+  closeTime: string
+  status: string
+  resolutionRule: string
+}
+
+export async function createEvent(payload: CreateEventPayload, getToken: GetToken): Promise<Event> {
+  return fetch(`${API_URL}/events`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    body: JSON.stringify(payload),
+  }).then((r) => r.json())
+}
+
+export async function createMarket(eventId: UUID, label: string, status: string, getToken: GetToken): Promise<Market> {
+  return fetch(`${API_URL}/markets`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    body: JSON.stringify({ eventId, label, status }),
+  }).then((r) => r.json())
+}
+
+export async function createTopic(topic: string, description: string, getToken: GetToken): Promise<Topic> {
+  return fetch(`${API_URL}/topics`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    body: JSON.stringify({ topic, description }),
+  }).then((r) => r.json())
+}

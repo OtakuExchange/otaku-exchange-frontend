@@ -1,17 +1,43 @@
+export type UUID = `${string}-${string}-${string}-${string}-${string}`
+
+export type OrderSide = 'YES' | 'NO'
+export type OrderStatus = 'OPEN' | 'PARTIAL' | 'FILLED' | 'CANCELLED'
+export type OrderType = 'LIMIT' | 'MARKET'
+
+export interface Topic {
+  id: UUID
+  topic: string
+  description: string
+}
+
 export interface Event {
-    eventId: string;
-    topicId: string;
-    name: string;
-    description: string;
+  id: UUID
+  topicId: UUID
+  format: string
+  name: string
+  description: string
+  closeTime: string
+  status: string
+  resolutionRule: string
 }
 
 export interface Market {
-    marketId: string;
-    eventId: string;
-    label: string;
+  id: UUID
+  eventId: UUID
+  label: string
+  status: string
 }
 
-export interface Topic {
-    id: string;
-    topic: string;
+export interface Order {
+  id: UUID
+  userId: UUID
+  marketId: UUID
+  side: OrderSide
+  price: number
+  quantity: number
+  remaining: number
+  status: OrderStatus
+  orderType: OrderType
+  createdAt: string
+  executedAt: string | null
 }

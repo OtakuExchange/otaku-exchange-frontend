@@ -1,60 +1,42 @@
 import { useEffect, useState } from 'react'
+import Button from '@mui/material/Button'
 import AppBar from '@mui/material/AppBar'
-import Avatar from '@mui/material/Avatar'
 import Box from '@mui/material/Box'
 import CssBaseline from '@mui/material/CssBaseline'
-import Grid from '@mui/material/Grid'
-import IconButton from '@mui/material/IconButton'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import { createTheme, ThemeProvider } from '@mui/material/styles'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import { fetchTopics, fetchEvents } from './api'
-import EventCard from './components/EventCard'
+import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/react'
+import { useApi } from './hooks/useApi'
 import ProfilePage from './components/ProfilePage'
+import EventView from './views/EventView'
+import TopicView from './views/TopicView'
+import type { UUID } from './models/models'
 
 const darkTheme = createTheme({
   palette: { mode: 'dark' },
 })
 
 interface NavTab {
-  id: string | number
+  id: UUID
   label: string
   path: string
 }
 
-interface Event {
-  eventId: string | number
-  name: string
-  description: string
-}
 
-
-function Page({ topicId }: { topicId: string | number }) {
-  const [events, setEvents] = useState<Event[]>([])
-
-  useEffect(() => {
-    fetchEvents(topicId).then(setEvents).catch(console.error)
-  }, [topicId])
-
-  return (
-    <Box sx={{ p: { xs: 2, sm: 3 } }}>
-      <Grid container spacing={2}>
-        {events.map((event) => (
-          <Grid key={event.eventId} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-            <EventCard event={event} />
-          </Grid>
-        ))}
-      </Grid>
-    </Box>
-  )
+function EventViewRoute() {
+  const { state } = useLocation()
+  return <EventView event={state?.event} />
 }
 
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
+  const { isSignedIn } = useUser()
+  const { fetchTopics } = useApi()
   const [navTabs, setNavTabs] = useState<NavTab[]>([])
 
   useEffect(() => {
@@ -69,7 +51,7 @@ function App() {
         )
       )
       .catch(console.error)
-  }, [])
+  }, [isSignedIn])
 
   const activeTab =
     navTabs.find((tab) => location.pathname.startsWith(tab.path))?.path || false
@@ -83,9 +65,18 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Otaku-Exchange
             </Typography>
-            <IconButton onClick={() => navigate('/profile')} sx={{ p: 0 }}>
-              <Avatar />
-            </IconButton>
+            {isSignedIn ? (
+              <UserButton />
+            ) : (
+              <>
+                <SignInButton mode="modal">
+                  <Button color="inherit" variant="outlined" size="small">Login</Button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <Button color="inherit" variant="outlined" size="small" sx={{ ml: 1 }}>Sign Up</Button>
+                </SignUpButton>
+              </>
+            )}
           </Toolbar>
           <Tabs
             value={activeTab}
@@ -105,11 +96,12 @@ function App() {
         <Box sx={{ height: 48 }} />
         <Routes>
           {navTabs.map((tab) => (
-            <Route key={tab.path} path={tab.path} element={<Page topicId={tab.id} />} />
+            <Route key={tab.path} path={tab.path} element={<TopicView topicId={tab.id} />} />
           ))}
           {navTabs.length > 0 && (
             <Route path="/" element={<Navigate to={navTabs[0].path} replace />} />
           )}
+          <Route path="/events/:eventId" element={<EventViewRoute />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="*" element={navTabs.length > 0 ? <Navigate to={navTabs[0].path} replace /> : <Box />} />
         </Routes>

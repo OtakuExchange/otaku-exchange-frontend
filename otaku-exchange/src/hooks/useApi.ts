@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/react'
-import { fetchTopics, fetchEvents, fetchMarkets, fetchComments, postComment, likeComment, unlikeComment, bookmarkEvent, unbookmarkEvent, createTopic, createEvent, createMarket } from '../api'
+import { fetchTopics, fetchEvents, fetchMarkets, fetchComments, postComment, likeComment, unlikeComment, bookmarkEvent, unbookmarkEvent, createTopic, createEvent, createMarket, deleteTopic, deleteEvent, deleteMarket } from '../api'
 import type { CreateEventPayload } from '../api'
 import type { UUID } from '../models/models'
 
@@ -19,5 +19,8 @@ export function useApi() {
     unlikeComment: (eventId: UUID, commentId: UUID) => unlikeComment(eventId, commentId, getToken),
     bookmarkEvent: (eventId: UUID) => bookmarkEvent(eventId, getToken),
     unbookmarkEvent: (eventId: UUID) => unbookmarkEvent(eventId, getToken),
+    deleteTopic: (topicId: UUID) => deleteTopic(topicId, getToken),
+    deleteEvent: (eventId: UUID) => deleteEvent(eventId, getToken),
+    deleteMarket: (marketId: UUID) => deleteMarket(marketId, getToken),
   }
 }

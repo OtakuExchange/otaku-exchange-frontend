@@ -94,6 +94,27 @@ export async function unbookmarkEvent(eventId: UUID, getToken: GetToken): Promis
   }).then(() => undefined)
 }
 
+export async function deleteTopic(topicId: UUID, getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/topics/${topicId}`, {
+    method: 'DELETE',
+    headers: await authHeaders(getToken),
+  }).then(() => undefined)
+}
+
+export async function deleteEvent(eventId: UUID, getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/events/${eventId}`, {
+    method: 'DELETE',
+    headers: await authHeaders(getToken),
+  }).then(() => undefined)
+}
+
+export async function deleteMarket(marketId: UUID, getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/markets/${marketId}`, {
+    method: 'DELETE',
+    headers: await authHeaders(getToken),
+  }).then(() => undefined)
+}
+
 export async function createTopic(topic: string, description: string, getToken: GetToken): Promise<Topic> {
   return fetch(`${API_URL}/topics`, {
     method: 'POST',

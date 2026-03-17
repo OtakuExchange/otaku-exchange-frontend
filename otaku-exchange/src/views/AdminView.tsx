@@ -6,16 +6,19 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 import Typography from '@mui/material/Typography'
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline'
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline'
 import ExpandLess from '@mui/icons-material/ExpandLess'
 import ExpandMore from '@mui/icons-material/ExpandMore'
 import { Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import CreateTopicView from './admin/CreateTopicView'
 import CreateEventView from './admin/CreateEventView'
 import CreateMarketView from './admin/CreateMarketView'
+import DeleteView from './admin/DeleteView'
 
 function AdminSidebar() {
   const navigate = useNavigate()
   const [createOpen, setCreateOpen] = useState(true)
+  const [deleteOpen, setDeleteOpen] = useState(false)
 
   return (
     <Box sx={{ width: 220, flexShrink: 0, borderRight: 1, borderColor: 'divider', minHeight: '100%' }}>
@@ -38,6 +41,18 @@ function AdminSidebar() {
             </ListItemButton>
           </List>
         </Collapse>
+        <ListItemButton onClick={() => setDeleteOpen((o) => !o)}>
+          <DeleteOutlineIcon fontSize="small" sx={{ mr: 1 }} />
+          <ListItemText primary="Delete" />
+          {deleteOpen ? <ExpandLess /> : <ExpandMore />}
+        </ListItemButton>
+        <Collapse in={deleteOpen} timeout="auto" unmountOnExit>
+          <List dense disablePadding>
+            <ListItemButton sx={{ pl: 4 }} onClick={() => navigate('/admin/delete')}>
+              <ListItemText primary="Topic / Event / Market" />
+            </ListItemButton>
+          </List>
+        </Collapse>
       </List>
     </Box>
   )
@@ -53,6 +68,7 @@ export default function AdminView() {
           <Route path="create/topic" element={<CreateTopicView />} />
           <Route path="create/event" element={<CreateEventView />} />
           <Route path="create/market" element={<CreateMarketView />} />
+          <Route path="delete" element={<DeleteView />} />
           <Route path="*" element={<Navigate to="/admin/create/topic" replace />} />
         </Routes>
       </Box>

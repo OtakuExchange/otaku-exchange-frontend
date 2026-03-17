@@ -1,4 +1,4 @@
-import type { Event, Market, Topic, UUID } from './models/models'
+import type { Comment, Event, Market, Topic, UUID } from './models/models'
 import { dummyTopics } from './dummy/dummyTopics'
 import { dummyEvents } from './dummy/dummyEvents'
 import { dummyMarkets } from './dummy/dummyMarkets'
@@ -52,6 +52,32 @@ export async function createMarket(eventId: UUID, label: string, status: string,
     headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
     body: JSON.stringify({ eventId, label, status }),
   }).then((r) => r.json())
+}
+
+export async function postComment(eventId: UUID, content: string, getToken: GetToken): Promise<Comment> {
+  return fetch(`${API_URL}/events/${eventId}/comments`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    body: JSON.stringify({ content }),
+  }).then((r) => r.json())
+}
+
+export async function fetchComments(eventId: UUID, getToken: GetToken): Promise<Comment[]> {
+  return fetch(`${API_URL}/events/${eventId}/comments`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+}
+
+export async function likeComment(eventId: UUID, commentId: UUID, getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/events/${eventId}/comments/${commentId}/like`, {
+    method: 'POST',
+    headers: await authHeaders(getToken),
+  }).then(() => undefined)
+}
+
+export async function unlikeComment(eventId: UUID, commentId: UUID, getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/events/${eventId}/comments/${commentId}/like`, {
+    method: 'DELETE',
+    headers: await authHeaders(getToken),
+  }).then(() => undefined)
 }
 
 export async function createTopic(topic: string, description: string, getToken: GetToken): Promise<Topic> {

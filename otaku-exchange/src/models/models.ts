@@ -28,6 +28,22 @@ export interface Market {
   status: string
 }
 
+export interface CommentUser {
+  id: UUID
+  username: string
+}
+
+export interface Comment {
+  id: UUID
+  eventId: UUID
+  user: CommentUser
+  parentId: UUID | null
+  content: string
+  createdAt: string
+  likes: number
+  likedByUser: boolean
+}
+
 export interface Order {
   id: UUID
   userId: UUID

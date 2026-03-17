@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -11,14 +12,19 @@ import Typography from '@mui/material/Typography'
 import type { Event, Market } from '../models/models'
 import { useApi } from '../hooks/useApi'
 
-export default function EventCard({ event }: { event: Event }) {
+export default function EventCard({ event, bookmarked = event.bookmarked, onBookmarkChange }: { event: Event; bookmarked?: boolean; onBookmarkChange?: (id: Event['id'], bookmarked: boolean) => void }) {
   const navigate = useNavigate()
-  const { fetchMarkets } = useApi()
+  const { fetchMarkets, bookmarkEvent, unbookmarkEvent } = useApi()
   const [markets, setMarkets] = useState<Market[]>([])
 
   useEffect(() => {
     fetchMarkets(event.id).then(setMarkets).catch(console.error)
   }, [event.id])
+
+  function handleBookmark() {
+    const action = bookmarked ? unbookmarkEvent(event.id) : bookmarkEvent(event.id)
+    action.then(() => onBookmarkChange?.(event.id, !bookmarked)).catch(console.error)
+  }
 
   return (
     <Card sx={{ borderRadius: 3, height: 180, display: 'flex', flexDirection: 'column' }}>
@@ -47,8 +53,8 @@ export default function EventCard({ event }: { event: Event }) {
       </CardContent>
       <Box sx={{ display: 'flex', alignItems: 'center', px: 2, height: 28, borderTop: 1, borderColor: 'divider' }}>
         <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>$2M Vol.</Typography>
-        <IconButton size="small" sx={{ p: 0 }}>
-          <BookmarkBorderIcon fontSize="small" />
+        <IconButton size="small" sx={{ p: 0 }} onClick={handleBookmark}>
+          {bookmarked ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
         </IconButton>
       </Box>
     </Card>

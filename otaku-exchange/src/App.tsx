@@ -102,7 +102,7 @@ function App() {
         <Box sx={{ height: 48 }} />
         <Routes>
           {navTabs.map((tab) => (
-            <Route key={tab.path} path={tab.path} element={<TopicView topicId={tab.id} />} />
+            <Route key={tab.path} path={tab.path} element={<TopicView topicId={tab.id} topicLabel={tab.label} />} />
           ))}
           {navTabs.length > 0 && (
             <Route path="/" element={<Navigate to={navTabs[0].path} replace />} />

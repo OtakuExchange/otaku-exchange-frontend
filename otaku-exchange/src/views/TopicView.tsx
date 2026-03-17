@@ -1,24 +1,50 @@
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import Stack from '@mui/material/Stack'
+import Typography from '@mui/material/Typography'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
 import EventCard from '../components/EventCard'
 import type { Event, UUID } from '../models/models'
 import { useApi } from '../hooks/useApi'
 
-export default function TopicView({ topicId }: { topicId: UUID }) {
+export default function TopicView({ topicId, topicLabel }: { topicId: UUID; topicLabel: string }) {
   const [events, setEvents] = useState<Event[]>([])
+  const [bookmarkedIds, setBookmarkedIds] = useState<Set<UUID>>(new Set())
+  const [filterBookmarked, setFilterBookmarked] = useState(false)
   const { fetchEvents } = useApi()
 
   useEffect(() => {
-    fetchEvents(topicId).then(setEvents).catch(console.error)
+    fetchEvents(topicId).then((data) => {
+      setEvents(data)
+      setBookmarkedIds(new Set(data.filter((e) => e.bookmarked).map((e) => e.id)))
+    }).catch(console.error)
   }, [topicId])
+
+  function handleBookmarkChange(id: UUID, bookmarked: boolean) {
+    setBookmarkedIds((prev) => {
+      const next = new Set(prev)
+      bookmarked ? next.add(id) : next.delete(id)
+      return next
+    })
+  }
+
+  const visibleEvents = filterBookmarked ? events.filter((e) => bookmarkedIds.has(e.id)) : events
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
+      <Stack direction="row" alignItems="center" sx={{ mb: 2 }}>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>{topicLabel}</Typography>
+        <IconButton size="small" onClick={() => setFilterBookmarked((f) => !f)}>
+          {filterBookmarked ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
+        </IconButton>
+      </Stack>
       <Grid container spacing={2}>
-        {events.map((event) => (
+        {visibleEvents.map((event) => (
           <Grid key={event.id} size={{ sm: 12, md: 6, lg: 4 }}>
-            <EventCard event={event} />
+            <EventCard event={event} bookmarked={bookmarkedIds.has(event.id)} onBookmarkChange={handleBookmarkChange} />
           </Grid>
         ))}
       </Grid>

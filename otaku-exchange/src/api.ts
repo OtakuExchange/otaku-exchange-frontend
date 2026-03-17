@@ -80,6 +80,20 @@ export async function unlikeComment(eventId: UUID, commentId: UUID, getToken: Ge
   }).then(() => undefined)
 }
 
+export async function bookmarkEvent(eventId: UUID, getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/events/${eventId}/bookmark`, {
+    method: 'POST',
+    headers: await authHeaders(getToken),
+  }).then(() => undefined)
+}
+
+export async function unbookmarkEvent(eventId: UUID, getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/events/${eventId}/bookmark`, {
+    method: 'DELETE',
+    headers: await authHeaders(getToken),
+  }).then(() => undefined)
+}
+
 export async function createTopic(topic: string, description: string, getToken: GetToken): Promise<Topic> {
   return fetch(`${API_URL}/topics`, {
     method: 'POST',

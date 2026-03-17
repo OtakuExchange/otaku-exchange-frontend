@@ -19,6 +19,7 @@ export interface Event {
   closeTime: string
   status: string
   resolutionRule: string
+  bookmarked: boolean
 }
 
 export interface Market {

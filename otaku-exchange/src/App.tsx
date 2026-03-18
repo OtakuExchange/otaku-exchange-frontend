@@ -15,7 +15,8 @@ import ProfilePage from './components/ProfilePage'
 import AdminView from './views/AdminView'
 import EventView from './views/EventView'
 import TopicView from './views/TopicView'
-import type { UUID } from './models/models'
+import type { Topic, UUID } from './models/models'
+import { TopicsContext } from './contexts/TopicsContext'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 const darkTheme = createTheme({
@@ -39,26 +40,23 @@ function App() {
   const navigate = useNavigate()
   const { isSignedIn } = useUser()
   const { fetchTopics } = useApi()
-  const [navTabs, setNavTabs] = useState<NavTab[]>([])
+  const [topics, setTopics] = useState<Topic[]>([])
 
   useEffect(() => {
-    fetchTopics()
-      .then((data) =>
-        setNavTabs(
-          data.map((topic) => ({
-            id: topic.id,
-            label: topic.topic,
-            path: `/${topic.topic.toLowerCase().replace(/\s+/g, '-')}`,
-          }))
-        )
-      )
-      .catch(console.error)
+    fetchTopics().then(setTopics).catch(console.error)
   }, [isSignedIn])
+
+  const navTabs: NavTab[] = topics.map((topic) => ({
+    id: topic.id,
+    label: topic.topic,
+    path: `/${topic.topic.toLowerCase().replace(/\s+/g, '-')}`,
+  }))
 
   const activeTab =
     navTabs.find((tab) => location.pathname.startsWith(tab.path))?.path || false
 
   return (
+    <TopicsContext.Provider value={topics}>
     <ThemeProvider theme={darkTheme}>
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
         <CssBaseline />
@@ -114,6 +112,7 @@ function App() {
         </Routes>
       </Box>
     </ThemeProvider>
+    </TopicsContext.Provider>
   )
 }
 

@@ -6,10 +6,11 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import type { Event, Market, Topic } from '../../models/models'
 import { useApi } from '../../hooks/useApi'
+import { useTopics } from '../../contexts/TopicsContext'
 
 export default function DeleteView() {
-  const { fetchTopics, fetchEvents, fetchMarkets, deleteTopic, deleteEvent, deleteMarket } = useApi()
-  const [topics, setTopics] = useState<Topic[]>([])
+  const { fetchEvents, fetchMarkets, deleteTopic, deleteEvent, deleteMarket } = useApi()
+  const topics = useTopics()
   const [topicId, setTopicId] = useState('')
   const [events, setEvents] = useState<Event[]>([])
   const [eventId, setEventId] = useState('')
@@ -18,10 +19,6 @@ export default function DeleteView() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
-
-  useEffect(() => {
-    fetchTopics().then(setTopics).catch(console.error)
-  }, [])
 
   useEffect(() => {
     if (!topicId) { setEvents([]); setEventId(''); return }
@@ -58,7 +55,6 @@ export default function DeleteView() {
         setTopicId('')
         setEventId('')
         setMarketId('')
-        setTopics((prev) => prev.filter((t) => t.id !== topicId))
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Delete failed')

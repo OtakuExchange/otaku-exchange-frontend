@@ -6,12 +6,13 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 import type { Event, Topic } from '../../models/models'
 import { useApi } from '../../hooks/useApi'
+import { useTopics } from '../../contexts/TopicsContext'
 
 const STATUS_OPTIONS = ['open', 'closed', 'resolved']
 
 export default function CreateMarketView() {
-  const { fetchTopics, fetchEvents, createMarket } = useApi()
-  const [topics, setTopics] = useState<Topic[]>([])
+  const { fetchEvents, createMarket } = useApi()
+  const topics = useTopics()
   const [topicId, setTopicId] = useState('')
   const [events, setEvents] = useState<Event[]>([])
   const [eventId, setEventId] = useState('')
@@ -20,10 +21,6 @@ export default function CreateMarketView() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-
-  useEffect(() => {
-    fetchTopics().then(setTopics).catch(console.error)
-  }, [])
 
   useEffect(() => {
     if (!topicId) { setEvents([]); setEventId(''); return }

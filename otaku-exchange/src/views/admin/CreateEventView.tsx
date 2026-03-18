@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
@@ -10,13 +10,14 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs'
 import dayjs, { type Dayjs } from 'dayjs'
 import type { Topic } from '../../models/models'
 import { useApi } from '../../hooks/useApi'
+import { useTopics } from '../../contexts/TopicsContext'
 
 const FORMAT_OPTIONS = ['binary', 'multi']
 const STATUS_OPTIONS = ['open', 'closed', 'resolved']
 
 export default function CreateEventView() {
-  const { fetchTopics, createEvent } = useApi()
-  const [topics, setTopics] = useState<Topic[]>([])
+  const { createEvent } = useApi()
+  const topics = useTopics()
   const [topicId, setTopicId] = useState('')
   const [format, setFormat] = useState('binary')
   const [name, setName] = useState('')
@@ -27,10 +28,6 @@ export default function CreateEventView() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState(false)
-
-  useEffect(() => {
-    fetchTopics().then(setTopics).catch(console.error)
-  }, [])
 
   async function handleSubmit() {
     setLoading(true)

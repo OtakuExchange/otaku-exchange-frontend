@@ -22,9 +22,19 @@ export interface Event {
   bookmarked: boolean
 }
 
+export interface Entity {
+  id: UUID
+  name: string
+  abbreviatedName: string
+  logoPath: string
+  color: string
+  createdAt: string
+}
+
 export interface Market {
   id: UUID
   eventId: UUID
+  entity?: Entity
   label: string
   status: string
 }

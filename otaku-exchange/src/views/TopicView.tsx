@@ -43,7 +43,7 @@ export default function TopicView({ topicId, topicLabel }: { topicId: UUID; topi
       </Stack>
       <Grid container spacing={2}>
         {visibleEvents.map((event) => (
-          <Grid key={event.id} size={{ sm: 12, md: 6, lg: 4 }}>
+          <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
             <EventCard event={event} bookmarked={bookmarkedIds.has(event.id)} onBookmarkChange={handleBookmarkChange} />
           </Grid>
         ))}

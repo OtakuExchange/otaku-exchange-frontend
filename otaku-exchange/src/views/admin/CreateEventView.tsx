@@ -11,7 +11,7 @@ import dayjs, { type Dayjs } from 'dayjs'
 import type { Topic } from '../../models/models'
 import { useApi } from '../../hooks/useApi'
 
-const FORMAT_OPTIONS = ['binary']
+const FORMAT_OPTIONS = ['binary', 'multi']
 const STATUS_OPTIONS = ['open', 'closed', 'resolved']
 
 export default function CreateEventView() {

@@ -37,19 +37,26 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
         >
           {event.name}
         </Typography>
-        <Stack spacing={0} sx={{ mt: markets.length === 1 ? 'auto' : 1, maxHeight: 70, overflowY: 'auto' }}>
-          {markets.map((market, i) => (
-            <Stack key={i} direction="row" alignItems="center" spacing={1} sx={{ height: 27, minHeight: 27, mb: '8px' }}>
-              {markets.length > 1 && (
-                <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                  {market.label}
-                </Typography>
-              )}
-              <Button size="small" variant="contained" color="success" fullWidth={markets.length === 1} sx={{ height: 27, minHeight: 27, py: 0 }}>Yes</Button>
-              <Button size="small" variant="contained" color="error" fullWidth={markets.length === 1} sx={{ height: 27, minHeight: 27, py: 0 }}>No</Button>
-            </Stack>
-          ))}
-        </Stack>
+        {event.format === 'binary' ? (
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 'auto', height: 27, minHeight: 27 }}>
+            <Button size="small" variant="contained" color="success" fullWidth sx={{ height: 27, minHeight: 27, py: 0 }}>
+              {markets.length === 2 ? markets[0].label : 'Yes'}
+            </Button>
+            <Button size="small" variant="contained" color="error" fullWidth sx={{ height: 27, minHeight: 27, py: 0 }}>
+              {markets.length === 2 ? markets[1].label : 'No'}
+            </Button>
+          </Stack>
+        ) : (
+          <Stack spacing={0} sx={{ mt: 1, maxHeight: 70, overflowY: 'auto' }}>
+            {markets.map((market, i) => (
+              <Stack key={i} direction="row" alignItems="center" spacing={1} sx={{ height: 27, minHeight: 27, mb: '8px' }}>
+                <Typography variant="body2" sx={{ flexGrow: 1 }}>{market.label}</Typography>
+                <Button size="small" variant="contained" color="success" sx={{ height: 27, minHeight: 27, py: 0 }}>Yes</Button>
+                <Button size="small" variant="contained" color="error" sx={{ height: 27, minHeight: 27, py: 0 }}>No</Button>
+              </Stack>
+            ))}
+          </Stack>
+        )}
       </CardContent>
       <Box sx={{ display: 'flex', alignItems: 'center', px: 2, height: 28, borderTop: 1, borderColor: 'divider' }}>
         <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>$2M Vol.</Typography>

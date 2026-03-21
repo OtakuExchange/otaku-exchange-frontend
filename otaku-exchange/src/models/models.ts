@@ -27,7 +27,7 @@ export interface Entity {
   name: string
   abbreviatedName: string
   logoPath: string
-  color: string
+  color: string | null
   createdAt: string
 }
 

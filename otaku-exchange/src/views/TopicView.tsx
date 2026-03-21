@@ -59,10 +59,14 @@ export default function TopicView({ topicId, topicLabel, subtopics }: { topicId:
           <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1, height: '100%' }}>
             <CircularProgress size={64} sx={{ color: '#ffffff' }} />
           </Box>
+        ) : visibleEvents.length === 0 ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1, height: '100%', mb: 8, mr: 8 }}>
+            <Typography color="text.secondary" fontWeight="bold">No Events found for {topicLabel}</Typography>
+          </Box>
         ) : (
           <Grid container spacing={2}>
             {visibleEvents.map((event) => (
-              <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+              <Grid key={event.id} size={{ xs: 12, sm: 12, md: 6, lg: 4 }}>
                 <EventCard event={event} bookmarked={bookmarkedIds.has(event.id)} onBookmarkChange={handleBookmarkChange} />
               </Grid>
             ))}

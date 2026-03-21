@@ -23,6 +23,10 @@ export async function fetchEvents(topicId: UUID, getToken: GetToken): Promise<Ev
   return fetch(`${API_URL}/topics/${topicId}/events`, { headers: await authHeaders(getToken) }).then((r) => r.json())
 }
 
+export async function fetchEventsBySubtopic(subtopicId: UUID, getToken: GetToken): Promise<Event[]> {
+  return fetch(`${API_URL}/subtopics/${subtopicId}/events`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+}
+
 export async function fetchMarkets(eventId: UUID, getToken: GetToken): Promise<Market[]> {
   if (isDummy) return dummyMarkets[eventId] ?? []
   return fetch(`${API_URL}/events/${eventId}/markets`, { headers: await authHeaders(getToken) }).then((r) => r.json())

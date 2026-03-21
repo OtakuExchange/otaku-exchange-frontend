@@ -50,6 +50,7 @@ interface NavTab {
   id: UUID
   label: string
   path: string
+  subtopics: Topic['subtopics']
 }
 
 
@@ -73,6 +74,7 @@ function App() {
     id: topic.id,
     label: topic.topic,
     path: `/${topic.topic.toLowerCase().replace(/\s+/g, '-')}`,
+    subtopics: topic.subtopics,
   }))
 
   const activeTab =
@@ -123,7 +125,7 @@ function App() {
         <Box sx={{ height: 48 }} />
         <Routes>
           {navTabs.map((tab) => (
-            <Route key={tab.path} path={tab.path} element={<TopicView topicId={tab.id} topicLabel={tab.label} />} />
+            <Route key={tab.path} path={tab.path} element={<TopicView topicId={tab.id} topicLabel={tab.label} subtopics={tab.subtopics} />} />
           ))}
           {navTabs.length > 0 && (
             <Route path="/" element={<Navigate to={navTabs[0].path} replace />} />

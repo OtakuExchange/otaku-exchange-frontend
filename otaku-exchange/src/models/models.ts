@@ -4,10 +4,18 @@ export type OrderSide = 'YES' | 'NO'
 export type OrderStatus = 'OPEN' | 'PARTIAL' | 'FILLED' | 'CANCELLED'
 export type OrderType = 'LIMIT' | 'MARKET'
 
+export interface Subtopic {
+  id: UUID
+  topicId: UUID
+  name: string
+  createdAt: string
+}
+
 export interface Topic {
   id: UUID
   topic: string
   description: string
+  subtopics: Subtopic[]
 }
 
 export interface Event {

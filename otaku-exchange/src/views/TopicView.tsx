@@ -36,7 +36,7 @@ export default function TopicView({ topicId, topicLabel }: { topicId: UUID; topi
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <Stack direction="row" alignItems="center" sx={{ mb: 2 }}>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>{topicLabel}</Typography>
+        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>{topicLabel}</Typography>
         <IconButton size="small" onClick={() => setFilterBookmarked((f) => !f)}>
           {filterBookmarked ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
         </IconButton>

@@ -20,7 +20,30 @@ import { TopicsContext } from './contexts/TopicsContext'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 const darkTheme = createTheme({
-  palette: { mode: 'dark' },
+  palette: {
+    mode: 'dark',
+    background: { default: '#16191d', paper: '#16191d' },
+  },
+  typography: {
+    fontFamily: 'sans-serif',
+  },
+  components: {
+    MuiAppBar: {
+      styleOverrides: {
+        root: { backgroundColor: '#16191d', backgroundImage: 'none' },
+      },
+    },
+    MuiTab: {
+      styleOverrides: {
+        root: { fontSize: '14px', textTransform: 'none', fontWeight: 'bold' },
+      },
+    },
+    MuiTouchRipple: {
+      styleOverrides: {
+        root: { display: 'none' },
+      },
+    },
+  },
 })
 
 interface NavTab {
@@ -60,9 +83,9 @@ function App() {
     <ThemeProvider theme={darkTheme}>
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
         <CssBaseline />
-        <AppBar position="fixed">
+        <AppBar position="fixed" color="inherit" sx={{ bgcolor: '#16191d', borderBottom: 1, borderColor: '#252b31' }}>
           <Toolbar>
-            <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+            <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
               Otaku-Exchange
             </Typography>
             {isSignedIn ? (
@@ -89,7 +112,7 @@ function App() {
             scrollButtons="auto"
             allowScrollButtonsMobile
             textColor="inherit"
-            indicatorColor="secondary"
+            slotProps={{ indicator: { style: { display: 'none' } } }}
           >
             {navTabs.map((tab) => (
               <Tab key={tab.path} value={tab.path} label={tab.label} />

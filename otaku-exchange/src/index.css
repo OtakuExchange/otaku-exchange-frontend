@@ -11,3 +11,8 @@ body,
   min-height: 100%;
   width: 100%;
 }
+
+.MuiTab-root:hover {
+  color: #ffffff !important;
+  opacity: 1 !important;
+}

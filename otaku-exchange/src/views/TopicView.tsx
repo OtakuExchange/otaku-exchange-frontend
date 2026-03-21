@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Stack from '@mui/material/Stack'
@@ -12,7 +13,7 @@ import type { Event, Subtopic, UUID } from '../models/models'
 import { useApi } from '../hooks/useApi'
 
 export default function TopicView({ topicId, topicLabel, subtopics }: { topicId: UUID; topicLabel: string; subtopics: Subtopic[] }) {
-  const [events, setEvents] = useState<Event[]>([])
+  const [events, setEvents] = useState<Event[] | null>(null)
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<UUID>>(new Set())
   const [filterBookmarked, setFilterBookmarked] = useState(false)
   const [selectedSubtopic, setSelectedSubtopic] = useState<UUID | null>(null)
@@ -20,9 +21,11 @@ export default function TopicView({ topicId, topicLabel, subtopics }: { topicId:
 
   useEffect(() => {
     setSelectedSubtopic(null)
+    setEvents(null)
   }, [topicId])
 
   useEffect(() => {
+    setEvents(null)
     const request = selectedSubtopic ? fetchEventsBySubtopic(selectedSubtopic) : fetchEvents(topicId)
     request.then((data) => {
       setEvents(data)
@@ -38,27 +41,33 @@ export default function TopicView({ topicId, topicLabel, subtopics }: { topicId:
     })
   }
 
-  const visibleEvents = filterBookmarked ? events.filter((e) => bookmarkedIds.has(e.id)) : events
+  const visibleEvents = events === null ? null : filterBookmarked ? events.filter((e) => bookmarkedIds.has(e.id)) : events
 
   return (
-    <Stack direction="row" sx={{ minHeight: '100%' }}>
+    <Stack direction="row" sx={{ minHeight: '80vh' }}>
       {subtopics.length > 0 && (
         <SubtopicNav subtopics={subtopics} selected={selectedSubtopic} onSelect={setSelectedSubtopic} />
       )}
-      <Box sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+      <Box sx={{ flexGrow: 1, p: { xs: 2, sm: 3 }, display: 'flex', flexDirection: 'column' }}>
         <Stack direction="row" alignItems="center" sx={{ mb: 2 }}>
           <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 'bold' }}>{topicLabel}</Typography>
           <IconButton size="small" onClick={() => setFilterBookmarked((f) => !f)}>
             {filterBookmarked ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
           </IconButton>
         </Stack>
-        <Grid container spacing={2}>
-          {visibleEvents.map((event) => (
-            <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
-              <EventCard event={event} bookmarked={bookmarkedIds.has(event.id)} onBookmarkChange={handleBookmarkChange} />
-            </Grid>
-          ))}
-        </Grid>
+        {visibleEvents === null ? (
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexGrow: 1, height: '100%' }}>
+            <CircularProgress size={64} sx={{ color: '#ffffff' }} />
+          </Box>
+        ) : (
+          <Grid container spacing={2}>
+            {visibleEvents.map((event) => (
+              <Grid key={event.id} size={{ xs: 12, sm: 6, md: 4, lg: 3 }}>
+                <EventCard event={event} bookmarked={bookmarkedIds.has(event.id)} onBookmarkChange={handleBookmarkChange} />
+              </Grid>
+            ))}
+          </Grid>
+        )}
       </Box>
     </Stack>
   )

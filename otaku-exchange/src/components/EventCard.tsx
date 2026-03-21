@@ -7,6 +7,7 @@ import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import IconButton from '@mui/material/IconButton'
+import Skeleton from '@mui/material/Skeleton'
 import Stack from '@mui/material/Stack'
 import Typography from '@mui/material/Typography'
 import type { Event, Market } from '../models/models'
@@ -24,8 +25,8 @@ function entityTextColor(hex: string): string {
 export default function EventCard({ event, bookmarked = event.bookmarked, onBookmarkChange }: { event: Event; bookmarked?: boolean; onBookmarkChange?: (id: Event['id'], bookmarked: boolean) => void }) {
   const navigate = useNavigate()
   const { fetchMarkets, bookmarkEvent, unbookmarkEvent } = useApi()
-  const [markets, setMarkets] = useState<Market[]>([])
-  const isMatch = event.format === 'binary' && markets.length === 2
+  const [markets, setMarkets] = useState<Market[] | null>(null)
+  const isMatch = markets !== null && event.format === 'binary' && markets.length === 2
 
   useEffect(() => {
     fetchMarkets(event.id).then(setMarkets).catch(console.error)
@@ -39,7 +40,12 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
   return (
     <Card sx={{ borderRadius: 3, height: 180, display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-        {isMatch ? (
+        {markets === null ? (
+          <Stack spacing={1} sx={{ flexGrow: 1, justifyContent: 'center' }}>
+            <Skeleton variant="rectangular" height={36} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={36} sx={{ borderRadius: 1 }} />
+          </Stack>
+        ) : isMatch ? (
           <Stack sx={{ mb: 1 }} onClick={() => navigate(`/events/${event.id}`, { state: { event } })}>
             {markets.map((market, i) => (
               <Stack key={i} direction="row" alignItems="center" spacing={1} sx={{ height: 36, minHeight: 36, mb: i === 0 ? '4px' : 0, cursor: 'pointer' }}>
@@ -62,7 +68,7 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
             {event.name}
           </Typography>
         )}
-        {isMatch ? (
+        {markets !== null && isMatch ? (
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 'auto', height: 27, minHeight: 27 }}>
             {markets.map((market, i) => {
               const defaultColor = i === 0 ? '#40c3ff' : '#ff3333'
@@ -87,7 +93,7 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
           </Stack>
         ) : (
           <Stack spacing={0} sx={{ mt: 1, maxHeight: 70, overflowY: 'auto' }}>
-            {markets.map((market, i) => (
+            {(markets ?? []).map((market, i) => (
               <Stack key={i} direction="row" alignItems="center" spacing={1} sx={{ height: 27, minHeight: 27, mb: '8px' }}>
                 <Typography variant="body2" sx={{ flexGrow: 1 }}>{market.label}</Typography>
                 <Button size="small" variant="contained" color="success" sx={{ height: 27, minHeight: 27, py: 0 }}>Yes</Button>

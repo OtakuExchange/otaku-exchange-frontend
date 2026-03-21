@@ -27,6 +27,8 @@ export interface Event {
   closeTime: string
   status: string
   resolutionRule: string
+  logoPath: string | null
+  pandaScoreId: string | null
   bookmarked: boolean
 }
 

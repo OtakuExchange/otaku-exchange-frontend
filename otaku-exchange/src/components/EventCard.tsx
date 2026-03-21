@@ -59,17 +59,18 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
             ))}
           </Stack>
         ) : (
-          <Typography
-            variant="h6"
-            gutterBottom
-            onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
-            sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-          >
-            {event.name}
-          </Typography>
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mb: '10px', cursor: 'pointer' }} onClick={() => navigate(`/events/${event.id}`, { state: { event } })}>
+            {event.logoPath && <Box component="img" src={event.logoPath} sx={{ width: 38, height: 38, flexShrink: 0, borderRadius: 0.5 }} />}
+            <Typography
+              variant="body2"
+              sx={{ fontWeight: 'bold', fontSize: '14px', '&:hover': { textDecoration: 'underline' } }}
+            >
+              {event.name}
+            </Typography>
+          </Stack>
         )}
         {markets !== null && isMatch ? (
-          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 'auto', height: 27, minHeight: 27 }}>
+          <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 'auto', height: 40, minHeight: 40 }}>
             {markets.map((market, i) => {
               const defaultColor = i === 0 ? '#40c3ff' : '#ff3333'
               const entityColor = market.entity?.color ?? defaultColor
@@ -80,11 +81,12 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
                   variant="contained"
                   fullWidth
                   sx={{
-                    height: 27, minHeight: 27, py: 0,
+                    height: 40, minHeight: 40, py: 0, fontWeight: 'bold',
                     bgcolor: entityColor + '26',
                     color: entityTextColor(entityColor),
                     '&:hover': { bgcolor: entityColor + '40' },
                   }}
+                  onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
                 >
                   {market.entity?.abbreviatedName ?? market.label}
                 </Button>
@@ -92,20 +94,20 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
             })}
           </Stack>
         ) : (
-          <Stack spacing={0} sx={{ mt: 1, maxHeight: 70, overflowY: 'auto' }}>
+          <Stack spacing={0} sx={{ mt: 1, maxHeight: 70, overflowY: 'auto', '&::-webkit-scrollbar': { display: 'none' }, scrollbarWidth: 'none' }}>
             {(markets ?? []).map((market, i) => (
               <Stack key={i} direction="row" alignItems="center" spacing={1} sx={{ height: 27, minHeight: 27, mb: '8px' }}>
                 <Typography variant="body2" sx={{ flexGrow: 1 }}>{market.label}</Typography>
-                <Button size="small" variant="contained" color="success" sx={{ height: 27, minHeight: 27, py: 0 }}>Yes</Button>
-                <Button size="small" variant="contained" color="error" sx={{ height: 27, minHeight: 27, py: 0 }}>No</Button>
+                <Button size="small" variant="contained" sx={{ height: 27, minHeight: 27, py: 0, bgcolor: '#1a3d2b', color: '#4caf50', '&:hover': { bgcolor: '#1f4d33' } }} onClick={() => navigate(`/events/${event.id}`, { state: { event } })}>Yes</Button>
+                <Button size="small" variant="contained" sx={{ height: 27, minHeight: 27, py: 0, bgcolor: '#3d1a1a', color: '#f44336', '&:hover': { bgcolor: '#4d1f1f' } }} onClick={() => navigate(`/events/${event.id}`, { state: { event } })}>No</Button>
               </Stack>
             ))}
           </Stack>
         )}
       </CardContent>
-      <Box sx={{ display: 'flex', alignItems: 'center', px: 2, height: 28, borderTop: 1, borderColor: 'divider' }}>
-        <Typography variant="caption" color="text.secondary" sx={{ flexGrow: 1 }}>$2M Vol.</Typography>
-        <IconButton size="small" sx={{ p: 0 }} onClick={handleBookmark}>
+      <Box sx={{ display: 'flex', alignItems: 'center', px: 2, height: 28 }}>
+        <Typography variant="caption" sx={{ flexGrow: 1, color: '#7B8996' }}>$2M Vol.</Typography>
+        <IconButton size="small" sx={{ p: 0, color: '#7B8996' }} onClick={handleBookmark}>
           {bookmarked ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
         </IconButton>
       </Box>

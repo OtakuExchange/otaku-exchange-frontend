@@ -91,11 +91,13 @@ export default function TradeCard({ selectedMarket }: { selectedMarket: Market |
         )}
         {tradeTab === 'sell' && (
           <Stack spacing={1}>
-            {orderType === 'Limit' && (
+            {orderType === 'Limit' ? (
               <>
                 <TextField size="small" fullWidth placeholder="Limit Price" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} />
                 <TextField size="small" fullWidth placeholder="Shares" value={shares} onChange={(e) => setShares(e.target.value)} />
               </>
+            ) : (
+              <TextField size="small" fullWidth placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
             )}
             <Button variant="contained" fullWidth onClick={handleSell} disabled={orderType === 'Limit' && (!limitPrice || !shares)} sx={{ bgcolor: '#1565c0', '&:hover': { bgcolor: '#1976d2' }, fontWeight: 'bold' }}>Sell</Button>
           </Stack>

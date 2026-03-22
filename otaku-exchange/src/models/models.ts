@@ -1,7 +1,7 @@
 export type UUID = `${string}-${string}-${string}-${string}-${string}`
 
 export type OrderSide = 'YES' | 'NO'
-export type OrderStatus = 'OPEN' | 'PARTIAL' | 'FILLED' | 'CANCELLED'
+export type OrderStatus = 'OPEN' | 'PARTIAL' | 'PARTIALLY_FILLED' | 'FILLED' | 'CANCELLED'
 export type OrderType = 'LIMIT' | 'MARKET'
 
 export interface Subtopic {
@@ -85,12 +85,19 @@ export interface Order {
   id: UUID
   userId: UUID
   marketId: UUID
+  marketLabel: string
+  eventId: UUID
+  eventName: string
+  topicId: UUID
+  topicName: string
   side: OrderSide
   price: number
   quantity: number
   remaining: number
+  lockedAmount: number
+  notionalAmount: number | null
   status: OrderStatus
   orderType: OrderType
   createdAt: string
-  executedAt: string | null
+  updatedAt: string
 }

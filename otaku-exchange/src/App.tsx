@@ -13,10 +13,12 @@ import { SignInButton, SignUpButton, UserButton, useUser } from '@clerk/react'
 import { useApi } from './hooks/useApi'
 import ProfilePage from './components/ProfilePage'
 import AdminView from './views/AdminView'
+import PortfolioView from './views/PortfolioView'
 import EventView from './views/EventView'
 import TopicView from './views/TopicView'
 import type { Topic, UUID } from './models/models'
 import { TopicsContext } from './contexts/TopicsContext'
+import { UserContext } from './contexts/UserContext'
 import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
 
 const darkTheme = createTheme({
@@ -62,12 +64,26 @@ function EventViewRoute() {
 function App() {
   const location = useLocation()
   const navigate = useNavigate()
-  const { isSignedIn } = useUser()
-  const { fetchTopics } = useApi()
+  const { isSignedIn, user } = useUser()
+  const { fetchTopics, fetchCurrentUser, fetchMyOrders, fetchPortfolioTotal } = useApi()
   const [topics, setTopics] = useState<Topic[]>([])
+  const [cash, setCash] = useState<number | null>(null)
+  const [portfolio, setPortfolio] = useState<number | null>(null)
 
   useEffect(() => {
     fetchTopics().then(setTopics).catch(console.error)
+  }, [isSignedIn])
+
+  useEffect(() => {
+    if (!isSignedIn) { setCash(null); setPortfolio(null); return }
+    Promise.all([fetchCurrentUser(), fetchMyOrders('OPEN', 'LIMIT'), fetchPortfolioTotal()])
+      .then(([currentUser, orders, total]) => {
+        if (!currentUser) return
+        const locked = orders.reduce((sum, o) => sum + o.lockedAmount, 0)
+        setCash(currentUser.balance - locked)
+        setPortfolio(total)
+      })
+      .catch(console.error)
   }, [isSignedIn])
 
   const navTabs: NavTab[] = topics.map((topic) => ({
@@ -81,6 +97,7 @@ function App() {
     navTabs.find((tab) => location.pathname.startsWith(tab.path))?.path || false
 
   return (
+    <UserContext.Provider value={user?.id ?? null}>
     <TopicsContext.Provider value={topics}>
     <ThemeProvider theme={darkTheme}>
       <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
@@ -91,6 +108,14 @@ function App() {
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
               FillyBExchange
             </Typography>
+            <Box onClick={() => navigate('/portfolio')} sx={{ textAlign: 'center', mr: 2, cursor: 'pointer' }}>
+              <Typography sx={{ color: '#7B8996', fontSize: '12px', lineHeight: 1.2 }}>Portfolio</Typography>
+              <Typography sx={{ color: '#3DB468', fontSize: '16px', lineHeight: 1.2 }}>{portfolio ?? 0}¢</Typography>
+            </Box>
+            <Box sx={{ textAlign: 'center', mr: 2 }}>
+              <Typography sx={{ color: '#7B8996', fontSize: '12px', lineHeight: 1.2 }}>Cash</Typography>
+              <Typography sx={{ color: '#3DB468', fontSize: '16px', lineHeight: 1.2 }}>{cash ?? 0}¢</Typography>
+            </Box>
             {isSignedIn ? (
               <UserButton>
                 <UserButton.MenuItems>
@@ -132,6 +157,7 @@ function App() {
             <Route path="/" element={<Navigate to={navTabs[0].path} replace />} />
           )}
           <Route path="/events/:eventId" element={<EventViewRoute />} />
+          <Route path="/portfolio" element={<PortfolioView />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/admin/*" element={<AdminView />} />
           <Route path="*" element={navTabs.length > 0 ? <Navigate to={navTabs[0].path} replace /> : <Box />} />
@@ -139,6 +165,7 @@ function App() {
       </Box>
     </ThemeProvider>
     </TopicsContext.Provider>
+    </UserContext.Provider>
   )
 }
 

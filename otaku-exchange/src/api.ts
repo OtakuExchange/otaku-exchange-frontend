@@ -1,4 +1,4 @@
-import type { Comment, Event, Market, Topic, Trade, UUID } from './models/models'
+import type { Comment, Event, Market, Order, Topic, Trade, UUID } from './models/models'
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -151,6 +151,21 @@ export async function createOrder(marketId: UUID, side: 'YES' | 'NO', price: num
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
     body: JSON.stringify({ marketId, side, price, quantity, lockedAmount, orderType }),
+  }).then(() => undefined)
+}
+
+export async function fetchMyOrders(status: string, orderType: string, getToken: GetToken): Promise<Order[]> {
+  return fetch(`${API_URL}/orders/me?status=${status}&orderType=${orderType}`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+}
+
+export async function fetchPortfolioTotal(getToken: GetToken): Promise<number> {
+  return fetch(`${API_URL}/positions/me/total`, { headers: await authHeaders(getToken) }).then((r) => r.json()).then((d) => d.total)
+}
+
+export async function cancelOrder(orderId: UUID, getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/orders/${orderId}`, {
+    method: 'DELETE',
+    headers: await authHeaders(getToken),
   }).then(() => undefined)
 }
 

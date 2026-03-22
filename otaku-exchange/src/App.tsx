@@ -58,7 +58,7 @@ interface NavTab {
 
 function EventViewRoute() {
   const { state } = useLocation()
-  return <EventView event={state?.event} />
+  return <EventView event={state?.event} initialMarkets={state?.markets} />
 }
 
 function App() {

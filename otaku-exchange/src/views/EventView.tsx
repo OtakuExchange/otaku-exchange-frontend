@@ -37,20 +37,21 @@ function CommentItem({ comment, onLike }: { comment: Comment; onLike: (id: Comme
   )
 }
 
-export default function EventView({ event }: { event: Event }) {
+export default function EventView({ event, initialMarkets }: { event: Event; initialMarkets?: Market[] }) {
   const { fetchComments, fetchMarkets, fetchTrades, postComment, likeComment, unlikeComment } = useApi()
   const [comments, setComments] = useState<Comment[]>([])
-  const [markets, setMarkets] = useState<Market[]>([])
-  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)
+  const [markets, setMarkets] = useState<Market[]>(initialMarkets ?? [])
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(initialMarkets?.[0] ?? null)
   const [tradesByMarket, setTradesByMarket] = useState<Record<string, Trade[]>>({})
   const [draft, setDraft] = useState('')
   const [posting, setPosting] = useState(false)
 
   useEffect(() => {
     fetchComments(event.id).then(setComments).catch(console.error)
-    fetchMarkets(event.id).then((data) => {
-      setMarkets(data)
-      setSelectedMarket(data[0] ?? null)
+    const marketsPromise = initialMarkets
+      ? Promise.resolve(initialMarkets)
+      : fetchMarkets(event.id).then((data) => { setMarkets(data); setSelectedMarket(data[0] ?? null); return data })
+    marketsPromise.then((data) => {
       Promise.all(data.map((m) => fetchTrades(m.id).then((trades) => ({ id: m.id, trades }))))
         .then((results) => setTradesByMarket(Object.fromEntries(results.map((r) => [r.id, r.trades]))))
         .catch(console.error)

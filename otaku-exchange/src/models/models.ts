@@ -2,7 +2,7 @@ export type UUID = `${string}-${string}-${string}-${string}-${string}`
 
 export type OrderSide = 'YES' | 'NO'
 export type OrderStatus = 'OPEN' | 'PARTIAL' | 'PARTIALLY_FILLED' | 'FILLED' | 'CANCELLED'
-export type OrderType = 'LIMIT' | 'MARKET'
+export type OrderType = 'LIMIT' | 'MARKET' | 'NOTIONAL'
 
 export interface Subtopic {
   id: UUID

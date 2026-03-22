@@ -154,6 +154,14 @@ export async function createOrder(marketId: UUID, side: 'YES' | 'NO', price: num
   }).then(() => undefined)
 }
 
+export async function createNotionalOrder(marketId: UUID, side: 'YES' | 'NO', notionalAmount: number, getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/orders`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    body: JSON.stringify({ marketId, side, price: 99, quantity: 0, notionalAmount, lockedAmount: notionalAmount, orderType: 'NOTIONAL' }),
+  }).then(() => undefined)
+}
+
 export async function fetchMyOrders(status: string, orderType: string, getToken: GetToken): Promise<Order[]> {
   return fetch(`${API_URL}/orders/me?status=${status}&orderType=${orderType}`, { headers: await authHeaders(getToken) }).then((r) => r.json())
 }

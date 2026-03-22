@@ -15,7 +15,7 @@ import { useApi } from '../hooks/useApi'
 import { entityTextColor } from '../utils/entityTextColor'
 
 export default function TradeCard({ selectedMarket }: { selectedMarket: Market | null }) {
-  const { createOrder } = useApi()
+  const { createOrder, createNotionalOrder } = useApi()
   const [tradeTab, setTradeTab] = useState<'buy' | 'sell'>('buy')
   const [orderType, setOrderType] = useState<'Market' | 'Limit'>('Market')
   const [side, setSide] = useState<'YES' | 'NO'>('YES')
@@ -25,9 +25,13 @@ export default function TradeCard({ selectedMarket }: { selectedMarket: Market |
 
   function handleBuy() {
     if (!selectedMarket) return
-    const price = Number(limitPrice)
-    const quantity = Number(shares)
-    createOrder(selectedMarket.id, side, price, quantity, price * quantity, 'LIMIT').catch(console.error)
+    if (orderType === 'Market') {
+      createNotionalOrder(selectedMarket.id, side, Number(amount)).catch(console.error)
+    } else {
+      const price = Number(limitPrice)
+      const quantity = Number(shares)
+      createOrder(selectedMarket.id, side, price, quantity, price * quantity, 'LIMIT').catch(console.error)
+    }
   }
 
   function handleSell() {

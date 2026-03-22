@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/react'
-import { fetchTopics, fetchEvents, fetchEventsBySubtopic, fetchMarkets, fetchTrades, fetchComments, postComment, likeComment, unlikeComment, bookmarkEvent, unbookmarkEvent, createTopic, createEvent, createMarket, createOrder, deleteTopic, deleteEvent, deleteMarket, fetchCurrentUser, seedMarket, fetchMyOrders, cancelOrder, fetchPortfolioTotal } from '../api'
+import { fetchTopics, fetchEvents, fetchEventsBySubtopic, fetchMarkets, fetchTrades, fetchComments, postComment, likeComment, unlikeComment, bookmarkEvent, unbookmarkEvent, createTopic, createEvent, createMarket, createOrder, createNotionalOrder, deleteTopic, deleteEvent, deleteMarket, fetchCurrentUser, seedMarket, fetchMyOrders, cancelOrder, fetchPortfolioTotal } from '../api'
 import type { CreateEventPayload, SeedMarketPayload } from '../api'
 import type { UUID } from '../models/models'
 
@@ -26,6 +26,7 @@ export function useApi() {
     deleteEvent: (eventId: UUID) => deleteEvent(eventId, getToken),
     deleteMarket: (marketId: UUID) => deleteMarket(marketId, getToken),
     createOrder: (marketId: UUID, side: 'YES' | 'NO', price: number, quantity: number, lockedAmount: number, orderType: 'LIMIT' | 'MARKET') => createOrder(marketId, side, price, quantity, lockedAmount, orderType, getToken),
+    createNotionalOrder: (marketId: UUID, side: 'YES' | 'NO', notionalAmount: number) => createNotionalOrder(marketId, side, notionalAmount, getToken),
     seedMarket: (marketId: UUID, payload: SeedMarketPayload) => seedMarket(marketId, payload, getToken),
     fetchMyOrders: (status: string, orderType: string) => fetchMyOrders(status, orderType, getToken),
     cancelOrder: (orderId: UUID) => cancelOrder(orderId, getToken),

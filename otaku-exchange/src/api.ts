@@ -25,6 +25,36 @@ export async function fetchMarkets(eventId: UUID, getToken: GetToken): Promise<M
   return fetch(`${API_URL}/events/${eventId}/markets`, { headers: await authHeaders(getToken) }).then((r) => r.json())
 }
 
+export interface CurrentUser {
+  id: UUID
+  username: string
+  email: string
+  balance: number
+  isAdmin: boolean
+}
+
+export async function fetchCurrentUser(getToken: GetToken): Promise<CurrentUser | null> {
+  const headers = await authHeaders(getToken)
+  if (!('Authorization' in headers)) return null
+  return fetch(`${API_URL}/users/me`, { headers }).then((r) => r.ok ? r.json() : null)
+}
+
+export interface SeedMarketPayload {
+  midpoint?: number
+  levels?: number
+  quantities?: number[]
+  useLastPrice?: boolean
+}
+
+export async function seedMarket(marketId: UUID, payload: SeedMarketPayload, getToken: GetToken): Promise<string> {
+  const res = await fetch(`${API_URL}/admin/markets/${marketId}/seed`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    body: JSON.stringify(payload),
+  })
+  return res.text()
+}
+
 export interface CreateEventPayload {
   topicId: UUID
   format: string

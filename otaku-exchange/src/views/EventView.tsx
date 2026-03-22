@@ -9,8 +9,9 @@ import Typography from '@mui/material/Typography'
 import ReplyIcon from '@mui/icons-material/Reply'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import type { Comment, Event } from '../models/models'
+import type { Comment, Event, Market } from '../models/models'
 import { useApi } from '../hooks/useApi'
+import TradeCard from '../components/TradeCard'
 
 function CommentItem({ comment, onLike }: { comment: Comment; onLike: (id: Comment['id']) => void }) {
   return (
@@ -36,13 +37,16 @@ function CommentItem({ comment, onLike }: { comment: Comment; onLike: (id: Comme
 }
 
 export default function EventView({ event }: { event: Event }) {
-  const { fetchComments, postComment, likeComment, unlikeComment } = useApi()
+  const { fetchComments, fetchMarkets, postComment, likeComment, unlikeComment } = useApi()
   const [comments, setComments] = useState<Comment[]>([])
+  const [markets, setMarkets] = useState<Market[]>([])
+  const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)
   const [draft, setDraft] = useState('')
   const [posting, setPosting] = useState(false)
 
   useEffect(() => {
     fetchComments(event.id).then(setComments).catch(console.error)
+    fetchMarkets(event.id).then((data) => { setMarkets(data); setSelectedMarket(data[0] ?? null) }).catch(console.error)
   }, [event.id])
 
   async function handlePost() {
@@ -80,10 +84,29 @@ export default function EventView({ event }: { event: Event }) {
   }
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 } }}>
+    <Stack direction="row" alignItems="flex-start" sx={{ p: { xs: 2, sm: 3 }, gap: 3 }}>
+      <Box sx={{ flexGrow: 1 }}>
       <Typography component="h1" variant="h4" gutterBottom>
         {event.name}
       </Typography>
+      {markets.length > 0 && (
+        <Stack spacing={1} sx={{ my: 2 }}>
+          {markets.map((market) => (
+            <Stack
+              key={market.id}
+              direction="row"
+              alignItems="center"
+              spacing={1}
+              onClick={() => setSelectedMarket(market)}
+              sx={{ cursor: 'pointer', borderRadius: 1, px: 1, py: 0.5, bgcolor: selectedMarket?.id === market.id ? 'action.selected' : 'transparent', '&:hover': { bgcolor: 'action.hover' } }}
+            >
+              <Typography variant="body2" sx={{ flexGrow: 1 }}>{market.label}</Typography>
+              <Button size="small" variant="contained" sx={{ bgcolor: '#1a3d2b', color: '#4caf50', '&:hover': { bgcolor: '#1f4d33' }, fontWeight: 'bold' }}>Yes</Button>
+              <Button size="small" variant="contained" sx={{ bgcolor: '#3d1a1a', color: '#f44336', '&:hover': { bgcolor: '#4d1f1f' }, fontWeight: 'bold' }}>No</Button>
+            </Stack>
+          ))}
+        </Stack>
+      )}
       <Divider sx={{ my: 2 }} />
       <Typography variant="subtitle2" color="text.secondary" gutterBottom>
         Resolution Rule
@@ -118,6 +141,8 @@ export default function EventView({ event }: { event: Event }) {
           ))}
         </Stack>
       )}
-    </Box>
+      </Box>
+      <TradeCard selectedMarket={selectedMarket} />
+    </Stack>
   )
 }

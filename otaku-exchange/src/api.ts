@@ -119,6 +119,14 @@ export async function deleteMarket(marketId: UUID, getToken: GetToken): Promise<
   }).then(() => undefined)
 }
 
+export async function createOrder(marketId: UUID, side: 'YES' | 'NO', price: number, quantity: number, lockedAmount: number, orderType: 'LIMIT' | 'MARKET', getToken: GetToken): Promise<void> {
+  return fetch(`${API_URL}/orders`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    body: JSON.stringify({ marketId, side, price, quantity, lockedAmount, orderType }),
+  }).then(() => undefined)
+}
+
 export async function createTopic(topic: string, description: string, getToken: GetToken): Promise<Topic> {
   return fetch(`${API_URL}/topics`, {
     method: 'POST',

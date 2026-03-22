@@ -87,8 +87,9 @@ function App() {
         <CssBaseline />
         <AppBar position="fixed" color="inherit" sx={{ bgcolor: '#16191d', borderBottom: 1, borderColor: '#252b31' }}>
           <Toolbar>
+            <Box component="img" src="https://pub-2b85124d43d84ca0b9bfb397755879db.r2.dev/cropped%20pink%20rat.png" sx={{ width: 30, height: 30, mr: 1 }} />
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-              Otaku-Exchange
+              FillyBExchange
             </Typography>
             {isSignedIn ? (
               <UserButton>

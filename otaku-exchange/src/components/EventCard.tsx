@@ -26,7 +26,8 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
   const navigate = useNavigate()
   const { fetchMarkets, bookmarkEvent, unbookmarkEvent } = useApi()
   const [markets, setMarkets] = useState<Market[] | null>(null)
-  const isMatch = markets !== null && event.format === 'binary' && markets.length === 2
+  const matchMarket = markets?.find((m) => m.isMatch) ?? null
+  const isMatch = markets !== null && event.format === 'binary' && matchMarket !== null
 
   useEffect(() => {
     fetchMarkets(event.id).then(setMarkets).catch(console.error)
@@ -47,13 +48,13 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
           </Stack>
         ) : isMatch ? (
           <Stack sx={{ mb: 1 }} onClick={() => navigate(`/events/${event.id}`, { state: { event } })}>
-            {markets.map((market, i) => (
+            {[matchMarket!.entity, matchMarket!.relatedEntity].map((entity, i) => (
               <Stack key={i} direction="row" alignItems="center" spacing={1} sx={{ height: 36, minHeight: 36, mb: i === 0 ? '4px' : 0, cursor: 'pointer' }}>
-                {market.entity
-                  ? <Box component="img" src={market.entity.logoPath} sx={{ width: 24, height: 24, flexShrink: 0, borderRadius: 0.5 }} />
+                {entity
+                  ? <Box component="img" src={entity.logoPath} sx={{ width: 24, height: 24, flexShrink: 0, borderRadius: 0.5 }} />
                   : <Box sx={{ width: 24, height: 24, flexShrink: 0 }} />
                 }
-                <Typography variant="body2" sx={{ flexGrow: 1 }}>{market.entity ? market.entity.name : market.label}</Typography>
+                <Typography variant="body2" sx={{ flexGrow: 1 }}>{entity ? entity.name : matchMarket!.label}</Typography>
                 <Typography variant="body2" color="text.secondary">50%</Typography>
               </Stack>
             ))}
@@ -71,9 +72,9 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
         )}
         {markets !== null && isMatch ? (
           <Stack direction="row" alignItems="center" spacing={1} sx={{ mt: 'auto', height: 40, minHeight: 40 }}>
-            {markets.map((market, i) => {
+            {[matchMarket!.entity, matchMarket!.relatedEntity].map((entity, i) => {
               const defaultColor = i === 0 ? '#40c3ff' : '#ff3333'
-              const entityColor = market.entity?.color ?? defaultColor
+              const entityColor = entity?.color ?? defaultColor
               return (
                 <Button
                   key={i}
@@ -88,7 +89,7 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
                   }}
                   onClick={() => navigate(`/events/${event.id}`, { state: { event } })}
                 >
-                  {market.entity?.abbreviatedName ?? market.label}
+                  {entity?.abbreviatedName ?? matchMarket!.label}
                 </Button>
               )
             })}

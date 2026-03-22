@@ -45,7 +45,9 @@ export interface Market {
   id: UUID
   eventId: UUID
   entity?: Entity
+  relatedEntity?: Entity
   label: string
+  isMatch: boolean
   status: string
 }
 

@@ -30,6 +30,7 @@ export interface Event {
   logoPath: string | null
   pandaScoreId: string | null
   bookmarked: boolean
+  createdAt: string
 }
 
 export interface Entity {
@@ -49,6 +50,7 @@ export interface Market {
   label: string
   isMatch: boolean
   status: string
+  createdAt: string
 }
 
 export interface CommentUser {
@@ -65,6 +67,18 @@ export interface Comment {
   createdAt: string
   likes: number
   likedByUser: boolean
+}
+
+export interface Trade {
+  id: UUID
+  marketId: UUID
+  yesOrderId: UUID
+  noOrderId: UUID
+  yesPrice: number
+  noPrice: number
+  quantity: number
+  escrowPerContract: number
+  executedAt: string
 }
 
 export interface Order {

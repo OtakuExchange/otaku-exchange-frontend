@@ -12,6 +12,7 @@ import Tabs from '@mui/material/Tabs'
 import Typography from '@mui/material/Typography'
 import type { Market } from '../models/models'
 import { useApi } from '../hooks/useApi'
+import { entityTextColor } from '../utils/entityTextColor'
 
 export default function TradeCard({ selectedMarket }: { selectedMarket: Market | null }) {
   const { createOrder } = useApi()
@@ -40,14 +41,19 @@ export default function TradeCard({ selectedMarket }: { selectedMarket: Market |
   return (
     <Card sx={{ width: '25%', flexShrink: 0, borderRadius: 3 }}>
       <CardContent>
-        {selectedMarket && (
-          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
-            {selectedMarket.entity?.logoPath && (
-              <Box component="img" src={selectedMarket.entity.logoPath} sx={{ width: 48, height: 48, borderRadius: 0.5, flexShrink: 0 }} />
-            )}
-            <Typography variant="body2" fontWeight="bold">{selectedMarket.label}</Typography>
-          </Stack>
-        )}
+        {selectedMarket && (() => {
+          const displayEntity = selectedMarket.isMatch
+            ? (side === 'YES' ? selectedMarket.entity : selectedMarket.relatedEntity)
+            : selectedMarket.entity
+          return (
+            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
+              {displayEntity?.logoPath && (
+                <Box component="img" src={displayEntity.logoPath} sx={{ width: 48, height: 48, borderRadius: 0.5, flexShrink: 0 }} />
+              )}
+              <Typography variant="body2" fontWeight="bold">{selectedMarket.isMatch ? displayEntity?.name : selectedMarket.label}</Typography>
+            </Stack>
+          )
+        })()}
         <Stack direction="row" alignItems="center" sx={{ mb: 2 }}>
           <Tabs value={tradeTab} onChange={(_, v) => setTradeTab(v)} slotProps={{ indicator: { style: { display: 'none' } } }}>
             <Tab label="Buy" value="buy" sx={{ fontWeight: 'bold', textTransform: 'none', fontSize: '14px' }} />
@@ -58,10 +64,18 @@ export default function TradeCard({ selectedMarket }: { selectedMarket: Market |
             <MenuItem value="Limit">Limit</MenuItem>
           </Select>
         </Stack>
-        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-          <Button variant="contained" fullWidth onClick={() => setSide('YES')} sx={{ bgcolor: side === 'YES' ? '#1a3d2b' : '#0d1f15', color: '#4caf50', '&:hover': { bgcolor: '#1f4d33' }, fontWeight: 'bold', opacity: side === 'YES' ? 1 : 0.5 }}>Yes</Button>
-          <Button variant="contained" fullWidth onClick={() => setSide('NO')} sx={{ bgcolor: side === 'NO' ? '#3d1a1a' : '#1f0d0d', color: '#f44336', '&:hover': { bgcolor: '#4d1f1f' }, fontWeight: 'bold', opacity: side === 'NO' ? 1 : 0.5 }}>No</Button>
-        </Stack>
+        {(() => {
+          const yesColor = selectedMarket?.isMatch ? (selectedMarket.entity?.color ?? '#40c3ff') : '#4caf50'
+          const noColor = selectedMarket?.isMatch ? (selectedMarket.relatedEntity?.color ?? '#ff3333') : '#f44336'
+          const yesLabel = selectedMarket?.isMatch ? (selectedMarket.entity?.abbreviatedName ?? 'Yes') : 'Yes'
+          const noLabel = selectedMarket?.isMatch ? (selectedMarket.relatedEntity?.abbreviatedName ?? 'No') : 'No'
+          return (
+            <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+              <Button variant="contained" fullWidth onClick={() => setSide('YES')} sx={{ bgcolor: yesColor + '26', color: entityTextColor(yesColor), '&:hover': { bgcolor: yesColor + '40' }, fontWeight: 'bold', opacity: side === 'YES' ? 1 : 0.5 }}>{yesLabel}</Button>
+              <Button variant="contained" fullWidth onClick={() => setSide('NO')} sx={{ bgcolor: noColor + '26', color: entityTextColor(noColor), '&:hover': { bgcolor: noColor + '40' }, fontWeight: 'bold', opacity: side === 'NO' ? 1 : 0.5 }}>{noLabel}</Button>
+            </Stack>
+          )
+        })()}
         {tradeTab === 'buy' && (
           <Stack spacing={1}>
             {orderType === 'Limit' ? (

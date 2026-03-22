@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import Box from '@mui/material/Box'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
@@ -16,7 +14,6 @@ import { entityTextColor } from '../utils/entityTextColor'
 
 export default function TradeCard({ selectedMarket }: { selectedMarket: Market | null }) {
   const { createOrder, createNotionalOrder } = useApi()
-  const [tradeTab, setTradeTab] = useState<'buy' | 'sell'>('buy')
   const [orderType, setOrderType] = useState<'Market' | 'Limit'>('Market')
   const [side, setSide] = useState<'YES' | 'NO'>('YES')
   const [amount, setAmount] = useState('')
@@ -32,14 +29,6 @@ export default function TradeCard({ selectedMarket }: { selectedMarket: Market |
       const quantity = Number(shares)
       createOrder(selectedMarket.id, side, price, quantity, price * quantity, 'LIMIT').catch(console.error)
     }
-  }
-
-  function handleSell() {
-    if (!selectedMarket) return
-    const price = 100 - Number(limitPrice)
-    const quantity = Number(shares)
-    const flippedSide = side === 'YES' ? 'NO' : 'YES'
-    createOrder(selectedMarket.id, flippedSide, price, quantity, price * quantity, 'LIMIT').catch(console.error)
   }
 
   return (
@@ -58,16 +47,10 @@ export default function TradeCard({ selectedMarket }: { selectedMarket: Market |
             </Stack>
           )
         })()}
-        <Stack direction="row" alignItems="center" sx={{ mb: 2 }}>
-          <Tabs value={tradeTab} onChange={(_, v) => setTradeTab(v)} slotProps={{ indicator: { style: { display: 'none' } } }}>
-            <Tab label="Buy" value="buy" sx={{ fontWeight: 'bold', textTransform: 'none', fontSize: '14px' }} />
-            <Tab label="Sell" value="sell" sx={{ fontWeight: 'bold', textTransform: 'none', fontSize: '14px' }} />
-          </Tabs>
-          <Select value={orderType} onChange={(e) => setOrderType(e.target.value as 'Market' | 'Limit')} size="small" sx={{ ml: 'auto' }}>
-            <MenuItem value="Market">Market</MenuItem>
-            <MenuItem value="Limit">Limit</MenuItem>
-          </Select>
-        </Stack>
+        <Tabs value={orderType} onChange={(_, v) => setOrderType(v)} sx={{ mb: 2 }} slotProps={{ indicator: { style: { display: 'none' } } }}>
+          <Tab label="Market" value="Market" sx={{ fontWeight: 'bold', textTransform: 'none', fontSize: '14px' }} />
+          <Tab label="Limit" value="Limit" sx={{ fontWeight: 'bold', textTransform: 'none', fontSize: '14px' }} />
+        </Tabs>
         {(() => {
           const yesColor = selectedMarket?.isMatch ? (selectedMarket.entity?.color ?? '#40c3ff') : '#4caf50'
           const noColor = selectedMarket?.isMatch ? (selectedMarket.relatedEntity?.color ?? '#ff3333') : '#f44336'
@@ -80,32 +63,17 @@ export default function TradeCard({ selectedMarket }: { selectedMarket: Market |
             </Stack>
           )
         })()}
-        {tradeTab === 'buy' && (
-          <Stack spacing={1}>
-            {orderType === 'Limit' ? (
-              <>
-                <TextField size="small" fullWidth placeholder="Limit Price" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} />
-                <TextField size="small" fullWidth placeholder="Shares" value={shares} onChange={(e) => setShares(e.target.value)} />
-              </>
-            ) : (
-              <TextField size="small" fullWidth placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
-            )}
-            <Button variant="contained" fullWidth onClick={handleBuy} disabled={orderType === 'Limit' && (!limitPrice || !shares)} sx={{ bgcolor: '#1565c0', '&:hover': { bgcolor: '#1976d2' }, fontWeight: 'bold' }}>Buy</Button>
-          </Stack>
-        )}
-        {tradeTab === 'sell' && (
-          <Stack spacing={1}>
-            {orderType === 'Limit' ? (
-              <>
-                <TextField size="small" fullWidth placeholder="Limit Price" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} />
-                <TextField size="small" fullWidth placeholder="Shares" value={shares} onChange={(e) => setShares(e.target.value)} />
-              </>
-            ) : (
-              <TextField size="small" fullWidth placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
-            )}
-            <Button variant="contained" fullWidth onClick={handleSell} disabled={orderType === 'Limit' && (!limitPrice || !shares)} sx={{ bgcolor: '#1565c0', '&:hover': { bgcolor: '#1976d2' }, fontWeight: 'bold' }}>Sell</Button>
-          </Stack>
-        )}
+        <Stack spacing={1}>
+          {orderType === 'Limit' ? (
+            <>
+              <TextField size="small" fullWidth placeholder="Limit Price" value={limitPrice} onChange={(e) => setLimitPrice(e.target.value)} />
+              <TextField size="small" fullWidth placeholder="Shares" value={shares} onChange={(e) => setShares(e.target.value)} />
+            </>
+          ) : (
+            <TextField size="small" fullWidth placeholder="Amount" value={amount} onChange={(e) => setAmount(e.target.value)} />
+          )}
+          <Button variant="contained" fullWidth onClick={handleBuy} disabled={orderType === 'Limit' ? (!limitPrice || !shares) : !amount} sx={{ bgcolor: '#1565c0', '&:hover': { bgcolor: '#1976d2' }, fontWeight: 'bold' }}>Buy</Button>
+        </Stack>
       </CardContent>
     </Card>
   )

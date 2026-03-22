@@ -1,4 +1,4 @@
-import type { Comment, Event, Market, Topic, UUID } from './models/models'
+import type { Comment, Event, Market, Topic, Trade, UUID } from './models/models'
 
 const API_URL = import.meta.env.VITE_API_URL
 
@@ -19,6 +19,10 @@ export async function fetchEvents(topicId: UUID, getToken: GetToken): Promise<Ev
 
 export async function fetchEventsBySubtopic(subtopicId: UUID, getToken: GetToken): Promise<Event[]> {
   return fetch(`${API_URL}/subtopics/${subtopicId}/events`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+}
+
+export async function fetchTrades(marketId: UUID, getToken: GetToken): Promise<Trade[]> {
+  return fetch(`${API_URL}/markets/${marketId}/trades`, { headers: await authHeaders(getToken) }).then((r) => r.json())
 }
 
 export async function fetchMarkets(eventId: UUID, getToken: GetToken): Promise<Market[]> {

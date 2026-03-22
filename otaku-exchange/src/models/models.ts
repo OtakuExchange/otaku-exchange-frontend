@@ -69,6 +69,18 @@ export interface Comment {
   likedByUser: boolean
 }
 
+export interface Trade {
+  id: UUID
+  marketId: UUID
+  yesOrderId: UUID
+  noOrderId: UUID
+  yesPrice: number
+  noPrice: number
+  quantity: number
+  escrowPerContract: number
+  executedAt: string
+}
+
 export interface Order {
   id: UUID
   userId: UUID

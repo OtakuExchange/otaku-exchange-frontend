@@ -9,8 +9,9 @@ import Typography from '@mui/material/Typography'
 import ReplyIcon from '@mui/icons-material/Reply'
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
-import type { Comment, Event, Market } from '../models/models'
+import type { Comment, Event, Market, Trade } from '../models/models'
 import { useApi } from '../hooks/useApi'
+import { LineChart } from '@mui/x-charts/LineChart'
 import TradeCard from '../components/TradeCard'
 
 function CommentItem({ comment, onLike }: { comment: Comment; onLike: (id: Comment['id']) => void }) {
@@ -37,17 +38,48 @@ function CommentItem({ comment, onLike }: { comment: Comment; onLike: (id: Comme
 }
 
 export default function EventView({ event }: { event: Event }) {
-  const { fetchComments, fetchMarkets, postComment, likeComment, unlikeComment } = useApi()
+  const { fetchComments, fetchMarkets, fetchTrades, postComment, likeComment, unlikeComment } = useApi()
   const [comments, setComments] = useState<Comment[]>([])
   const [markets, setMarkets] = useState<Market[]>([])
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(null)
+  const [tradesByMarket, setTradesByMarket] = useState<Record<string, Trade[]>>({})
   const [draft, setDraft] = useState('')
   const [posting, setPosting] = useState(false)
 
   useEffect(() => {
     fetchComments(event.id).then(setComments).catch(console.error)
-    fetchMarkets(event.id).then((data) => { setMarkets(data); setSelectedMarket(data[0] ?? null) }).catch(console.error)
+    fetchMarkets(event.id).then((data) => {
+      setMarkets(data)
+      setSelectedMarket(data[0] ?? null)
+      Promise.all(data.map((m) => fetchTrades(m.id).then((trades) => ({ id: m.id, trades }))))
+        .then((results) => setTradesByMarket(Object.fromEntries(results.map((r) => [r.id, r.trades]))))
+        .catch(console.error)
+    }).catch(console.error)
   }, [event.id])
+
+  const chartData = (() => {
+    const start = new Date(event.createdAt)
+    const end = new Date()
+    const allTimes = [start, end]
+    markets.forEach((m) => (tradesByMarket[m.id] ?? []).forEach((t) => allTimes.push(new Date(t.executedAt))))
+    const xData = [...new Map(allTimes.map((d) => [d.getTime(), d])).values()].sort((a, b) => a.getTime() - b.getTime())
+
+    const series = markets.flatMap((m) => {
+      const trades = tradesByMarket[m.id] ?? []
+      const tradeMap = new Map(trades.map((t) => [new Date(t.executedAt).getTime(), t]))
+      const yesData = xData.map((d) => tradeMap.get(d.getTime())?.yesPrice ?? null)
+      if (m.isMatch) {
+        const noData = xData.map((d) => tradeMap.get(d.getTime())?.noPrice ?? null)
+        return [
+          { label: m.entity?.abbreviatedName ?? 'Yes', data: yesData, connectNulls: true, color: m.entity?.color ?? '#40c3ff', showMark: false },
+          { label: m.relatedEntity?.abbreviatedName ?? 'No', data: noData, connectNulls: true, color: m.relatedEntity?.color ?? '#ff3333', showMark: false },
+        ]
+      }
+      return [{ label: m.label, data: yesData, connectNulls: true, color: m.entity?.color ?? undefined, showMark: false }]
+    })
+
+    return { xData, series }
+  })()
 
   async function handlePost() {
     if (!draft.trim()) return
@@ -89,7 +121,25 @@ export default function EventView({ event }: { event: Event }) {
       <Typography component="h1" variant="h4" gutterBottom>
         {event.name}
       </Typography>
-      {markets.length > 0 && (
+      {chartData.series.length > 0 && (
+        <LineChart
+          xAxis={[{ data: chartData.xData, scaleType: 'time', disableLine: true, disableTicks: true }]}
+          yAxis={[{ min: 0, max: 100, tickInterval: [0, 25, 50, 75, 100], disableLine: true, disableTicks: true, position: 'right', valueFormatter: (v: number) => `${v}%` }]}
+          series={chartData.series}
+          grid={{ horizontal: true }}
+          height={250}
+          margin={{ left: 20, right: 40, top: 20, bottom: 40 }}
+          sx={{
+            '& .MuiChartsGrid-line': {
+              strokeDasharray: '4 4',
+              stroke: 'rgba(255,255,255,0.15)',
+            },
+            '& .MuiChartsAxis-tickLabel': { fill: '#7B8996' },
+            '& .MuiChartsLegend-label': { fill: '#7B8996' },
+          }}
+        />
+      )}
+      {markets.length > 0 && !markets.some((m) => m.isMatch) && (
         <Stack spacing={1} sx={{ my: 2 }}>
           {markets.map((market) => (
             <Stack

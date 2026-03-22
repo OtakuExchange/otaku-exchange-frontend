@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "changeEnv": "node scripts/changeEnv.mjs"
+    "preview": "vite preview"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.61.3",

@@ -31,6 +31,7 @@ export interface Event {
   pandaScoreId: string | null
   bookmarked: boolean
   createdAt: string
+  tradeVolume: number
 }
 
 export interface Entity {
@@ -50,6 +51,7 @@ export interface Market {
   label: string
   isMatch: boolean
   status: string
+  tradeVolume: number
   createdAt: string
 }
 

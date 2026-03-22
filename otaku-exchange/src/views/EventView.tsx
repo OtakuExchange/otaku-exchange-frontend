@@ -142,7 +142,7 @@ export default function EventView({ event, initialMarkets }: { event: Event; ini
       )}
       {markets.length > 0 && !markets.some((m) => m.isMatch) && (
         <Stack spacing={1} sx={{ my: 2 }}>
-          {markets.map((market) => (
+          {[...markets].sort((a, b) => b.tradeVolume - a.tradeVolume).map((market) => (
             <Stack
               key={market.id}
               direction="row"

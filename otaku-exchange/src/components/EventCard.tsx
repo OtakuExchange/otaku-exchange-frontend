@@ -26,12 +26,13 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
   }, [event.id])
 
   function handleBookmark() {
+    onBookmarkChange?.(event.id, !bookmarked)
     const action = bookmarked ? unbookmarkEvent(event.id) : bookmarkEvent(event.id)
-    action.then(() => onBookmarkChange?.(event.id, !bookmarked)).catch(console.error)
+    action.catch(console.error)
   }
 
   return (
-    <Card sx={{ borderRadius: 3, height: 180, display: 'flex', flexDirection: 'column' }}>
+    <Card sx={{ borderRadius: 3, height: 188, display: 'flex', flexDirection: 'column' }}>
       <CardContent sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
         {markets === null ? (
           <Stack spacing={1} sx={{ flexGrow: 1, justifyContent: 'center' }}>
@@ -88,7 +89,7 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
           </Stack>
         ) : (
           <Stack spacing={0} sx={{ mt: 1, maxHeight: 70, overflowY: 'auto', '&::-webkit-scrollbar': { display: 'none' }, scrollbarWidth: 'none' }}>
-            {(markets ?? []).map((market, i) => (
+            {[...(markets ?? [])].sort((a, b) => b.tradeVolume - a.tradeVolume).map((market, i) => (
               <Stack key={i} direction="row" alignItems="center" spacing={1} sx={{ height: 27, minHeight: 27, mb: '8px' }}>
                 <Typography variant="body2" sx={{ flexGrow: 1 }}>{market.label}</Typography>
                 <Button size="small" variant="contained" sx={{ height: 27, minHeight: 27, py: 0, bgcolor: '#1a3d2b', color: '#4caf50', '&:hover': { bgcolor: '#1f4d33' } }} onClick={() => navigate(`/events/${event.id}`, { state: { event, markets } })}>Yes</Button>
@@ -98,8 +99,8 @@ export default function EventCard({ event, bookmarked = event.bookmarked, onBook
           </Stack>
         )}
       </CardContent>
-      <Box sx={{ display: 'flex', alignItems: 'center', px: 2, height: 28 }}>
-        <Typography variant="caption" sx={{ flexGrow: 1, color: '#7B8996' }}>$2M Vol.</Typography>
+      <Box sx={{ display: 'flex', alignItems: 'center', px: 2, height: 28, mb: '8px' }}>
+        <Typography variant="caption" sx={{ flexGrow: 1, color: '#7B8996' }}>${event.tradeVolume.toLocaleString()} Vol.</Typography>
         <IconButton size="small" sx={{ p: 0, color: '#7B8996' }} onClick={handleBookmark}>
           {bookmarked ? <BookmarkIcon fontSize="small" /> : <BookmarkBorderIcon fontSize="small" />}
         </IconButton>

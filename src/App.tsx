@@ -67,7 +67,7 @@ function App() {
   const { isSignedIn, user } = useUser()
   const { fetchTopics, fetchCurrentUser, fetchMyOrders, fetchPortfolioTotal } = useApi()
   const [topics, setTopics] = useState<Topic[]>([])
-  const [cash, setCash] = useState<number | null>(null)
+  const [dollars, setDollars] = useState<number | null>(null)
   const [portfolio, setPortfolio] = useState<number | null>(null)
 
   useEffect(() => {
@@ -75,12 +75,12 @@ function App() {
   }, [isSignedIn])
 
   useEffect(() => {
-    if (!isSignedIn) { setCash(null); setPortfolio(null); return }
+    if (!isSignedIn) { setDollars(null); setPortfolio(null); return }
     Promise.all([fetchCurrentUser(), fetchMyOrders('OPEN', 'LIMIT'), fetchPortfolioTotal()])
       .then(([currentUser, orders, total]) => {
         if (!currentUser) return
         const locked = orders.reduce((sum, o) => sum + o.lockedAmount, 0)
-        setCash(currentUser.balance - locked)
+        setDollars(currentUser.balance - locked)
         setPortfolio(total)
       })
       .catch(console.error)
@@ -104,7 +104,7 @@ function App() {
         <CssBaseline />
         <AppBar position="fixed" color="inherit" sx={{ bgcolor: '#16191d', borderBottom: 1, borderColor: '#252b31' }}>
           <Toolbar>
-            <Box component="img" src="https://pub-2b85124d43d84ca0b9bfb397755879db.r2.dev/cropped%20pink%20rat.png" sx={{ width: 30, height: 30, mr: 1 }} />
+            <Box onClick={() => navigate('/')} component="img" src="https://pub-2b85124d43d84ca0b9bfb397755879db.r2.dev/cropped%20pink%20rat.png" sx={{ width: 30, height: 30, mr: 1, cursor: 'pointer' }} />
             <Typography variant="h6" component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
               FillyBExchange
             </Typography>
@@ -113,8 +113,8 @@ function App() {
               <Typography sx={{ color: '#3DB468', fontSize: '16px', lineHeight: 1.2 }}>{portfolio ?? 0}¢</Typography>
             </Box>
             <Box sx={{ textAlign: 'center', mr: 2 }}>
-              <Typography sx={{ color: '#7B8996', fontSize: '12px', lineHeight: 1.2 }}>Cash</Typography>
-              <Typography sx={{ color: '#3DB468', fontSize: '16px', lineHeight: 1.2 }}>{cash ?? 0}¢</Typography>
+              <Typography sx={{ color: '#7B8996', fontSize: '12px', lineHeight: 1.2 }}>Dollars</Typography>
+              <Typography sx={{ color: '#3DB468', fontSize: '16px', lineHeight: 1.2 }}>{dollars ?? 0}¢</Typography>
             </Box>
             {isSignedIn ? (
               <UserButton>

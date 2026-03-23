@@ -13,6 +13,8 @@ import type { Comment, Event, Market, Trade } from '../models/models'
 import { useApi } from '../hooks/useApi'
 import { LineChart } from '@mui/x-charts/LineChart'
 import TradeCard from '../components/TradeCard'
+import Tabs from '@mui/material/Tabs'
+import Tab from '@mui/material/Tab'
 
 function CommentItem({ comment, onLike }: { comment: Comment; onLike: (id: Comment['id']) => void }) {
   return (
@@ -37,6 +39,28 @@ function CommentItem({ comment, onLike }: { comment: Comment; onLike: (id: Comme
   )
 }
 
+interface TabPanelProps {
+  children?: React.ReactNode;
+  index: number;
+  value: number;
+}
+
+function InfoTab(props: TabPanelProps) {
+  const { children, value, index, ...other } = props;
+
+  return (
+    <div
+      role="tabpanel"
+      hidden={value !== index}
+      id={`simple-tabpanel-${index}`}
+      aria-labelledby={`simple-tab-${index}`}
+      {...other}
+    >
+      {value === index && <Box sx={{ p: 3 }}>{children}</Box>}
+    </div>
+  );
+}
+
 export default function EventView({ event, initialMarkets }: { event: Event; initialMarkets?: Market[] }) {
   const { fetchComments, fetchMarkets, fetchTrades, postComment, likeComment, unlikeComment } = useApi()
   const [comments, setComments] = useState<Comment[]>([])
@@ -45,6 +69,7 @@ export default function EventView({ event, initialMarkets }: { event: Event; ini
   const [tradesByMarket, setTradesByMarket] = useState<Record<string, Trade[]>>({})
   const [draft, setDraft] = useState('')
   const [posting, setPosting] = useState(false)
+  const [infoTabIdx, setInfoTabIdx] = useState<number>(0)
 
   useEffect(() => {
     fetchComments(event.id).then(setComments).catch(console.error)
@@ -116,6 +141,10 @@ export default function EventView({ event, initialMarkets }: { event: Event; ini
       .catch(console.error)
   }
 
+  function handleChangeTab(event: React.SyntheticEvent, newValue: number) {
+    setInfoTabIdx(newValue);
+  }
+
   return (
     <Stack direction="row" alignItems="flex-start" sx={{ p: { xs: 2, sm: 3 }, gap: 3 }}>
       <Box sx={{ flexGrow: 1 }}>
@@ -159,12 +188,20 @@ export default function EventView({ event, initialMarkets }: { event: Event; ini
         </Stack>
       )}
       <Divider sx={{ my: 2 }} />
-      <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-        Resolution Rule
-      </Typography>
-      <Typography variant="body1">
-        {event.resolutionRule}
-      </Typography>
+      <Box sx={{ width: '100%' }}>
+        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+          <Tabs value={infoTabIdx} onChange={handleChangeTab} aria-label="info tab">
+            <Tab label="Rules" />
+            <Tab label="Event Description" />
+          </Tabs>
+        </Box>
+        <InfoTab value={infoTabIdx} index={0}>
+          {event.resolutionRule}
+        </InfoTab>
+        <InfoTab value={infoTabIdx} index={1}>
+          {event.description}
+        </InfoTab>
+      </Box>
       <Divider sx={{ my: 2 }} />
       <Typography variant="subtitle2" color="text.secondary" gutterBottom>
         Comments

@@ -1,36 +1,38 @@
-import { useState } from 'react'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
-import { useApi } from '../../hooks/useApi'
+import { useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import { useApi } from "../../hooks/useApi";
 
 export default function CreateTopicView() {
-  const { createTopic } = useApi()
-  const [topic, setTopic] = useState('')
-  const [description, setDescription] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+  const { createTopic } = useApi();
+  const [topic, setTopic] = useState("");
+  const [description, setDescription] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   async function handleSubmit() {
-    setLoading(true)
-    setError(null)
-    setSuccess(false)
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
     try {
-      await createTopic(topic, description)
-      setSuccess(true)
-      setTopic('')
-      setDescription('')
+      await createTopic(topic, description);
+      setSuccess(true);
+      setTopic("");
+      setDescription("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to create topic')
+      setError(e instanceof Error ? e.message : "Failed to create topic");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 480 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 480 }}
+    >
       <Typography variant="h5">Create Topic</Typography>
       <TextField
         label="Name"
@@ -46,8 +48,16 @@ export default function CreateTopicView() {
         rows={3}
         disabled={loading}
       />
-      {error && <Typography color="error" variant="body2">{error}</Typography>}
-      {success && <Typography color="success.main" variant="body2">Topic created successfully.</Typography>}
+      {error && (
+        <Typography color="error" variant="body2">
+          {error}
+        </Typography>
+      )}
+      {success && (
+        <Typography color="success.main" variant="body2">
+          Topic created successfully.
+        </Typography>
+      )}
       <Button
         variant="contained"
         onClick={handleSubmit}
@@ -56,5 +66,5 @@ export default function CreateTopicView() {
         Add Topic
       </Button>
     </Box>
-  )
+  );
 }

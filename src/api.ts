@@ -1,186 +1,330 @@
-import type { Comment, Event, Market, Order, Topic, Trade, UUID } from './models/models'
+import type {
+  Comment,
+  Event,
+  Market,
+  Order,
+  Topic,
+  Trade,
+  UUID,
+} from "./models/models";
 
-const API_URL = import.meta.env.VITE_API_URL
+const API_URL = import.meta.env.VITE_API_URL;
 
-type GetToken = () => Promise<string | null>
+type GetToken = () => Promise<string | null>;
 
 async function authHeaders(getToken: GetToken): Promise<HeadersInit> {
-  const token = await getToken()
-  return token ? { Authorization: `Bearer ${token}` } : {}
+  const token = await getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
 export async function fetchTopics(getToken: GetToken): Promise<Topic[]> {
-  return fetch(`${API_URL}/topics`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+  return fetch(`${API_URL}/topics`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
 }
 
-export async function fetchEvents(topicId: UUID, getToken: GetToken): Promise<Event[]> {
-  return fetch(`${API_URL}/topics/${topicId}/events`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+export async function fetchEvents(
+  topicId: UUID,
+  getToken: GetToken,
+): Promise<Event[]> {
+  return fetch(`${API_URL}/topics/${topicId}/events`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
 }
 
-export async function fetchEventsBySubtopic(subtopicId: UUID, getToken: GetToken): Promise<Event[]> {
-  return fetch(`${API_URL}/subtopics/${subtopicId}/events`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+export async function fetchEventsBySubtopic(
+  subtopicId: UUID,
+  getToken: GetToken,
+): Promise<Event[]> {
+  return fetch(`${API_URL}/subtopics/${subtopicId}/events`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
 }
 
-export async function fetchTrades(marketId: UUID, getToken: GetToken): Promise<Trade[]> {
-  return fetch(`${API_URL}/markets/${marketId}/trades`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+export async function fetchTrades(
+  marketId: UUID,
+  getToken: GetToken,
+): Promise<Trade[]> {
+  return fetch(`${API_URL}/markets/${marketId}/trades`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
 }
 
-export async function fetchMarkets(eventId: UUID, getToken: GetToken): Promise<Market[]> {
-  return fetch(`${API_URL}/events/${eventId}/markets`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+export async function fetchMarkets(
+  eventId: UUID,
+  getToken: GetToken,
+): Promise<Market[]> {
+  return fetch(`${API_URL}/events/${eventId}/markets`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
 }
 
 export interface CurrentUser {
-  id: UUID
-  username: string
-  email: string
-  balance: number
-  isAdmin: boolean
+  id: UUID;
+  username: string;
+  email: string;
+  balance: number;
+  isAdmin: boolean;
 }
 
-export async function fetchCurrentUser(getToken: GetToken): Promise<CurrentUser | null> {
-  const headers = await authHeaders(getToken)
-  if (!('Authorization' in headers)) return null
-  return fetch(`${API_URL}/users/me`, { headers }).then((r) => r.ok ? r.json() : null)
+export async function fetchCurrentUser(
+  getToken: GetToken,
+): Promise<CurrentUser | null> {
+  const headers = await authHeaders(getToken);
+  if (!("Authorization" in headers)) return null;
+  return fetch(`${API_URL}/users/me`, { headers }).then((r) =>
+    r.ok ? r.json() : null,
+  );
 }
 
 export interface SeedMarketPayload {
-  midpoint?: number
-  levels?: number
-  quantities?: number[]
-  useLastPrice?: boolean
+  midpoint?: number;
+  levels?: number;
+  quantities?: number[];
+  useLastPrice?: boolean;
 }
 
-export async function seedMarket(marketId: UUID, payload: SeedMarketPayload, getToken: GetToken): Promise<string> {
+export async function seedMarket(
+  marketId: UUID,
+  payload: SeedMarketPayload,
+  getToken: GetToken,
+): Promise<string> {
   const res = await fetch(`${API_URL}/admin/markets/${marketId}/seed`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
     body: JSON.stringify(payload),
-  })
-  return res.text()
+  });
+  return res.text();
 }
 
 export interface CreateEventPayload {
-  topicId: UUID
-  format: string
-  name: string
-  description: string
-  closeTime: string
-  status: string
-  resolutionRule: string
+  topicId: UUID;
+  format: string;
+  name: string;
+  description: string;
+  closeTime: string;
+  status: string;
+  resolutionRule: string;
 }
 
-export async function createEvent(payload: CreateEventPayload, getToken: GetToken): Promise<Event> {
+export async function createEvent(
+  payload: CreateEventPayload,
+  getToken: GetToken,
+): Promise<Event> {
   return fetch(`${API_URL}/events`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
     body: JSON.stringify(payload),
-  }).then((r) => r.json())
+  }).then((r) => r.json());
 }
 
-export async function createMarket(eventId: UUID, label: string, status: string, getToken: GetToken): Promise<Market> {
+export async function createMarket(
+  eventId: UUID,
+  label: string,
+  status: string,
+  getToken: GetToken,
+): Promise<Market> {
   return fetch(`${API_URL}/markets`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
     body: JSON.stringify({ eventId, label, status }),
-  }).then((r) => r.json())
+  }).then((r) => r.json());
 }
 
-export async function postComment(eventId: UUID, content: string, getToken: GetToken): Promise<Comment> {
+export async function postComment(
+  eventId: UUID,
+  content: string,
+  getToken: GetToken,
+): Promise<Comment> {
   return fetch(`${API_URL}/events/${eventId}/comments`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
     body: JSON.stringify({ content }),
-  }).then((r) => r.json())
+  }).then((r) => r.json());
 }
 
-export async function fetchComments(eventId: UUID, getToken: GetToken): Promise<Comment[]> {
-  return fetch(`${API_URL}/events/${eventId}/comments`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+export async function fetchComments(
+  eventId: UUID,
+  getToken: GetToken,
+): Promise<Comment[]> {
+  return fetch(`${API_URL}/events/${eventId}/comments`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
 }
 
-export async function likeComment(eventId: UUID, commentId: UUID, getToken: GetToken): Promise<void> {
+export async function likeComment(
+  eventId: UUID,
+  commentId: UUID,
+  getToken: GetToken,
+): Promise<void> {
   return fetch(`${API_URL}/events/${eventId}/comments/${commentId}/like`, {
-    method: 'POST',
+    method: "POST",
     headers: await authHeaders(getToken),
-  }).then(() => undefined)
+  }).then(() => undefined);
 }
 
-export async function unlikeComment(eventId: UUID, commentId: UUID, getToken: GetToken): Promise<void> {
+export async function unlikeComment(
+  eventId: UUID,
+  commentId: UUID,
+  getToken: GetToken,
+): Promise<void> {
   return fetch(`${API_URL}/events/${eventId}/comments/${commentId}/like`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: await authHeaders(getToken),
-  }).then(() => undefined)
+  }).then(() => undefined);
 }
 
-export async function bookmarkEvent(eventId: UUID, getToken: GetToken): Promise<void> {
+export async function bookmarkEvent(
+  eventId: UUID,
+  getToken: GetToken,
+): Promise<void> {
   return fetch(`${API_URL}/events/${eventId}/bookmark`, {
-    method: 'POST',
+    method: "POST",
     headers: await authHeaders(getToken),
-  }).then(() => undefined)
+  }).then(() => undefined);
 }
 
-export async function unbookmarkEvent(eventId: UUID, getToken: GetToken): Promise<void> {
+export async function unbookmarkEvent(
+  eventId: UUID,
+  getToken: GetToken,
+): Promise<void> {
   return fetch(`${API_URL}/events/${eventId}/bookmark`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: await authHeaders(getToken),
-  }).then(() => undefined)
+  }).then(() => undefined);
 }
 
-export async function deleteTopic(topicId: UUID, getToken: GetToken): Promise<void> {
+export async function deleteTopic(
+  topicId: UUID,
+  getToken: GetToken,
+): Promise<void> {
   return fetch(`${API_URL}/topics/${topicId}`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: await authHeaders(getToken),
-  }).then(() => undefined)
+  }).then(() => undefined);
 }
 
-export async function deleteEvent(eventId: UUID, getToken: GetToken): Promise<void> {
+export async function deleteEvent(
+  eventId: UUID,
+  getToken: GetToken,
+): Promise<void> {
   return fetch(`${API_URL}/events/${eventId}`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: await authHeaders(getToken),
-  }).then(() => undefined)
+  }).then(() => undefined);
 }
 
-export async function deleteMarket(marketId: UUID, getToken: GetToken): Promise<void> {
+export async function deleteMarket(
+  marketId: UUID,
+  getToken: GetToken,
+): Promise<void> {
   return fetch(`${API_URL}/markets/${marketId}`, {
-    method: 'DELETE',
+    method: "DELETE",
     headers: await authHeaders(getToken),
-  }).then(() => undefined)
+  }).then(() => undefined);
 }
 
-export async function createOrder(marketId: UUID, side: 'YES' | 'NO', price: number, quantity: number, lockedAmount: number, orderType: 'LIMIT' | 'MARKET', getToken: GetToken): Promise<void> {
+export async function createOrder(
+  marketId: UUID,
+  side: "YES" | "NO",
+  price: number,
+  quantity: number,
+  lockedAmount: number,
+  orderType: "LIMIT" | "MARKET",
+  getToken: GetToken,
+): Promise<void> {
   return fetch(`${API_URL}/orders`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
-    body: JSON.stringify({ marketId, side, price, quantity, lockedAmount, orderType }),
-  }).then(() => undefined)
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
+    body: JSON.stringify({
+      marketId,
+      side,
+      price,
+      quantity,
+      lockedAmount,
+      orderType,
+    }),
+  }).then(() => undefined);
 }
 
-export async function createNotionalOrder(marketId: UUID, side: 'YES' | 'NO', notionalAmount: number, getToken: GetToken): Promise<void> {
+export async function createNotionalOrder(
+  marketId: UUID,
+  side: "YES" | "NO",
+  notionalAmount: number,
+  getToken: GetToken,
+): Promise<void> {
   return fetch(`${API_URL}/orders`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
-    body: JSON.stringify({ marketId, side, price: 99, quantity: 0, notionalAmount, lockedAmount: notionalAmount, orderType: 'NOTIONAL' }),
-  }).then(() => undefined)
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
+    body: JSON.stringify({
+      marketId,
+      side,
+      price: 99,
+      quantity: 0,
+      notionalAmount,
+      lockedAmount: notionalAmount,
+      orderType: "NOTIONAL",
+    }),
+  }).then(() => undefined);
 }
 
-export async function fetchMyOrders(status: string, orderType: string, getToken: GetToken): Promise<Order[]> {
-  return fetch(`${API_URL}/orders/me?status=${status}&orderType=${orderType}`, { headers: await authHeaders(getToken) }).then((r) => r.json())
+export async function fetchMyOrders(
+  status: string,
+  orderType: string,
+  getToken: GetToken,
+): Promise<Order[]> {
+  return fetch(`${API_URL}/orders/me?status=${status}&orderType=${orderType}`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
 }
 
 export async function fetchPortfolioTotal(getToken: GetToken): Promise<number> {
-  return fetch(`${API_URL}/positions/me/total`, { headers: await authHeaders(getToken) }).then((r) => r.json()).then((d) => d.total)
-}
-
-export async function cancelOrder(orderId: UUID, getToken: GetToken): Promise<void> {
-  return fetch(`${API_URL}/orders/${orderId}`, {
-    method: 'DELETE',
+  return fetch(`${API_URL}/positions/me/total`, {
     headers: await authHeaders(getToken),
-  }).then(() => undefined)
+  })
+    .then((r) => r.json())
+    .then((d) => d.total);
 }
 
-export async function createTopic(topic: string, description: string, getToken: GetToken): Promise<Topic> {
+export async function cancelOrder(
+  orderId: UUID,
+  getToken: GetToken,
+): Promise<void> {
+  return fetch(`${API_URL}/orders/${orderId}`, {
+    method: "DELETE",
+    headers: await authHeaders(getToken),
+  }).then(() => undefined);
+}
+
+export async function createTopic(
+  topic: string,
+  description: string,
+  getToken: GetToken,
+): Promise<Topic> {
   return fetch(`${API_URL}/topics`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', ...await authHeaders(getToken) },
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
     body: JSON.stringify({ topic, description }),
-  }).then((r) => r.json())
+  }).then((r) => r.json());
 }

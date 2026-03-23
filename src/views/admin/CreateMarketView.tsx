@@ -1,51 +1,59 @@
-import { useEffect, useState } from 'react'
-import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
-import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
-import type { Event, Topic } from '../../models/models'
-import { useApi } from '../../hooks/useApi'
-import { useTopics } from '../../contexts/TopicsContext'
+import { useEffect, useState } from "react";
+import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import MenuItem from "@mui/material/MenuItem";
+import TextField from "@mui/material/TextField";
+import Typography from "@mui/material/Typography";
+import type { Event, Topic } from "../../models/models";
+import { useApi } from "../../hooks/useApi";
+import { useTopics } from "../../contexts/TopicsContext";
 
-const STATUS_OPTIONS = ['open', 'closed', 'resolved']
+const STATUS_OPTIONS = ["open", "closed", "resolved"];
 
 export default function CreateMarketView() {
-  const { fetchEvents, createMarket } = useApi()
-  const topics = useTopics()
-  const [topicId, setTopicId] = useState('')
-  const [events, setEvents] = useState<Event[]>([])
-  const [eventId, setEventId] = useState('')
-  const [label, setLabel] = useState('')
-  const [status, setStatus] = useState('open')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const [success, setSuccess] = useState(false)
+  const { fetchEvents, createMarket } = useApi();
+  const topics = useTopics();
+  const [topicId, setTopicId] = useState("");
+  const [events, setEvents] = useState<Event[]>([]);
+  const [eventId, setEventId] = useState("");
+  const [label, setLabel] = useState("");
+  const [status, setStatus] = useState("open");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    if (!topicId) { setEvents([]); setEventId(''); return }
-    fetchEvents(topicId as Topic['id']).then(setEvents).catch(console.error)
-  }, [topicId])
+    if (!topicId) {
+      setEvents([]);
+      setEventId("");
+      return;
+    }
+    fetchEvents(topicId as Topic["id"])
+      .then(setEvents)
+      .catch(console.error);
+  }, [topicId]);
 
   async function handleSubmit() {
-    setLoading(true)
-    setError(null)
-    setSuccess(false)
+    setLoading(true);
+    setError(null);
+    setSuccess(false);
     try {
-      await createMarket(eventId as Event['id'], label, status)
-      setSuccess(true)
-      setLabel('')
+      await createMarket(eventId as Event["id"], label, status);
+      setSuccess(true);
+      setLabel("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to create market')
+      setError(e instanceof Error ? e.message : "Failed to create market");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
-  const canSubmit = !loading && !!eventId && !!label.trim()
+  const canSubmit = !loading && !!eventId && !!label.trim();
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 480 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 480 }}
+    >
       <Typography variant="h5">Create Market</Typography>
       <TextField
         select
@@ -55,7 +63,9 @@ export default function CreateMarketView() {
         disabled={loading}
       >
         {topics.map((t) => (
-          <MenuItem key={t.id} value={t.id}>{t.topic}</MenuItem>
+          <MenuItem key={t.id} value={t.id}>
+            {t.topic}
+          </MenuItem>
         ))}
       </TextField>
       <TextField
@@ -66,7 +76,9 @@ export default function CreateMarketView() {
         disabled={loading || !topicId}
       >
         {events.map((ev) => (
-          <MenuItem key={ev.id} value={ev.id}>{ev.name}</MenuItem>
+          <MenuItem key={ev.id} value={ev.id}>
+            {ev.name}
+          </MenuItem>
         ))}
       </TextField>
       <TextField
@@ -83,14 +95,24 @@ export default function CreateMarketView() {
         disabled={loading}
       >
         {STATUS_OPTIONS.map((s) => (
-          <MenuItem key={s} value={s}>{s}</MenuItem>
+          <MenuItem key={s} value={s}>
+            {s}
+          </MenuItem>
         ))}
       </TextField>
-      {error && <Typography color="error" variant="body2">{error}</Typography>}
-      {success && <Typography color="success.main" variant="body2">Market created successfully.</Typography>}
+      {error && (
+        <Typography color="error" variant="body2">
+          {error}
+        </Typography>
+      )}
+      {success && (
+        <Typography color="success.main" variant="body2">
+          Market created successfully.
+        </Typography>
+      )}
       <Button variant="contained" onClick={handleSubmit} disabled={!canSubmit}>
         Add Market
       </Button>
     </Box>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import Box from '@mui/material/Box'
-import Typography from '@mui/material/Typography'
+import Box from "@mui/material/Box";
+import Typography from "@mui/material/Typography";
 
 export default function ProfilePage() {
   return (
@@ -8,5 +8,5 @@ export default function ProfilePage() {
         Profile
       </Typography>
     </Box>
-  )
+  );
 }

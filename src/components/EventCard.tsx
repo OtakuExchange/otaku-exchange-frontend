@@ -169,7 +169,7 @@ export default function EventCard({
                     }}
                     onClick={() =>
                       navigate(`/events/${event.id}`, {
-                        state: { event, markets },
+                        state: { event, markets, side: i === 0 ? "YES" : "NO" },
                       })
                     }
                   >
@@ -216,7 +216,7 @@ export default function EventCard({
                     }}
                     onClick={() =>
                       navigate(`/events/${event.id}`, {
-                        state: { event, markets },
+                        state: { event, markets, selectedMarketId: market.id, side: "YES" },
                       })
                     }
                   >
@@ -235,7 +235,7 @@ export default function EventCard({
                     }}
                     onClick={() =>
                       navigate(`/events/${event.id}`, {
-                        state: { event, markets },
+                        state: { event, markets, selectedMarketId: market.id, side: "NO" },
                       })
                     }
                   >

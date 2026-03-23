@@ -78,9 +78,13 @@ function InfoTab(props: TabPanelProps) {
 export default function EventView({
   event,
   initialMarkets,
+  initialSide,
+  initialMarketId,
 }: {
   event: Event;
   initialMarkets?: Market[];
+  initialSide?: "YES" | "NO";
+  initialMarketId?: string;
 }) {
   const {
     fetchComments,
@@ -93,7 +97,7 @@ export default function EventView({
   const [comments, setComments] = useState<Comment[]>([]);
   const [markets, setMarkets] = useState<Market[]>(initialMarkets ?? []);
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(
-    initialMarkets?.[0] ?? null,
+    (initialMarketId ? initialMarkets?.find((m) => m.id === initialMarketId) : null) ?? initialMarkets?.[0] ?? null,
   );
   const [tradesByMarket, setTradesByMarket] = useState<Record<string, Trade[]>>(
     {},
@@ -222,7 +226,7 @@ export default function EventView({
       .catch(console.error);
   }
 
-  function handleChangeTab(event: React.SyntheticEvent, newValue: number) {
+  function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);
   }
 
@@ -378,7 +382,7 @@ export default function EventView({
           </Stack>
         )}
       </Box>
-      <TradeCard selectedMarket={selectedMarket} />
+      <TradeCard selectedMarket={selectedMarket} initialSide={initialSide} />
     </Stack>
   );
 }

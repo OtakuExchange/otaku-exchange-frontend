@@ -14,12 +14,14 @@ import { entityTextColor } from "../utils/entityTextColor";
 
 export default function TradeCard({
   selectedMarket,
+  initialSide = "YES",
 }: {
   selectedMarket: Market | null;
+  initialSide?: "YES" | "NO";
 }) {
   const { createOrder, createNotionalOrder } = useApi();
   const [orderType, setOrderType] = useState<"Market" | "Limit">("Market");
-  const [side, setSide] = useState<"YES" | "NO">("YES");
+  const [side, setSide] = useState<"YES" | "NO">(initialSide);
   const [amount, setAmount] = useState("");
   const [limitPrice, setLimitPrice] = useState("");
   const [shares, setShares] = useState("");

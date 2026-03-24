@@ -143,14 +143,17 @@ export default function EventView({
   }, [event.id]);
 
   const chartData = (() => {
-    const start = new Date(event.createdAt);
     const end = new Date();
-    const allTimes = [start, end];
+    const allTradeTimes: Date[] = [];
     markets.forEach((m) =>
       (tradesByMarket[m.id] ?? []).forEach((t) =>
-        allTimes.push(new Date(t.executedAt)),
+        allTradeTimes.push(new Date(t.executedAt)),
       ),
     );
+    const start = allTradeTimes.length > 0
+      ? new Date(Math.min(...allTradeTimes.map((d) => d.getTime())))
+      : new Date(event.createdAt);
+    const allTimes = [start, end, ...allTradeTimes];
     const xData = [
       ...new Map(allTimes.map((d) => [d.getTime(), d])).values(),
     ].sort((a, b) => a.getTime() - b.getTime());
@@ -160,13 +163,19 @@ export default function EventView({
       const tradeMap = new Map(
         trades.map((t) => [new Date(t.executedAt).getTime(), t]),
       );
-      const yesData = xData.map(
-        (d) => tradeMap.get(d.getTime())?.yesPrice ?? null,
-      );
+      let lastYes: number | null = null;
+      const yesData = xData.map((d) => {
+        const trade = tradeMap.get(d.getTime());
+        if (trade) lastYes = trade.yesPrice;
+        return trade ? trade.yesPrice : lastYes;
+      });
       if (m.isMatch) {
-        const noData = xData.map(
-          (d) => tradeMap.get(d.getTime())?.noPrice ?? null,
-        );
+        let lastNo: number | null = null;
+        const noData = xData.map((d) => {
+          const trade = tradeMap.get(d.getTime());
+          if (trade) lastNo = trade.noPrice;
+          return trade ? trade.noPrice : lastNo;
+        });
         return [
           {
             label: m.entity?.abbreviatedName ?? "Yes",
@@ -174,6 +183,7 @@ export default function EventView({
             connectNulls: true,
             color: m.entity?.color ?? "#40c3ff",
             showMark: false,
+            curve: "stepAfter" as const,
           },
           {
             label: m.relatedEntity?.abbreviatedName ?? "No",
@@ -181,6 +191,7 @@ export default function EventView({
             connectNulls: true,
             color: m.relatedEntity?.color ?? "#ff3333",
             showMark: false,
+            curve: "stepAfter" as const,
           },
         ];
       }
@@ -191,6 +202,7 @@ export default function EventView({
           connectNulls: true,
           color: m.entity?.color ?? undefined,
           showMark: false,
+          curve: "stepAfter" as const,
         },
       ];
     });
@@ -288,6 +300,22 @@ export default function EventView({
           </Stack>
         )}
         {chartData.series.length > 0 && (
+          <Box sx={{ position: "relative" }}>
+            {Object.values(tradesByMarket).every((t) => t.length === 0) && (
+              <Typography sx={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                fontSize: "20px",
+                fontWeight: 600,
+                color: "rgba(255,255,255,0.15)",
+                pointerEvents: "none",
+                zIndex: 1,
+              }}>
+                No Trades
+              </Typography>
+            )}
           <LineChart
             xAxis={[(() => {
               const HOUR = 3_600_000;
@@ -359,6 +387,7 @@ export default function EventView({
               "& .MuiChartsAxis-directionX .MuiChartsAxis-tickLabel": { fill: "#2E3841" },
             }}
           />
+          </Box>
         )}
         {markets.length > 0 && !markets.some((m) => m.isMatch) && (
           <Stack sx={{ my: 2 }}>

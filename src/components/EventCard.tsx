@@ -99,7 +99,7 @@ export default function EventCard({
                   ) : (
                     <Box sx={{ width: 24, height: 24, flexShrink: 0 }} />
                   )}
-                  <Typography variant="body2" sx={{ flexGrow: 1 }}>
+                  <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600 }}>
                     {entity ? entity.name : matchMarket!.label}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">

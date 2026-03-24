@@ -7,7 +7,6 @@ import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import ReplyIcon from "@mui/icons-material/Reply";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import type { Comment, Event, Market, Trade } from "../models/models";
@@ -51,9 +50,6 @@ function CommentItem({
         <Typography variant="caption" color="text.secondary">
           {comment.likes}
         </Typography>
-        <IconButton size="small" sx={{ p: 0.5 }}>
-          <ReplyIcon fontSize="small" />
-        </IconButton>
       </Stack>
     </Box>
   );

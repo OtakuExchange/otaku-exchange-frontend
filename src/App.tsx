@@ -79,6 +79,11 @@ function App() {
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
 
   useEffect(() => {
+    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
+    if (nav?.type === "reload") navigate("/", { replace: true });
+  }, []);
+
+  useEffect(() => {
     if (prevIsSignedIn.current === false && isSignedIn) {
       navigate("/");
     }
@@ -158,7 +163,15 @@ function App() {
                   <>
                     <Box
                       onClick={() => navigate("/portfolio")}
-                      sx={{ textAlign: "center", mr: 2, cursor: "pointer" }}
+                      sx={{
+                        textAlign: "center",
+                        mr: 2,
+                        cursor: "pointer",
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: 1,
+                        "&:hover": { bgcolor: "action.hover" },
+                      }}
                     >
                       <Typography
                         sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}
@@ -168,7 +181,7 @@ function App() {
                       <Typography
                         sx={{ color: "#3DB468", fontSize: "16px", lineHeight: 1.2, fontWeight: 600 }}
                       >
-                        {portfolio ?? 0}¢
+                        ${((portfolio ?? 0) / 100).toFixed(2)}
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: "center", mr: 2 }}>

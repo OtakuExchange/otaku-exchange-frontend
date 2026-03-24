@@ -222,7 +222,7 @@ export default function EventView({
       .catch(console.error);
   }
 
-  function handleChangeTab(event: React.SyntheticEvent, newValue: number) {
+  function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);
   }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@mui/material/Button";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -63,7 +63,8 @@ interface NavTab {
 
 function EventViewRoute() {
   const { state } = useLocation();
-  return <EventView event={state?.event} initialMarkets={state?.markets} initialSide={state?.side} initialMarketId={state?.selectedMarketId} />;
+  if (!state?.event) return <Navigate to="/" replace />;
+  return <EventView event={state.event} initialMarkets={state.markets} initialSide={state.side} initialMarketId={state.selectedMarketId} />;
 }
 
 function App() {
@@ -75,6 +76,14 @@ function App() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [cash, setCash] = useState<number | null>(null);
   const [portfolio, setPortfolio] = useState<number | null>(null);
+  const prevIsSignedIn = useRef<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    if (prevIsSignedIn.current === false && isSignedIn) {
+      navigate("/");
+    }
+    prevIsSignedIn.current = isSignedIn;
+  }, [isSignedIn]);
 
   useEffect(() => {
     fetchTopics().then(setTopics).catch(console.error);

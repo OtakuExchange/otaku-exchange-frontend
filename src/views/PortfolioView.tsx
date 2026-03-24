@@ -101,38 +101,35 @@ export default function PortfolioView() {
   const [marketMap, setMarketMap] = useState<Record<string, Market>>({});
   const [loadingOpen, setLoadingOpen] = useState(true);
   const [loadingFilled, setLoadingFilled] = useState(true);
+  const [loadingMarkets, setLoadingMarkets] = useState(false);
 
   useEffect(() => {
+    setLoadingMarkets(true);
     Promise.all([
       fetchMyOrders("OPEN", "LIMIT"),
       fetchMyOrders("PARTIALLY_FILLED", "LIMIT"),
+      fetchMyOrders("FULFILLED", "LIMIT"),
     ])
-      .then(([open, partial]) => {
+      .then(([open, partial, fulfilled]) => {
         const combined = [...open, ...partial];
         setOpenOrders(combined);
-        return combined;
+        setFilledOrders(fulfilled);
+        setLoadingOpen(false);
+        setLoadingFilled(false);
+
+        const allOrders = [...combined, ...fulfilled];
+        if (allOrders.length === 0) { setLoadingMarkets(false); return; }
+        const uniqueEventIds = [...new Set(allOrders.map((o) => o.eventId))];
+        return Promise.all(uniqueEventIds.map((id) => fetchMarkets(id)))
+          .then((results) => {
+            const map: Record<string, Market> = {};
+            results.flat().forEach((m) => { map[m.id] = m; });
+            setMarketMap(map);
+          });
       })
       .catch(console.error)
-      .finally(() => setLoadingOpen(false));
-
-    fetchMyOrders("FULFILLED", "LIMIT")
-      .then(setFilledOrders)
-      .catch(console.error)
-      .finally(() => setLoadingFilled(false));
+      .finally(() => setLoadingMarkets(false));
   }, []);
-
-  useEffect(() => {
-    const allOrders = [...openOrders, ...filledOrders];
-    if (allOrders.length === 0) return;
-    const uniqueEventIds = [...new Set(allOrders.map((o) => o.eventId))];
-    Promise.all(uniqueEventIds.map((id) => fetchMarkets(id)))
-      .then((results) => {
-        const map: Record<string, Market> = {};
-        results.flat().forEach((m) => { map[m.id] = m; });
-        setMarketMap(map);
-      })
-      .catch(console.error);
-  }, [openOrders, filledOrders]);
 
   async function handleCancel(orderId: Order["id"]) {
     setOpenOrders((prev) => prev.filter((o) => o.id !== orderId));
@@ -153,8 +150,8 @@ export default function PortfolioView() {
         Portfolio
       </Typography>
       <Stack spacing={4}>
-        <Section title="Open Limit Orders" orders={openOrders} marketMap={marketMap} loading={loadingOpen} onCancel={handleCancel} />
-        <Section title="Fulfilled Limit Orders" orders={filledOrders} marketMap={marketMap} loading={loadingFilled} />
+        <Section title="Open Limit Orders" orders={openOrders} marketMap={marketMap} loading={loadingOpen || loadingMarkets} onCancel={handleCancel} />
+        <Section title="Fulfilled Limit Orders" orders={filledOrders} marketMap={marketMap} loading={loadingFilled || loadingMarkets} />
       </Stack>
     </Box>
   );

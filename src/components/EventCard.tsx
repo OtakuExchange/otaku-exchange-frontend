@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
@@ -10,7 +9,7 @@ import IconButton from "@mui/material/IconButton";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { Event, Market } from "../models/models";
+import type { Event } from "../models/models";
 import { useApi } from "../hooks/useApi";
 import { entityTextColor } from "../utils/entityTextColor";
 import { useMarketsQuery } from "../hooks/queries/useMarketsQuery";
@@ -26,7 +25,7 @@ export default function EventCard({
 }) {
   const navigate = useNavigate();
   const { bookmarkEvent, unbookmarkEvent } = useApi();
-  const { data: markets, isLoading, error } = useMarketsQuery(event.id);
+  const { data: markets, isLoading } = useMarketsQuery(event.id);
   const matchMarket = markets ? markets.find((m) => m.isMatch) : null;
   const isMatch =
     markets && event.format === "binary" && matchMarket !== null;

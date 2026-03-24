@@ -101,9 +101,11 @@ export default function EventCard({
                   <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600 }}>
                     {entity ? entity.name : matchMarket!.label}
                   </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    50%
-                  </Typography>
+                  {matchMarket!.forecast != null && (
+                    <Typography variant="body2" color="text.secondary">
+                      {Math.round(i === 0 ? matchMarket!.forecast : 100 - matchMarket!.forecast)}%
+                    </Typography>
+                  )}
                 </Stack>
               ),
             )}
@@ -256,7 +258,7 @@ export default function EventCard({
         }}
       >
         <Typography variant="caption" sx={{ flexGrow: 1, color: "#7B8996" }}>
-          ${event.tradeVolume.toLocaleString()} Vol.
+          {(event.tradeVolume / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} Vol.
         </Typography>
         <IconButton
           size="small"

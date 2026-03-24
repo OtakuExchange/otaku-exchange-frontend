@@ -18,7 +18,6 @@ import {
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/react";
 import { useApi } from "./hooks/useApi";
 import ProfilePage from "./components/ProfilePage";
-import AdminView from "./views/AdminView";
 import PortfolioView from "./views/PortfolioView";
 import EventView from "./views/EventView";
 import TopicView from "./views/TopicView";
@@ -26,7 +25,6 @@ import type { Topic, UUID } from "./models/models";
 import { TopicsContext } from "./contexts/TopicsContext";
 import { UserContext } from "./contexts/UserContext";
 import { RefreshCashContext } from "./contexts/RefreshCashContext";
-import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 const darkTheme = createTheme({
   palette: {
@@ -196,15 +194,7 @@ function App() {
                   </>
                 )}
                 {isSignedIn ? (
-                  <UserButton>
-                    <UserButton.MenuItems>
-                      <UserButton.Link
-                        label="Administration"
-                        labelIcon={<AdminPanelSettingsIcon />}
-                        href="/admin"
-                      />
-                    </UserButton.MenuItems>
-                  </UserButton>
+                  <UserButton />
                 ) : (
                   <>
                     <SignInButton mode="modal">
@@ -267,7 +257,6 @@ function App() {
               <Route path="/events/:eventId" element={<EventViewRoute />} />
               <Route path="/portfolio" element={<PortfolioView />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/admin/*" element={<AdminView />} />
               <Route
                 path="*"
                 element={

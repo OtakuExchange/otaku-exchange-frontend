@@ -267,7 +267,7 @@ export default function EventView({
 
   return (
     <Stack
-      direction="row"
+      direction={{ xs: "column", sm: "row" }}
       alignItems="flex-start"
       sx={{ p: { xs: 2, sm: 3 }, gap: 3 }}
     >

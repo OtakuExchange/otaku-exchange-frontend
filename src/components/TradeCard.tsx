@@ -60,7 +60,7 @@ export default function TradeCard({
   }
 
   return (
-    <Card sx={{ width: "25%", flexShrink: 0, borderRadius: 3 }}>
+    <Card sx={{ width: { xs: "100%", sm: "25%" }, flexShrink: 0, borderRadius: 3 }}>
       <CardContent>
         {selectedMarket &&
           (() => {
@@ -109,6 +109,9 @@ export default function TradeCard({
           const noLabel = selectedMarket?.isMatch
             ? (selectedMarket.relatedEntity?.abbreviatedName ?? "No")
             : "No";
+          const forecast = selectedMarket?.forecast;
+          const yesForecast = forecast != null ? Math.round(forecast) : null;
+          const noForecast = forecast != null ? Math.round(100 - forecast) : null;
           return (
             <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
               <Button
@@ -123,7 +126,7 @@ export default function TradeCard({
                   opacity: side === "YES" ? 1 : 0.5,
                 }}
               >
-                {yesLabel}
+                <Box component="span" sx={{ opacity: 0.7 }}>{yesLabel}</Box>{yesForecast != null ? <Box component="span">&nbsp;{yesForecast}¢</Box> : ""}
               </Button>
               <Button
                 variant="contained"
@@ -137,7 +140,7 @@ export default function TradeCard({
                   opacity: side === "NO" ? 1 : 0.5,
                 }}
               >
-                {noLabel}
+                <Box component="span" sx={{ opacity: 0.7 }}>{noLabel}</Box>{noForecast != null ? <Box component="span">&nbsp;{noForecast}¢</Box> : ""}
               </Button>
             </Stack>
           );

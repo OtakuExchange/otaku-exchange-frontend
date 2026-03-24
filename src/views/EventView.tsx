@@ -77,6 +77,8 @@ function InfoTab(props: TabPanelProps) {
   );
 }
 
+const ENABLE_COMMENTS = false;
+
 export default function EventView({
   event,
   initialMarkets,
@@ -498,44 +500,48 @@ export default function EventView({
             {event.description}
           </InfoTab>
         </Box>
-        <Divider sx={{ my: 2 }} />
-        <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-          Comments
-        </Typography>
-        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-          <TextField
-            size="small"
-            fullWidth
-            placeholder="Add a comment..."
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handlePost()}
-            disabled={posting}
-          />
-          <Button
-            variant="contained"
-            onClick={handlePost}
-            disabled={posting || !draft.trim()}
-          >
-            Post
-          </Button>
-        </Stack>
-        {commentsLoading ? (
-          <Stack spacing={2}>
-            {[0, 1, 2].map((i) => (
-              <Skeleton key={i} variant="rectangular" height={60} sx={{ borderRadius: 1 }} />
-            ))}
-          </Stack>
-        ) : comments.length === 0 ? (
-          <Typography variant="body2" color="text.secondary">
-            No comments yet.
-          </Typography>
-        ) : (
-          <Stack spacing={2}>
-            {comments.map((c) => (
-              <CommentItem key={c.id} comment={c} onLike={handleLike} isLoggedIn={!!userId} />
-            ))}
-          </Stack>
+        {ENABLE_COMMENTS && (
+          <>
+            <Divider sx={{ my: 2 }} />
+            <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+              Comments
+            </Typography>
+            <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+              <TextField
+                size="small"
+                fullWidth
+                placeholder="Add a comment..."
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handlePost()}
+                disabled={posting}
+              />
+              <Button
+                variant="contained"
+                onClick={handlePost}
+                disabled={posting || !draft.trim()}
+              >
+                Post
+              </Button>
+            </Stack>
+            {commentsLoading ? (
+              <Stack spacing={2}>
+                {[0, 1, 2].map((i) => (
+                  <Skeleton key={i} variant="rectangular" height={60} sx={{ borderRadius: 1 }} />
+                ))}
+              </Stack>
+            ) : comments.length === 0 ? (
+              <Typography variant="body2" color="text.secondary">
+                No comments yet.
+              </Typography>
+            ) : (
+              <Stack spacing={2}>
+                {comments.map((c) => (
+                  <CommentItem key={c.id} comment={c} onLike={handleLike} isLoggedIn={!!userId} />
+                ))}
+              </Stack>
+            )}
+          </>
         )}
       </Box>
       <TradeCard selectedMarket={selectedMarket} side={selectedSide} onSideChange={setSelectedSide} />

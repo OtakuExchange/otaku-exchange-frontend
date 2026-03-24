@@ -13,6 +13,7 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import type { Comment, Event, Market, Trade } from "../models/models";
 import { useApi } from "../hooks/useApi";
 import { useUserId } from "../contexts/UserContext";
+import { useTopics } from "../contexts/TopicsContext";
 import { LineChart } from "@mui/x-charts/LineChart";
 import TradeCard from "../components/TradeCard";
 import Tabs from "@mui/material/Tabs";
@@ -100,12 +101,15 @@ export default function EventView({
     unlikeComment,
   } = useApi();
   const userId = useUserId();
+  const topics = useTopics();
+  const topicName = topics.find((t) => t.id === event.topicId)?.topic;
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [markets, setMarkets] = useState<Market[]>(initialMarkets ?? []);
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(
     (initialMarketId ? initialMarkets?.find((m) => m.id === initialMarketId) : null) ?? initialMarkets?.[0] ?? null,
   );
+  const [selectedSide, setSelectedSide] = useState<"YES" | "NO">(initialSide ?? "YES");
   const [tradesByMarket, setTradesByMarket] = useState<Record<string, Trade[]>>(
     {},
   );
@@ -186,7 +190,7 @@ export default function EventView({
       }
       return [
         {
-          label: m.label,
+          label: m.entity?.abbreviatedName ?? m.label,
           data: yesData,
           connectNulls: true,
           color: m.entity?.color ?? undefined,
@@ -258,19 +262,82 @@ export default function EventView({
       sx={{ p: { xs: 2, sm: 3 }, gap: 3 }}
     >
       <Box sx={{ flexGrow: 1 }}>
-        <Typography component="h1" variant="h4" gutterBottom>
-          {event.name}
-        </Typography>
+        <Stack direction="row" alignItems="center" spacing={2} sx={{ mb: 2 }}>
+          {event.logoPath && (
+            <Box
+              component="img"
+              src={event.logoPath}
+              sx={{ width: 64, height: 64, borderRadius: 1, flexShrink: 0 }}
+            />
+          )}
+          <Box>
+            {topicName && (
+              <Typography sx={{ color: "#7B8996", fontSize: "14px", mb: 0.5 }}>
+                {topicName}
+              </Typography>
+            )}
+            <Typography component="h1" variant="h4" sx={{ fontWeight: 600, fontSize: "24px" }}>
+              {event.name}
+            </Typography>
+          </Box>
+        </Stack>
+        {chartData.series.length > 0 && (
+          <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap", mb: 1 }}>
+            {chartData.series.map((s, i) => (
+              <Stack key={i} direction="row" alignItems="center" spacing={0.75}>
+                <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: s.color, flexShrink: 0, position: "relative", top: -1 }} />
+                <Typography sx={{ fontSize: "13px", fontWeight: 600, color: "#7B8996" }}>{s.label}</Typography>
+              </Stack>
+            ))}
+          </Stack>
+        )}
         {chartData.series.length > 0 && (
           <LineChart
-            xAxis={[
-              {
+            xAxis={[(() => {
+              const HOUR = 3_600_000;
+              const DAY = 86_400_000;
+              const WEEK = 7 * DAY;
+              const HALF_MONTH = 15 * DAY;
+              const MONTH = 30 * DAY;
+
+              const start = chartData.xData[0]?.getTime() ?? 0;
+              const end = chartData.xData[chartData.xData.length - 1]?.getTime() ?? 0;
+              const span = end - start;
+
+              let intervalMs: number;
+              if (span < 6 * HOUR) intervalMs = HOUR;
+              else if (span < 12 * HOUR) intervalMs = 2 * HOUR;
+              else if (span < DAY) intervalMs = 4 * HOUR;
+              else if (span < 2 * DAY) intervalMs = 8 * HOUR;
+              else if (span < 6 * DAY) intervalMs = DAY;
+              else if (span < 12 * DAY) intervalMs = 2 * DAY;
+              else if (span < 18 * DAY) intervalMs = 3 * DAY;
+              else if (span < 6 * WEEK) intervalMs = WEEK;
+              else if (span < 3 * MONTH) intervalMs = HALF_MONTH;
+              else intervalMs = MONTH;
+
+              const ticks: Date[] = [];
+              const firstTick = Math.ceil(start / intervalMs) * intervalMs;
+              for (let t = firstTick; t <= end && ticks.length < 5; t += intervalMs) {
+                ticks.push(new Date(t));
+              }
+
+              const valueFormatter = (value: Date | number) => {
+                const d = new Date(value);
+                return intervalMs >= DAY
+                  ? d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
+                  : d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
+              };
+
+              return {
                 data: chartData.xData,
-                scaleType: "time",
+                scaleType: "time" as const,
                 disableLine: true,
                 disableTicks: true,
-              },
-            ]}
+                tickInterval: ticks,
+                valueFormatter,
+              };
+            })()]}
             yAxis={[
               {
                 min: 0,
@@ -286,67 +353,104 @@ export default function EventView({
             grid={{ horizontal: true }}
             height={250}
             margin={{ left: 20, right: 40, top: 20, bottom: 40 }}
+            slots={{ legend: () => null, tooltip: () => null }}
             sx={{
               "& .MuiChartsGrid-line": {
                 strokeDasharray: "4 4",
                 stroke: "rgba(255,255,255,0.15)",
               },
-              "& .MuiChartsAxis-tickLabel": { fill: "#7B8996" },
-              "& .MuiChartsLegend-label": { fill: "#7B8996" },
+              "& .MuiChartsAxis-directionY .MuiChartsAxis-tickLabel": { fill: "#7B8996" },
+              "& .MuiChartsAxis-directionX .MuiChartsAxis-tickLabel": { fill: "#2E3841" },
             }}
           />
         )}
         {markets.length > 0 && !markets.some((m) => m.isMatch) && (
-          <Stack spacing={1} sx={{ my: 2 }}>
+          <Stack sx={{ my: 2 }}>
             {[...markets]
-              .sort((a, b) => b.tradeVolume - a.tradeVolume)
-              .map((market) => (
-                <Stack
-                  key={market.id}
-                  direction="row"
-                  alignItems="center"
-                  spacing={1}
-                  onClick={() => setSelectedMarket(market)}
-                  sx={{
-                    cursor: "pointer",
-                    borderRadius: 1,
-                    px: 1,
-                    py: 0.5,
-                    bgcolor:
-                      selectedMarket?.id === market.id
-                        ? "action.selected"
-                        : "transparent",
-                    "&:hover": { bgcolor: "action.hover" },
-                  }}
-                >
-                  <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                    {market.label}
-                  </Typography>
-                  <Button
-                    size="small"
-                    variant="contained"
+              .sort((a, b) => {
+                const fa = a.forecast ?? -Infinity;
+                const fb = b.forecast ?? -Infinity;
+                return fb !== fa ? fb - fa : b.tradeVolume - a.tradeVolume;
+              })
+              .map((market, i, arr) => (
+                <Box key={market.id}>
+                  <Stack
+                    direction="row"
+                    alignItems="center"
+                    spacing={1}
+                    onClick={() => setSelectedMarket(market)}
                     sx={{
-                      bgcolor: "#1a3d2b",
-                      color: "#4caf50",
-                      "&:hover": { bgcolor: "#1f4d33" },
-                      fontWeight: "bold",
+                      height: 74,
+                      cursor: "pointer",
+                      borderRadius: "10px",
+                      px: 1,
+                      position: "relative",
+                      "&:hover": { bgcolor: "action.hover" },
                     }}
                   >
-                    Yes
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    sx={{
-                      bgcolor: "#3d1a1a",
-                      color: "#f44336",
-                      "&:hover": { bgcolor: "#4d1f1f" },
-                      fontWeight: "bold",
-                    }}
-                  >
-                    No
-                  </Button>
-                </Stack>
+                    {market.entity?.logoPath && (
+                      <Box
+                        component="img"
+                        src={market.entity.logoPath}
+                        sx={{ width: 48, height: 48, borderRadius: 0.5, flexShrink: 0 }}
+                      />
+                    )}
+                    <Box sx={{ flexGrow: 1 }}>
+                      <Typography sx={{ fontSize: "16px", fontWeight: 600 }}>
+                        {market.label}
+                      </Typography>
+                      <Typography sx={{ fontSize: "13px", color: "#7B8996", fontWeight: 600 }}>
+                        ${market.tradeVolume.toLocaleString()} Vol.
+                      </Typography>
+                    </Box>
+                    <Typography sx={{
+                      fontSize: market.forecast != null ? "28px" : "16px",
+                      fontWeight: 600,
+                      color: market.forecast != null ? "inherit" : "#7B8996",
+                      position: "absolute",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      pointerEvents: "none",
+                    }}>
+                      {market.forecast != null ? `${Math.round(market.forecast)}%` : "No bids"}
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={(e) => { e.stopPropagation(); setSelectedMarket(market); setSelectedSide("YES"); }}
+                      sx={{
+                        height: 48,
+                        px: 2,
+                        borderRadius: "8px",
+                        bgcolor: "#1a3d2b",
+                        color: "#4caf50",
+                        "&:hover": { bgcolor: "#1f4d33" },
+                        fontWeight: "bold",
+                        opacity: selectedMarket?.id === market.id && selectedSide === "YES" ? 1 : 0.4,
+                      }}
+                    >
+                      Buy Yes
+                    </Button>
+                    <Button
+                      size="small"
+                      variant="contained"
+                      onClick={(e) => { e.stopPropagation(); setSelectedMarket(market); setSelectedSide("NO"); }}
+                      sx={{
+                        height: 48,
+                        px: 2,
+                        borderRadius: "8px",
+                        bgcolor: "#3d1a1a",
+                        color: "#f44336",
+                        "&:hover": { bgcolor: "#4d1f1f" },
+                        fontWeight: "bold",
+                        opacity: selectedMarket?.id === market.id && selectedSide === "NO" ? 1 : 0.4,
+                      }}
+                    >
+                      Buy No
+                    </Button>
+                  </Stack>
+                  {i < arr.length - 1 && <Divider sx={{ mx: "10px" }} />}
+                </Box>
               ))}
           </Stack>
         )}
@@ -409,7 +513,7 @@ export default function EventView({
           </Stack>
         )}
       </Box>
-      <TradeCard selectedMarket={selectedMarket} initialSide={initialSide} />
+      <TradeCard selectedMarket={selectedMarket} side={selectedSide} onSideChange={setSelectedSide} />
     </Stack>
   );
 }

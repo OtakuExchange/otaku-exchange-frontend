@@ -33,7 +33,7 @@ const darkTheme = createTheme({
     background: { default: "#16191d", paper: "#16191d" },
   },
   typography: {
-    fontFamily: "sans-serif",
+    fontFamily: "'Inter', sans-serif",
   },
   components: {
     MuiAppBar: {
@@ -147,7 +147,7 @@ function App() {
                   component="div"
                   sx={{ flexGrow: 1, fontWeight: 600 }}
                 >
-                  FillyBExchange
+                  FillyB Exchange
                 </Typography>
                 {isSignedIn && (
                   <>
@@ -196,7 +196,7 @@ function App() {
                       <Button
                         variant="text"
                         size="small"
-                        sx={{ color: "#0093FD", fontWeight: 600, fontFamily: "sans-serif", fontSize: "14px", height: "36px", borderRadius: "6px", padding: "8px 16px", textTransform: "none" }}
+                        sx={{ color: "#0093FD", fontWeight: 600, fontSize: "14px", height: "36px", borderRadius: "6px", padding: "8px 16px", textTransform: "none" }}
                       >
                         Login
                       </Button>
@@ -205,7 +205,7 @@ function App() {
                       <Button
                         variant="contained"
                         size="small"
-                        sx={{ ml: 1, bgcolor: "#0093FD", color: "#fff", fontWeight: 600, fontFamily: "sans-serif", fontSize: "14px", height: "36px", borderRadius: "6px", padding: "8px 16px", textTransform: "none", "&:hover": { bgcolor: "#0093FD" } }}
+                        sx={{ ml: 1, bgcolor: "#0093FD", color: "#fff", fontWeight: 600, fontSize: "14px", height: "36px", borderRadius: "6px", padding: "8px 16px", textTransform: "none", "&:hover": { bgcolor: "#0093FD" } }}
                       >
                         Sign Up
                       </Button>

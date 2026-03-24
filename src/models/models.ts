@@ -57,6 +57,7 @@ export interface Market {
   isMatch: boolean;
   status: string;
   tradeVolume: number;
+  forecast: number | null;
   createdAt: string;
 }
 

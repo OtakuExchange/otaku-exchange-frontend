@@ -17,14 +17,15 @@ import { entityTextColor } from "../utils/entityTextColor";
 
 export default function TradeCard({
   selectedMarket,
-  initialSide = "YES",
+  side,
+  onSideChange,
 }: {
   selectedMarket: Market | null;
-  initialSide?: "YES" | "NO";
+  side: "YES" | "NO";
+  onSideChange: (side: "YES" | "NO") => void;
 }) {
   const { createOrder, createNotionalOrder } = useApi();
   const [orderType, setOrderType] = useState<"Market" | "Limit">("Market");
-  const [side, setSide] = useState<"YES" | "NO">(initialSide);
   const [amount, setAmount] = useState("");
   const [limitPrice, setLimitPrice] = useState("");
   const [shares, setShares] = useState("");
@@ -128,7 +129,7 @@ export default function TradeCard({
               <Button
                 variant="contained"
                 fullWidth
-                onClick={() => setSide("YES")}
+                onClick={() => onSideChange("YES")}
                 sx={{
                   bgcolor: yesColor + "26",
                   color: entityTextColor(yesColor),
@@ -142,7 +143,7 @@ export default function TradeCard({
               <Button
                 variant="contained"
                 fullWidth
-                onClick={() => setSide("NO")}
+                onClick={() => onSideChange("NO")}
                 sx={{
                   bgcolor: noColor + "26",
                   color: entityTextColor(noColor),

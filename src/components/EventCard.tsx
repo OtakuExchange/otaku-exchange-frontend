@@ -188,7 +188,11 @@ export default function EventCard({
             }}
           >
             {[...(markets ?? [])]
-              .sort((a, b) => b.tradeVolume - a.tradeVolume)
+              .sort((a, b) => {
+                const fa = a.forecast ?? -Infinity;
+                const fb = b.forecast ?? -Infinity;
+                return fb !== fa ? fb - fa : b.tradeVolume - a.tradeVolume;
+              })
               .map((market, i) => (
                 <Stack
                   key={i}

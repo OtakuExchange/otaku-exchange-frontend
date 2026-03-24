@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Button from "@mui/material/Button";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -43,7 +43,7 @@ const darkTheme = createTheme({
     },
     MuiTab: {
       styleOverrides: {
-        root: { fontSize: "14px", textTransform: "none", fontWeight: "bold" },
+        root: { fontSize: "14px", textTransform: "none", fontWeight: 600 },
       },
     },
     MuiTouchRipple: {
@@ -63,7 +63,8 @@ interface NavTab {
 
 function EventViewRoute() {
   const { state } = useLocation();
-  return <EventView event={state?.event} initialMarkets={state?.markets} />;
+  if (!state?.event) return <Navigate to="/" replace />;
+  return <EventView event={state.event} initialMarkets={state.markets} initialSide={state.side} initialMarketId={state.selectedMarketId} />;
 }
 
 function App() {
@@ -73,8 +74,16 @@ function App() {
   const { fetchTopics, fetchCurrentUser, fetchMyOrders, fetchPortfolioTotal } =
     useApi();
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [dollars, setDollars] = useState<number | null>(null);
+  const [cash, setCash] = useState<number | null>(null);
   const [portfolio, setPortfolio] = useState<number | null>(null);
+  const prevIsSignedIn = useRef<boolean | undefined>(undefined);
+
+  useEffect(() => {
+    if (prevIsSignedIn.current === false && isSignedIn) {
+      navigate("/");
+    }
+    prevIsSignedIn.current = isSignedIn;
+  }, [isSignedIn]);
 
   useEffect(() => {
     fetchTopics().then(setTopics).catch(console.error);
@@ -82,7 +91,7 @@ function App() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      setDollars(null);
+      setCash(null);
       setPortfolio(null);
       return;
     }
@@ -94,7 +103,7 @@ function App() {
       .then(([currentUser, orders, total]) => {
         if (!currentUser) return;
         const locked = orders.reduce((sum, o) => sum + o.lockedAmount, 0);
-        setDollars(currentUser.balance - locked);
+        setCash(currentUser.balance - locked);
         setPortfolio(total);
       })
       .catch(console.error);
@@ -136,37 +145,41 @@ function App() {
                 <Typography
                   variant="h6"
                   component="div"
-                  sx={{ flexGrow: 1, fontWeight: "bold" }}
+                  sx={{ flexGrow: 1, fontWeight: 600 }}
                 >
                   FillyBExchange
                 </Typography>
-                <Box
-                  onClick={() => navigate("/portfolio")}
-                  sx={{ textAlign: "center", mr: 2, cursor: "pointer" }}
-                >
-                  <Typography
-                    sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}
-                  >
-                    Portfolio
-                  </Typography>
-                  <Typography
-                    sx={{ color: "#3DB468", fontSize: "16px", lineHeight: 1.2 }}
-                  >
-                    {portfolio ?? 0}¢
-                  </Typography>
-                </Box>
-                <Box sx={{ textAlign: "center", mr: 2 }}>
-                  <Typography
-                    sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}
-                  >
-                    Dollars
-                  </Typography>
-                  <Typography
-                    sx={{ color: "#3DB468", fontSize: "16px", lineHeight: 1.2 }}
-                  >
-                    {dollars ?? 0}¢
-                  </Typography>
-                </Box>
+                {isSignedIn && (
+                  <>
+                    <Box
+                      onClick={() => navigate("/portfolio")}
+                      sx={{ textAlign: "center", mr: 2, cursor: "pointer" }}
+                    >
+                      <Typography
+                        sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}
+                      >
+                        Portfolio
+                      </Typography>
+                      <Typography
+                        sx={{ color: "#3DB468", fontSize: "16px", lineHeight: 1.2, fontWeight: 600 }}
+                      >
+                        {portfolio ?? 0}¢
+                      </Typography>
+                    </Box>
+                    <Box sx={{ textAlign: "center", mr: 2 }}>
+                      <Typography
+                        sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}
+                      >
+                        Cash
+                      </Typography>
+                      <Typography
+                        sx={{ color: "#3DB468", fontSize: "16px", lineHeight: 1.2, fontWeight: 600 }}
+                      >
+                        ${((cash ?? 0) / 100).toFixed(2)}
+                      </Typography>
+                    </Box>
+                  </>
+                )}
                 {isSignedIn ? (
                   <UserButton>
                     <UserButton.MenuItems>
@@ -180,16 +193,19 @@ function App() {
                 ) : (
                   <>
                     <SignInButton mode="modal">
-                      <Button color="inherit" variant="outlined" size="small">
+                      <Button
+                        variant="text"
+                        size="small"
+                        sx={{ color: "#0093FD", fontWeight: 600, fontFamily: "sans-serif", fontSize: "14px", height: "36px", borderRadius: "6px", padding: "8px 16px", textTransform: "none" }}
+                      >
                         Login
                       </Button>
                     </SignInButton>
                     <SignUpButton mode="modal">
                       <Button
-                        color="inherit"
-                        variant="outlined"
+                        variant="contained"
                         size="small"
-                        sx={{ ml: 1 }}
+                        sx={{ ml: 1, bgcolor: "#0093FD", color: "#fff", fontWeight: 600, fontFamily: "sans-serif", fontSize: "14px", height: "36px", borderRadius: "6px", padding: "8px 16px", textTransform: "none", "&:hover": { bgcolor: "#0093FD" } }}
                       >
                         Sign Up
                       </Button>

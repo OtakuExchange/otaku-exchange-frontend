@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Divider from "@mui/material/Divider";
+import Skeleton from "@mui/material/Skeleton";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
@@ -11,6 +12,7 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import type { Comment, Event, Market, Trade } from "../models/models";
 import { useApi } from "../hooks/useApi";
+import { useUserId } from "../contexts/UserContext";
 import { LineChart } from "@mui/x-charts/LineChart";
 import TradeCard from "../components/TradeCard";
 import Tabs from "@mui/material/Tabs";
@@ -19,9 +21,11 @@ import Tab from "@mui/material/Tab";
 function CommentItem({
   comment,
   onLike,
+  isLoggedIn,
 }: {
   comment: Comment;
   onLike: (id: Comment["id"]) => void;
+  isLoggedIn: boolean;
 }) {
   return (
     <Box>
@@ -39,6 +43,7 @@ function CommentItem({
           size="small"
           sx={{ p: 0.5 }}
           onClick={() => onLike(comment.id)}
+          disabled={!isLoggedIn}
         >
           {comment.likedByUser ? <FavoriteIcon /> : <FavoriteBorderIcon />}
         </IconButton>
@@ -78,9 +83,13 @@ function InfoTab(props: TabPanelProps) {
 export default function EventView({
   event,
   initialMarkets,
+  initialSide,
+  initialMarketId,
 }: {
   event: Event;
   initialMarkets?: Market[];
+  initialSide?: "YES" | "NO";
+  initialMarketId?: string;
 }) {
   const {
     fetchComments,
@@ -90,10 +99,12 @@ export default function EventView({
     likeComment,
     unlikeComment,
   } = useApi();
+  const userId = useUserId();
   const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
   const [markets, setMarkets] = useState<Market[]>(initialMarkets ?? []);
   const [selectedMarket, setSelectedMarket] = useState<Market | null>(
-    initialMarkets?.[0] ?? null,
+    (initialMarketId ? initialMarkets?.find((m) => m.id === initialMarketId) : null) ?? initialMarkets?.[0] ?? null,
   );
   const [tradesByMarket, setTradesByMarket] = useState<Record<string, Trade[]>>(
     {},
@@ -103,7 +114,10 @@ export default function EventView({
   const [infoTabIdx, setInfoTabIdx] = useState<number>(0);
 
   useEffect(() => {
-    fetchComments(event.id).then(setComments).catch(console.error);
+    fetchComments(event.id)
+      .then(setComments)
+      .catch(console.error)
+      .finally(() => setCommentsLoading(false));
     const marketsPromise = initialMarkets
       ? Promise.resolve(initialMarkets)
       : fetchMarkets(event.id).then((data) => {
@@ -202,24 +216,35 @@ export default function EventView({
   function handleLike(commentId: Comment["id"]) {
     const comment = comments.find((c) => c.id === commentId);
     if (!comment) return;
+    // Optimistically update UI immediately
+    setComments((prev) =>
+      prev.map((c) =>
+        c.id === commentId
+          ? {
+              ...c,
+              likes: c.likedByUser ? c.likes - 1 : c.likes + 1,
+              likedByUser: !c.likedByUser,
+            }
+          : c,
+      ),
+    );
     const action = comment.likedByUser
       ? unlikeComment(event.id, commentId)
       : likeComment(event.id, commentId);
-    action
-      .then(() =>
-        setComments((prev) =>
-          prev.map((c) =>
-            c.id === commentId
-              ? {
-                  ...c,
-                  likes: c.likedByUser ? c.likes - 1 : c.likes + 1,
-                  likedByUser: !c.likedByUser,
-                }
-              : c,
-          ),
+    action.catch(() => {
+      // Revert on failure
+      setComments((prev) =>
+        prev.map((c) =>
+          c.id === commentId
+            ? {
+                ...c,
+                likes: comment.likedByUser ? c.likes + 1 : c.likes - 1,
+                likedByUser: comment.likedByUser,
+              }
+            : c,
         ),
-      )
-      .catch(console.error);
+      );
+    });
   }
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
@@ -366,19 +391,25 @@ export default function EventView({
             Post
           </Button>
         </Stack>
-        {comments.length === 0 ? (
+        {commentsLoading ? (
+          <Stack spacing={2}>
+            {[0, 1, 2].map((i) => (
+              <Skeleton key={i} variant="rectangular" height={60} sx={{ borderRadius: 1 }} />
+            ))}
+          </Stack>
+        ) : comments.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
             No comments yet.
           </Typography>
         ) : (
           <Stack spacing={2}>
             {comments.map((c) => (
-              <CommentItem key={c.id} comment={c} onLike={handleLike} />
+              <CommentItem key={c.id} comment={c} onLike={handleLike} isLoggedIn={!!userId} />
             ))}
           </Stack>
         )}
       </Box>
-      <TradeCard selectedMarket={selectedMarket} />
+      <TradeCard selectedMarket={selectedMarket} initialSide={initialSide} />
     </Stack>
   );
 }

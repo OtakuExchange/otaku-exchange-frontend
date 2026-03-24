@@ -11,7 +11,12 @@ export default function PortfolioView() {
   const [orders, setOrders] = useState<Order[]>([]);
 
   useEffect(() => {
-    fetchMyOrders("OPEN", "LIMIT").then(setOrders).catch(console.error);
+    Promise.all([
+      fetchMyOrders("OPEN", "LIMIT"),
+      fetchMyOrders("PARTIALLY_FILLED", "LIMIT"),
+    ])
+      .then(([open, partial]) => setOrders([...open, ...partial]))
+      .catch(console.error);
   }, []);
 
   function handleCancel(orderId: Order["id"]) {
@@ -45,6 +50,14 @@ export default function PortfolioView() {
               >
                 {order.marketLabel}
               </Typography>
+              {order.status === "PARTIALLY_FILLED" && (
+                <Typography
+                  variant="body2"
+                  sx={{ color: "#f5a623", fontWeight: 600, whiteSpace: "nowrap" }}
+                >
+                  Partially Filled · {order.remaining} remaining
+                </Typography>
+              )}
               <Typography
                 variant="body2"
                 sx={{

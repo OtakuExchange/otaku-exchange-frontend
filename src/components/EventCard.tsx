@@ -13,6 +13,7 @@ import Typography from "@mui/material/Typography";
 import type { Event, Market } from "../models/models";
 import { useApi } from "../hooks/useApi";
 import { entityTextColor } from "../utils/entityTextColor";
+import { useMarketsQuery } from "../hooks/queries/useMarketsQuery";
 
 export default function EventCard({
   event,
@@ -24,15 +25,11 @@ export default function EventCard({
   onBookmarkChange?: (id: Event["id"], bookmarked: boolean) => void;
 }) {
   const navigate = useNavigate();
-  const { fetchMarkets, bookmarkEvent, unbookmarkEvent } = useApi();
-  const [markets, setMarkets] = useState<Market[] | null>(null);
-  const matchMarket = markets?.find((m) => m.isMatch) ?? null;
+  const { bookmarkEvent, unbookmarkEvent } = useApi();
+  const { data: markets, isLoading, error } = useMarketsQuery(event.id);
+  const matchMarket = markets ? markets.find((m) => m.isMatch) : null;
   const isMatch =
-    markets !== null && event.format === "binary" && matchMarket !== null;
-
-  useEffect(() => {
-    fetchMarkets(event.id).then(setMarkets).catch(console.error);
-  }, [event.id]);
+    markets && event.format === "binary" && matchMarket !== null;
 
   function handleBookmark() {
     onBookmarkChange?.(event.id, !bookmarked);
@@ -54,7 +51,7 @@ export default function EventCard({
       <CardContent
         sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}
       >
-        {markets === null ? (
+        {isLoading ? (
           <Stack spacing={1} sx={{ flexGrow: 1, justifyContent: "center" }}>
             <Skeleton
               variant="rectangular"
@@ -67,7 +64,7 @@ export default function EventCard({
               sx={{ borderRadius: 1 }}
             />
           </Stack>
-        ) : isMatch ? (
+        ) : markets && isMatch ? (
           <Stack
             sx={{ mb: 1 }}
             onClick={() =>
@@ -141,7 +138,7 @@ export default function EventCard({
             </Typography>
           </Stack>
         )}
-        {markets !== null && isMatch ? (
+        {markets && isMatch ? (
           <Stack
             direction="row"
             alignItems="center"

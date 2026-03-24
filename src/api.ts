@@ -245,7 +245,7 @@ export async function createOrder(
   orderType: "LIMIT" | "MARKET",
   getToken: GetToken,
 ): Promise<void> {
-  return fetch(`${API_URL}/orders`, {
+  const res = await fetch(`${API_URL}/orders`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -259,7 +259,8 @@ export async function createOrder(
       lockedAmount,
       orderType,
     }),
-  }).then(() => undefined);
+  });
+  if (!res.ok) throw new Error(`${res.status}`);
 }
 
 export async function createNotionalOrder(
@@ -268,7 +269,7 @@ export async function createNotionalOrder(
   notionalAmount: number,
   getToken: GetToken,
 ): Promise<void> {
-  return fetch(`${API_URL}/orders`, {
+  const res = await fetch(`${API_URL}/orders`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -283,7 +284,8 @@ export async function createNotionalOrder(
       lockedAmount: notionalAmount,
       orderType: "NOTIONAL",
     }),
-  }).then(() => undefined);
+  });
+  if (!res.ok) throw new Error(`${res.status}`);
 }
 
 export async function fetchMyOrders(

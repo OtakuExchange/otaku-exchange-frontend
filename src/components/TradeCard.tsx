@@ -1,9 +1,12 @@
 import { useState } from "react";
+import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import CircularProgress from "@mui/material/CircularProgress";
+import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
 import Tab from "@mui/material/Tab";
 import Tabs from "@mui/material/Tabs";
@@ -25,24 +28,31 @@ export default function TradeCard({
   const [amount, setAmount] = useState("");
   const [limitPrice, setLimitPrice] = useState("");
   const [shares, setShares] = useState("");
+  const [buying, setBuying] = useState(false);
+  const [toastOpen, setToastOpen] = useState(false);
+  const [toast, setToast] = useState<{ message: string; severity: "success" | "error" } | null>(null);
 
-  function handleBuy() {
+  async function handleBuy() {
     if (!selectedMarket) return;
-    if (orderType === "Market") {
-      createNotionalOrder(selectedMarket.id, side, Number(amount)).catch(
-        console.error,
-      );
-    } else {
-      const price = Number(limitPrice);
-      const quantity = Number(shares);
-      createOrder(
-        selectedMarket.id,
-        side,
-        price,
-        quantity,
-        price * quantity,
-        "LIMIT",
-      ).catch(console.error);
+    setBuying(true);
+    try {
+      if (orderType === "Market") {
+        await createNotionalOrder(selectedMarket.id, side, Number(amount));
+        setToast({ message: "Market Order placed", severity: "success" });
+        setToastOpen(true);
+      } else {
+        const price = Number(limitPrice);
+        const quantity = Number(shares);
+        await createOrder(selectedMarket.id, side, price, quantity, price * quantity, "LIMIT");
+        setToast({ message: "Limit Order placed", severity: "success" });
+        setToastOpen(true);
+      }
+    } catch (e) {
+      console.error(e);
+      setToast({ message: `Failed to place ${orderType} Order`, severity: "error" });
+      setToastOpen(true);
+    } finally {
+      setBuying(false);
     }
   }
 
@@ -177,17 +187,27 @@ export default function TradeCard({
             variant="contained"
             fullWidth
             onClick={handleBuy}
-            disabled={orderType === "Limit" ? !limitPrice || !shares : !amount}
+            disabled={buying || (orderType === "Limit" ? !limitPrice || !shares : !amount)}
             sx={{
               bgcolor: "#1565c0",
               "&:hover": { bgcolor: "#1976d2" },
               fontWeight: "bold",
             }}
           >
-            Buy
+            {buying ? <CircularProgress size={20} color="inherit" /> : "Buy"}
           </Button>
         </Stack>
       </CardContent>
+      <Snackbar
+        open={toastOpen}
+        autoHideDuration={3000}
+        onClose={() => setToastOpen(false)}
+        anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+      >
+        <Alert severity={toast?.severity} onClose={() => setToastOpen(false)} sx={{ width: "100%", bgcolor: "#16191d", border: "1px solid #4C4E51", borderRadius: 2, color: "#fff", fontSize: "16px", py: 1.5, px: 2 }}>
+          {toast?.message}
+        </Alert>
+      </Snackbar>
     </Card>
   );
 }

@@ -13,7 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://associates-tabs-appeared-shipments.trycloudflare.com",
+        target: "https://paths-charm-layer-full.trycloudflare.com/",
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },

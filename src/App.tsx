@@ -72,10 +72,9 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
-  const { fetchTopics, fetchCurrentUser, fetchPortfolioTotal } = useApi();
+  const { fetchTopics, fetchCurrentUser } = useApi();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [cash, setCash] = useState<number | null>(null);
-  const [portfolio, setPortfolio] = useState<number | null>(null);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
 
   useEffect(() => {
@@ -106,14 +105,12 @@ function App() {
   useEffect(() => {
     if (!isSignedIn) {
       setCash(null);
-      setPortfolio(null);
       return;
     }
-    Promise.all([fetchCurrentUser(), fetchPortfolioTotal()])
-      .then(([currentUser, total]) => {
+    fetchCurrentUser()
+      .then((currentUser) => {
         if (!currentUser) return;
         setCash(currentUser.balance - currentUser.lockedBalance);
-        setPortfolio(total);
       })
       .catch(console.error);
   }, [isSignedIn]);
@@ -171,17 +168,17 @@ function App() {
                         py: 0.5,
                         borderRadius: 1,
                         "&:hover": { bgcolor: "action.hover" },
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        height: "100%",
+                        minHeight: "38px",
                       }}
                     >
                       <Typography
                         sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}
                       >
                         Portfolio
-                      </Typography>
-                      <Typography
-                        sx={{ color: "#3DB468", fontSize: "16px", lineHeight: 1.2, fontWeight: 600 }}
-                      >
-                        ${((portfolio ?? 0) / 100).toFixed(2)}
                       </Typography>
                     </Box>
                     <Box sx={{ textAlign: "center", mr: 2 }}>

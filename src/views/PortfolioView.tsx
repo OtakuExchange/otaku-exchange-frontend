@@ -4,10 +4,27 @@ import Button from "@mui/material/Button";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { Order } from "../models/models";
+import type { Market, Order } from "../models/models";
 import { useApi } from "../hooks/useApi";
 
-function OrderRow({ order, onCancel }: { order: Order; onCancel?: (id: Order["id"]) => void }) {
+function OrderRow({
+  order,
+  marketMap,
+  onCancel,
+}: {
+  order: Order;
+  marketMap: Record<string, Market>;
+  onCancel?: (id: Order["id"]) => void | Promise<void>;
+}) {
+  const market = marketMap[order.marketId];
+  const entity = market
+    ? order.side === "YES"
+      ? market.entity
+      : market.relatedEntity ?? market.entity
+    : null;
+  const sideColor = entity?.color ?? (order.side === "YES" ? "#4caf50" : "#f44336");
+  const sideLabel = entity?.abbreviatedName ?? order.side;
+
   return (
     <Stack
       direction="row"
@@ -28,9 +45,9 @@ function OrderRow({ order, onCancel }: { order: Order; onCancel?: (id: Order["id
       )}
       <Typography
         variant="body2"
-        sx={{ color: order.side === "YES" ? "#4caf50" : "#f44336", fontWeight: "bold", minWidth: 32 }}
+        sx={{ color: sideColor, fontWeight: "bold", minWidth: 32 }}
       >
-        {order.side}
+        {sideLabel}
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ minWidth: 40 }}>
         {order.price}¢
@@ -44,11 +61,12 @@ function OrderRow({ order, onCancel }: { order: Order; onCancel?: (id: Order["id
   );
 }
 
-function Section({ title, orders, loading, onCancel }: {
+function Section({ title, orders, marketMap, loading, onCancel }: {
   title: string;
   orders: Order[];
+  marketMap: Record<string, Market>;
   loading: boolean;
-  onCancel?: (id: Order["id"]) => void;
+  onCancel?: (id: Order["id"]) => void | Promise<void>;
 }) {
   return (
     <Box>
@@ -68,7 +86,7 @@ function Section({ title, orders, loading, onCancel }: {
       ) : (
         <Stack spacing={1}>
           {orders.map((order) => (
-            <OrderRow key={order.id} order={order} onCancel={onCancel} />
+            <OrderRow key={order.id} order={order} marketMap={marketMap} onCancel={onCancel} />
           ))}
         </Stack>
       )}
@@ -77,9 +95,10 @@ function Section({ title, orders, loading, onCancel }: {
 }
 
 export default function PortfolioView() {
-  const { fetchMyOrders, cancelOrder } = useApi();
+  const { fetchMyOrders, fetchMarkets, cancelOrder } = useApi();
   const [openOrders, setOpenOrders] = useState<Order[]>([]);
   const [filledOrders, setFilledOrders] = useState<Order[]>([]);
+  const [marketMap, setMarketMap] = useState<Record<string, Market>>({});
   const [loadingOpen, setLoadingOpen] = useState(true);
   const [loadingFilled, setLoadingFilled] = useState(true);
 
@@ -88,7 +107,11 @@ export default function PortfolioView() {
       fetchMyOrders("OPEN", "LIMIT"),
       fetchMyOrders("PARTIALLY_FILLED", "LIMIT"),
     ])
-      .then(([open, partial]) => setOpenOrders([...open, ...partial]))
+      .then(([open, partial]) => {
+        const combined = [...open, ...partial];
+        setOpenOrders(combined);
+        return combined;
+      })
       .catch(console.error)
       .finally(() => setLoadingOpen(false));
 
@@ -97,6 +120,19 @@ export default function PortfolioView() {
       .catch(console.error)
       .finally(() => setLoadingFilled(false));
   }, []);
+
+  useEffect(() => {
+    const allOrders = [...openOrders, ...filledOrders];
+    if (allOrders.length === 0) return;
+    const uniqueEventIds = [...new Set(allOrders.map((o) => o.eventId))];
+    Promise.all(uniqueEventIds.map((id) => fetchMarkets(id)))
+      .then((results) => {
+        const map: Record<string, Market> = {};
+        results.flat().forEach((m) => { map[m.id] = m; });
+        setMarketMap(map);
+      })
+      .catch(console.error);
+  }, [openOrders, filledOrders]);
 
   async function handleCancel(orderId: Order["id"]) {
     setOpenOrders((prev) => prev.filter((o) => o.id !== orderId));
@@ -117,8 +153,8 @@ export default function PortfolioView() {
         Portfolio
       </Typography>
       <Stack spacing={4}>
-        <Section title="Open Limit Orders" orders={openOrders} loading={loadingOpen} onCancel={handleCancel} />
-        <Section title="Fulfilled Limit Orders" orders={filledOrders} loading={loadingFilled} />
+        <Section title="Open Limit Orders" orders={openOrders} marketMap={marketMap} loading={loadingOpen} onCancel={handleCancel} />
+        <Section title="Fulfilled Limit Orders" orders={filledOrders} marketMap={marketMap} loading={loadingFilled} />
       </Stack>
     </Box>
   );

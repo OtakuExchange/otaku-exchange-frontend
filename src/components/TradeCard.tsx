@@ -8,8 +8,6 @@ import CardContent from "@mui/material/CardContent";
 import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
 import type { Market } from "../models/models";
 import { useApi } from "../hooks/useApi";
@@ -27,7 +25,7 @@ export default function TradeCard({
 }) {
   const { createOrder, createNotionalOrder } = useApi();
   const refreshCash = useRefreshCash();
-  const [orderType, setOrderType] = useState<"Market" | "Limit">("Market");
+  const [orderType] = useState<"Market" | "Limit">("Limit");
   const [amount, setAmount] = useState("");
   const [limitPrice, setLimitPrice] = useState("");
   const [shares, setShares] = useState("");
@@ -98,23 +96,6 @@ export default function TradeCard({
               </Stack>
             );
           })()}
-        <Tabs
-          value={orderType}
-          onChange={(_, v) => setOrderType(v)}
-          sx={{ mb: 2 }}
-          slotProps={{ indicator: { style: { display: "none" } } }}
-        >
-          <Tab
-            label="Market"
-            value="Market"
-            sx={{ fontWeight: "bold", textTransform: "none", fontSize: "14px" }}
-          />
-          <Tab
-            label="Limit"
-            value="Limit"
-            sx={{ fontWeight: "bold", textTransform: "none", fontSize: "14px" }}
-          />
-        </Tabs>
         {(() => {
           const yesColor = selectedMarket?.isMatch
             ? (selectedMarket.entity?.color ?? "#40c3ff")

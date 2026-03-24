@@ -13,8 +13,7 @@ export default defineConfig({
   server: {
     proxy: {
       "/api": {
-        target: "https://television-conceptual-buried-been.trycloudflare.com",
-        changeOrigin: true,
+        target: "http://localhost:8080",
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
     },

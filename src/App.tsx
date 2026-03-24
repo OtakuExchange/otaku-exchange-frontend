@@ -25,6 +25,7 @@ import TopicView from "./views/TopicView";
 import type { Topic, UUID } from "./models/models";
 import { TopicsContext } from "./contexts/TopicsContext";
 import { UserContext } from "./contexts/UserContext";
+import { RefreshCashContext } from "./contexts/RefreshCashContext";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 
 const darkTheme = createTheme({
@@ -71,8 +72,7 @@ function App() {
   const location = useLocation();
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
-  const { fetchTopics, fetchCurrentUser, fetchMyOrders, fetchPortfolioTotal } =
-    useApi();
+  const { fetchTopics, fetchCurrentUser, fetchPortfolioTotal } = useApi();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [cash, setCash] = useState<number | null>(null);
   const [portfolio, setPortfolio] = useState<number | null>(null);
@@ -89,21 +89,25 @@ function App() {
     fetchTopics().then(setTopics).catch(console.error);
   }, [isSignedIn]);
 
+  function refreshCash() {
+    fetchCurrentUser()
+      .then((currentUser) => {
+        if (!currentUser) return;
+        setCash(currentUser.balance - currentUser.lockedBalance);
+      })
+      .catch(console.error);
+  }
+
   useEffect(() => {
     if (!isSignedIn) {
       setCash(null);
       setPortfolio(null);
       return;
     }
-    Promise.all([
-      fetchCurrentUser(),
-      fetchMyOrders("OPEN", "LIMIT"),
-      fetchPortfolioTotal(),
-    ])
-      .then(([currentUser, orders, total]) => {
+    Promise.all([fetchCurrentUser(), fetchPortfolioTotal()])
+      .then(([currentUser, total]) => {
         if (!currentUser) return;
-        const locked = orders.reduce((sum, o) => sum + o.lockedAmount, 0);
-        setCash(currentUser.balance - locked);
+        setCash(currentUser.balance - currentUser.lockedBalance);
         setPortfolio(total);
       })
       .catch(console.error);
@@ -121,6 +125,7 @@ function App() {
     false;
 
   return (
+    <RefreshCashContext.Provider value={refreshCash}>
     <UserContext.Provider value={user?.id ?? null}>
       <TopicsContext.Provider value={topics}>
         <ThemeProvider theme={darkTheme}>
@@ -268,6 +273,7 @@ function App() {
         </ThemeProvider>
       </TopicsContext.Provider>
     </UserContext.Provider>
+    </RefreshCashContext.Provider>
   );
 }
 

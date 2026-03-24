@@ -13,6 +13,7 @@ import Tabs from "@mui/material/Tabs";
 import Typography from "@mui/material/Typography";
 import type { Market } from "../models/models";
 import { useApi } from "../hooks/useApi";
+import { useRefreshCash } from "../contexts/RefreshCashContext";
 import { entityTextColor } from "../utils/entityTextColor";
 
 export default function TradeCard({
@@ -25,6 +26,7 @@ export default function TradeCard({
   onSideChange: (side: "YES" | "NO") => void;
 }) {
   const { createOrder, createNotionalOrder } = useApi();
+  const refreshCash = useRefreshCash();
   const [orderType, setOrderType] = useState<"Market" | "Limit">("Market");
   const [amount, setAmount] = useState("");
   const [limitPrice, setLimitPrice] = useState("");
@@ -41,12 +43,14 @@ export default function TradeCard({
         await createNotionalOrder(selectedMarket.id, side, Number(amount));
         setToast({ message: "Market Order placed", severity: "success" });
         setToastOpen(true);
+        refreshCash();
       } else {
         const price = Number(limitPrice);
         const quantity = Number(shares);
         await createOrder(selectedMarket.id, side, price, quantity, price * quantity, "LIMIT");
         setToast({ message: "Limit Order placed", severity: "success" });
         setToastOpen(true);
+        refreshCash();
       }
     } catch (e) {
       console.error(e);

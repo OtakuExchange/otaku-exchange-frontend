@@ -64,6 +64,7 @@ export interface CurrentUser {
   username: string;
   email: string;
   balance: number;
+  lockedBalance: number;
   isAdmin: boolean;
 }
 

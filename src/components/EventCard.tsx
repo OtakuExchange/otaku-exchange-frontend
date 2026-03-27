@@ -54,40 +54,51 @@ export default function EventCard({
           </Stack>
         ) : (
           <>
-            <Stack
-              sx={{ mb: 1 }}
-              onClick={() =>
-                navigate(`/events/${event.id}`, { state: { event, pools } })
-              }
-            >
-              {(pools ?? []).map((pool, i) => (
+            {(() => {
+              const totalVolume = (pools ?? []).reduce((sum, p) => sum + p.volume, 0);
+              return (
                 <Stack
-                  key={pool.id}
-                  direction="row"
-                  alignItems="center"
-                  spacing={1}
-                  sx={{
-                    height: 36,
-                    minHeight: 36,
-                    mb: i === 0 ? "4px" : 0,
-                    cursor: "pointer",
-                  }}
+                  sx={{ mb: 1 }}
+                  onClick={() =>
+                    navigate(`/events/${event.id}`, { state: { event, pools } })
+                  }
                 >
-                  {pool.entity ? (
-                    <Box
-                      component="img"
-                      src={pool.entity.logoPath}
-                      sx={{ width: 24, height: 24, flexShrink: 0, borderRadius: 0.5 }}
-                    />
-                  ) : (
-                    <Box sx={{ width: 24, height: 24, flexShrink: 0 }} />
-                  )}
-                  <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600 }}>
-                    {pool.entity?.name ?? pool.label}
-                  </Typography>
+                  {(pools ?? []).map((pool, i) => {
+                    const pct = totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
+                    return (
+                      <Stack
+                        key={pool.id}
+                        direction="row"
+                        alignItems="center"
+                        spacing={1}
+                        sx={{
+                          height: 36,
+                          minHeight: 36,
+                          mb: i === 0 ? "4px" : 0,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {pool.entity ? (
+                          <Box
+                            component="img"
+                            src={pool.entity.logoPath}
+                            sx={{ width: 24, height: 24, flexShrink: 0, borderRadius: 0.5 }}
+                          />
+                        ) : (
+                          <Box sx={{ width: 24, height: 24, flexShrink: 0 }} />
+                        )}
+                        <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600 }}>
+                          {pool.entity?.name ?? pool.label}
+                        </Typography>
+                        <Typography variant="body2" fontWeight={700} sx={{ color: "#7B8996" }}>
+                          {pct}%
+                        </Typography>
+                      </Stack>
+                    );
+                  })}
                 </Stack>
-              ))}
-            </Stack>
+              );
+            })()}
             <Stack
               direction="row"
               alignItems="center"

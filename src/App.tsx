@@ -62,9 +62,26 @@ interface NavTab {
 }
 
 function EventViewRoute() {
-  const { state } = useLocation();
-  if (!state?.event) return <Navigate to="/" replace />;
-  return <EventView event={state.event} initialPools={state.pools} initialPoolId={state.selectedPoolId} />;
+  const { state, pathname } = useLocation();
+
+  const event = state?.event ?? (() => {
+    try { return JSON.parse(sessionStorage.getItem(`event:${pathname}`) ?? "null"); } catch { return null; }
+  })();
+  const pools = state?.pools ?? (() => {
+    try { return JSON.parse(sessionStorage.getItem(`pools:${pathname}`) ?? "null"); } catch { return null; }
+  })();
+
+  useEffect(() => {
+    if (state?.event) {
+      sessionStorage.setItem(`event:${pathname}`, JSON.stringify(state.event));
+    }
+    if (state?.pools) {
+      sessionStorage.setItem(`pools:${pathname}`, JSON.stringify(state.pools));
+    }
+  }, [pathname, state]);
+
+  if (!event) return <Navigate to="/" replace />;
+  return <EventView event={event} initialPools={pools ?? undefined} initialPoolId={state?.selectedPoolId} />;
 }
 
 function App() {
@@ -76,10 +93,6 @@ function App() {
   const [cash, setCash] = useState<number | null>(null);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
 
-  useEffect(() => {
-    const nav = performance.getEntriesByType("navigation")[0] as PerformanceNavigationTiming | undefined;
-    if (nav?.type === "reload") navigate("/", { replace: true });
-  }, []);
 
   useEffect(() => {
     if (prevIsSignedIn.current === false && isSignedIn) {

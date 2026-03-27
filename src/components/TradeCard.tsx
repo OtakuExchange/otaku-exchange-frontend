@@ -9,50 +9,51 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { Market } from "../models/models";
+import type { Pool } from "../models/models";
 import { useApi } from "../hooks/useApi";
 import { useRefreshCash } from "../contexts/RefreshCashContext";
 import { entityTextColor } from "../utils/entityTextColor";
 
 export default function TradeCard({
-  selectedMarket,
-  side,
-  onSideChange,
+  pools,
+  selectedPool,
+  onPoolChange,
+  onBuySuccess,
 }: {
-  selectedMarket: Market | null;
-  side: "YES" | "NO";
-  onSideChange: (side: "YES" | "NO") => void;
+  pools: Pool[];
+  selectedPool: Pool | null;
+  onPoolChange: (pool: Pool) => void;
+  onBuySuccess?: () => void;
 }) {
-  const { createOrder, createNotionalOrder } = useApi();
+  const { createStake } = useApi();
   const refreshCash = useRefreshCash();
-  const [orderType] = useState<"Market" | "Limit">("Limit");
-  const [amount, setAmount] = useState("");
-  const [limitPrice, setLimitPrice] = useState("");
-  const [shares, setShares] = useState("");
+  const [rawAmount, setRawAmount] = useState("");
   const [buying, setBuying] = useState(false);
+
+  function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const digits = e.target.value.replace(/\D/g, "");
+    setRawAmount(digits);
+  }
+
+  const dollars = rawAmount ? (parseInt(rawAmount, 10) / 100).toFixed(2) : "";
+  const displayAmount = dollars ? `$${dollars}` : "";
   const [toastOpen, setToastOpen] = useState(false);
   const [toast, setToast] = useState<{ message: string; severity: "success" | "error" } | null>(null);
 
   async function handleBuy() {
-    if (!selectedMarket) return;
+    if (!selectedPool) return;
     setBuying(true);
     try {
-      if (orderType === "Market") {
-        await createNotionalOrder(selectedMarket.id, side, Number(amount));
-        setToast({ message: "Market Order placed", severity: "success" });
-        setToastOpen(true);
-        refreshCash();
-      } else {
-        const price = Number(limitPrice);
-        const quantity = Number(shares);
-        await createOrder(selectedMarket.id, side, price, quantity, price * quantity, "LIMIT");
-        setToast({ message: "Limit Order placed", severity: "success" });
-        setToastOpen(true);
-        refreshCash();
-      }
+      await createStake(selectedPool.id, parseInt(rawAmount, 10));
+      const usd = `$${(parseInt(rawAmount, 10) / 100).toFixed(2)}`;
+      const label = selectedPool.entity?.name ?? selectedPool.label;
+      setToast({ message: `Bought ${usd} stake in ${label}`, severity: "success" });
+      setToastOpen(true);
+      refreshCash();
+      onBuySuccess?.();
     } catch (e) {
       console.error(e);
-      setToast({ message: `Failed to place ${orderType} Order`, severity: "error" });
+      setToast({ message: "Failed to place order", severity: "error" });
       setToastOpen(true);
     } finally {
       setBuying(false);
@@ -62,121 +63,56 @@ export default function TradeCard({
   return (
     <Card sx={{ width: { xs: "100%", sm: "25%" }, flexShrink: 0, borderRadius: 3 }}>
       <CardContent>
-        {selectedMarket &&
-          (() => {
-            const displayEntity = selectedMarket.isMatch
-              ? side === "YES"
-                ? selectedMarket.entity
-                : selectedMarket.relatedEntity
-              : selectedMarket.entity;
+        {selectedPool && (
+          <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2 }}>
+            {selectedPool.entity?.logoPath && (
+              <Box
+                component="img"
+                src={selectedPool.entity.logoPath}
+                sx={{ width: 48, height: 48, borderRadius: 0.5, flexShrink: 0 }}
+              />
+            )}
+            <Typography variant="body2" fontWeight="bold">
+              {selectedPool.entity?.name ?? selectedPool.label}
+            </Typography>
+          </Stack>
+        )}
+        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+          {pools.map((pool) => {
+            const color = pool.entity?.color ?? "#1565c0";
             return (
-              <Stack
-                direction="row"
-                alignItems="center"
-                spacing={1.5}
-                sx={{ mb: 2 }}
+              <Button
+                key={pool.id}
+                variant="contained"
+                fullWidth
+                onClick={() => onPoolChange(pool)}
+                sx={{
+                  bgcolor: color + "26",
+                  color: entityTextColor(color),
+                  "&:hover": { bgcolor: color + "40" },
+                  fontWeight: "bold",
+                  opacity: selectedPool?.id === pool.id ? 1 : 0.5,
+                }}
               >
-                {displayEntity?.logoPath && (
-                  <Box
-                    component="img"
-                    src={displayEntity.logoPath}
-                    sx={{
-                      width: 48,
-                      height: 48,
-                      borderRadius: 0.5,
-                      flexShrink: 0,
-                    }}
-                  />
-                )}
-                <Typography variant="body2" fontWeight="bold">
-                  {selectedMarket.isMatch
-                    ? displayEntity?.name
-                    : selectedMarket.label}
-                </Typography>
-              </Stack>
+                {pool.entity?.abbreviatedName ?? pool.label}
+              </Button>
             );
-          })()}
-        {(() => {
-          const yesColor = selectedMarket?.isMatch
-            ? (selectedMarket.entity?.color ?? "#40c3ff")
-            : "#4caf50";
-          const noColor = selectedMarket?.isMatch
-            ? (selectedMarket.relatedEntity?.color ?? "#ff3333")
-            : "#f44336";
-          const yesLabel = selectedMarket?.isMatch
-            ? (selectedMarket.entity?.abbreviatedName ?? "Yes")
-            : "Yes";
-          const noLabel = selectedMarket?.isMatch
-            ? (selectedMarket.relatedEntity?.abbreviatedName ?? "No")
-            : "No";
-          const forecast = selectedMarket?.forecast;
-          const yesForecast = forecast != null ? Math.round(forecast) : null;
-          const noForecast = forecast != null ? Math.round(100 - forecast) : null;
-          return (
-            <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
-              <Button
-                variant="contained"
-                fullWidth
-                onClick={() => onSideChange("YES")}
-                sx={{
-                  bgcolor: yesColor + "26",
-                  color: entityTextColor(yesColor),
-                  "&:hover": { bgcolor: yesColor + "40" },
-                  fontWeight: "bold",
-                  opacity: side === "YES" ? 1 : 0.5,
-                }}
-              >
-                <Box component="span" sx={{ opacity: 0.7 }}>{yesLabel}</Box>{yesForecast != null ? <Box component="span">&nbsp;{yesForecast}¢</Box> : ""}
-              </Button>
-              <Button
-                variant="contained"
-                fullWidth
-                onClick={() => onSideChange("NO")}
-                sx={{
-                  bgcolor: noColor + "26",
-                  color: entityTextColor(noColor),
-                  "&:hover": { bgcolor: noColor + "40" },
-                  fontWeight: "bold",
-                  opacity: side === "NO" ? 1 : 0.5,
-                }}
-              >
-                <Box component="span" sx={{ opacity: 0.7 }}>{noLabel}</Box>{noForecast != null ? <Box component="span">&nbsp;{noForecast}¢</Box> : ""}
-              </Button>
-            </Stack>
-          );
-        })()}
+          })}
+        </Stack>
         <Stack spacing={1}>
-          {orderType === "Limit" ? (
-            <>
-              <TextField
-                size="small"
-                fullWidth
-                placeholder="Limit Price"
-                value={limitPrice}
-                onChange={(e) => setLimitPrice(e.target.value)}
-              />
-              <TextField
-                size="small"
-                fullWidth
-                placeholder="Shares"
-                value={shares}
-                onChange={(e) => setShares(e.target.value)}
-              />
-            </>
-          ) : (
-            <TextField
-              size="small"
-              fullWidth
-              placeholder="Amount"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          )}
+          <TextField
+            size="small"
+            fullWidth
+            placeholder="$0.00"
+            value={displayAmount}
+            onChange={handleAmountChange}
+            slotProps={{ htmlInput: { inputMode: "numeric" } }}
+          />
           <Button
             variant="contained"
             fullWidth
             onClick={handleBuy}
-            disabled={buying || (orderType === "Limit" ? !limitPrice || !shares : !amount)}
+            disabled={buying || !rawAmount}
             sx={{
               bgcolor: "#1565c0",
               "&:hover": { bgcolor: "#1976d2" },

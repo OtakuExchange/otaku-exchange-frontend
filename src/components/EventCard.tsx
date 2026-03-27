@@ -12,7 +12,7 @@ import Typography from "@mui/material/Typography";
 import type { Event } from "../models/models";
 import { useApi } from "../hooks/useApi";
 import { entityTextColor } from "../utils/entityTextColor";
-import { useMarketsQuery } from "../hooks/queries/useMarketsQuery";
+import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
 
 export default function EventCard({
   event,
@@ -25,10 +25,7 @@ export default function EventCard({
 }) {
   const navigate = useNavigate();
   const { bookmarkEvent, unbookmarkEvent } = useApi();
-  const { data: markets, isLoading } = useMarketsQuery(event.id);
-  const matchMarket = markets ? markets.find((m) => m.isMatch) : null;
-  const isMatch =
-    markets && event.format === "binary" && matchMarket !== null;
+  const { data: pools, isLoading } = usePoolsQuery(event.id);
 
   function handleBookmark() {
     onBookmarkChange?.(event.id, !bookmarked);
@@ -52,28 +49,20 @@ export default function EventCard({
       >
         {isLoading ? (
           <Stack spacing={1} sx={{ flexGrow: 1, justifyContent: "center" }}>
-            <Skeleton
-              variant="rectangular"
-              height={36}
-              sx={{ borderRadius: 1 }}
-            />
-            <Skeleton
-              variant="rectangular"
-              height={36}
-              sx={{ borderRadius: 1 }}
-            />
+            <Skeleton variant="rectangular" height={36} sx={{ borderRadius: 1 }} />
+            <Skeleton variant="rectangular" height={36} sx={{ borderRadius: 1 }} />
           </Stack>
-        ) : markets && isMatch ? (
-          <Stack
-            sx={{ mb: 1 }}
-            onClick={() =>
-              navigate(`/events/${event.id}`, { state: { event, markets } })
-            }
-          >
-            {[matchMarket!.entity, matchMarket!.relatedEntity].map(
-              (entity, i) => (
+        ) : (
+          <>
+            <Stack
+              sx={{ mb: 1 }}
+              onClick={() =>
+                navigate(`/events/${event.id}`, { state: { event, pools } })
+              }
+            >
+              {(pools ?? []).map((pool, i) => (
                 <Stack
-                  key={i}
+                  key={pool.id}
                   direction="row"
                   alignItems="center"
                   spacing={1}
@@ -84,75 +73,32 @@ export default function EventCard({
                     cursor: "pointer",
                   }}
                 >
-                  {entity ? (
+                  {pool.entity ? (
                     <Box
                       component="img"
-                      src={entity.logoPath}
-                      sx={{
-                        width: 24,
-                        height: 24,
-                        flexShrink: 0,
-                        borderRadius: 0.5,
-                      }}
+                      src={pool.entity.logoPath}
+                      sx={{ width: 24, height: 24, flexShrink: 0, borderRadius: 0.5 }}
                     />
                   ) : (
                     <Box sx={{ width: 24, height: 24, flexShrink: 0 }} />
                   )}
                   <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600 }}>
-                    {entity ? entity.name : matchMarket!.label}
+                    {pool.entity?.name ?? pool.label}
                   </Typography>
-                  {matchMarket!.forecast != null && (
-                    <Typography variant="body2" color="text.secondary">
-                      {Math.round(i === 0 ? matchMarket!.forecast : 100 - matchMarket!.forecast)}%
-                    </Typography>
-                  )}
                 </Stack>
-              ),
-            )}
-          </Stack>
-        ) : (
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1}
-            sx={{ mb: "10px", cursor: "pointer" }}
-            onClick={() =>
-              navigate(`/events/${event.id}`, { state: { event, markets } })
-            }
-          >
-            {event.logoPath && (
-              <Box
-                component="img"
-                src={event.logoPath}
-                sx={{ width: 38, height: 38, flexShrink: 0, borderRadius: 0.5 }}
-              />
-            )}
-            <Typography
-              variant="body2"
-              sx={{
-                fontWeight: "bold",
-                fontSize: "14px",
-                "&:hover": { textDecoration: "underline" },
-              }}
+              ))}
+            </Stack>
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1}
+              sx={{ mt: "auto", height: 40, minHeight: 40 }}
             >
-              {event.name}
-            </Typography>
-          </Stack>
-        )}
-        {markets && isMatch ? (
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1}
-            sx={{ mt: "auto", height: 40, minHeight: 40 }}
-          >
-            {[matchMarket!.entity, matchMarket!.relatedEntity].map(
-              (entity, i) => {
-                const defaultColor = i === 0 ? "#40c3ff" : "#ff3333";
-                const entityColor = entity?.color ?? defaultColor;
+              {(pools ?? []).map((pool) => {
+                const color = pool.entity?.color ?? "#1565c0";
                 return (
                   <Button
-                    key={i}
+                    key={pool.id}
                     size="small"
                     variant="contained"
                     fullWidth
@@ -161,91 +107,22 @@ export default function EventCard({
                       minHeight: 40,
                       py: 0,
                       fontWeight: "bold",
-                      bgcolor: entityColor + "26",
-                      color: entityTextColor(entityColor),
-                      "&:hover": { bgcolor: entityColor + "40" },
+                      bgcolor: color + "26",
+                      color: entityTextColor(color),
+                      "&:hover": { bgcolor: color + "40" },
                     }}
                     onClick={() =>
                       navigate(`/events/${event.id}`, {
-                        state: { event, markets, side: i === 0 ? "YES" : "NO" },
+                        state: { event, pools, selectedPoolId: pool.id },
                       })
                     }
                   >
-                    {entity?.abbreviatedName ?? matchMarket!.label}
+                    {pool.entity?.abbreviatedName ?? pool.label}
                   </Button>
                 );
-              },
-            )}
-          </Stack>
-        ) : (
-          <Stack
-            spacing={0}
-            sx={{
-              mt: 1,
-              maxHeight: 70,
-              overflowY: "auto",
-              "&::-webkit-scrollbar": { display: "none" },
-              scrollbarWidth: "none",
-            }}
-          >
-            {[...(markets ?? [])]
-              .sort((a, b) => {
-                const fa = a.forecast ?? -Infinity;
-                const fb = b.forecast ?? -Infinity;
-                return fb !== fa ? fb - fa : b.tradeVolume - a.tradeVolume;
-              })
-              .map((market, i) => (
-                <Stack
-                  key={i}
-                  direction="row"
-                  alignItems="center"
-                  spacing={1}
-                  sx={{ height: 27, minHeight: 27, mb: "8px" }}
-                >
-                  <Typography variant="body2" sx={{ flexGrow: 1 }}>
-                    {market.label}
-                  </Typography>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    sx={{
-                      height: 27,
-                      minHeight: 27,
-                      py: 0,
-                      bgcolor: "#1a3d2b",
-                      color: "#4caf50",
-                      "&:hover": { bgcolor: "#1f4d33" },
-                    }}
-                    onClick={() =>
-                      navigate(`/events/${event.id}`, {
-                        state: { event, markets, selectedMarketId: market.id, side: "YES" },
-                      })
-                    }
-                  >
-                    Yes
-                  </Button>
-                  <Button
-                    size="small"
-                    variant="contained"
-                    sx={{
-                      height: 27,
-                      minHeight: 27,
-                      py: 0,
-                      bgcolor: "#3d1a1a",
-                      color: "#f44336",
-                      "&:hover": { bgcolor: "#4d1f1f" },
-                    }}
-                    onClick={() =>
-                      navigate(`/events/${event.id}`, {
-                        state: { event, markets, selectedMarketId: market.id, side: "NO" },
-                      })
-                    }
-                  >
-                    No
-                  </Button>
-                </Stack>
-              ))}
-          </Stack>
+              })}
+            </Stack>
+          </>
         )}
       </CardContent>
       <Box
@@ -258,7 +135,7 @@ export default function EventCard({
         }}
       >
         <Typography variant="caption" sx={{ flexGrow: 1, color: "#7B8996" }}>
-          {(event.tradeVolume / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} Vol.
+          {((pools ?? []).reduce((sum, p) => sum + p.volume, 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} Vol.
         </Typography>
         <IconButton
           size="small"

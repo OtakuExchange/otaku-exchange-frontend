@@ -3,6 +3,7 @@ import type {
   Event,
   Market,
   Order,
+  Pool,
   Topic,
   Trade,
   UUID,
@@ -55,6 +56,15 @@ export async function fetchMarkets(
   getToken: GetToken,
 ): Promise<Market[]> {
   return fetch(`${API_URL}/events/${eventId}/markets`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
+}
+
+export async function fetchPools(
+  eventId: UUID,
+  getToken: GetToken,
+): Promise<Pool[]> {
+  return fetch(`${API_URL}/events/${eventId}/pools`, {
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
@@ -315,6 +325,56 @@ export async function cancelOrder(
     method: "DELETE",
     headers: await authHeaders(getToken),
   }).then(() => undefined);
+}
+
+export async function createStake(
+  marketPoolId: UUID,
+  amount: number,
+  getToken: GetToken,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/stakes`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
+    body: JSON.stringify({ marketPoolId, amount }),
+  });
+  if (!res.ok) throw new Error(`${res.status}`);
+}
+
+export interface Stake {
+  id: UUID;
+  userId: UUID;
+  marketPoolId: UUID;
+  label: string;
+  entity: import("./models/models").Entity | null;
+  amount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function fetchMyStakes(getToken: GetToken): Promise<Stake[]> {
+  return fetch(`${API_URL}/stakes/me`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: UUID;
+  username: string;
+  avatarUrl: string | null;
+  balance: number;
+}
+
+export async function fetchLeaderboard(
+  limit: number,
+  getToken: GetToken,
+): Promise<LeaderboardEntry[]> {
+  return fetch(`${API_URL}/rank/wallet?limit=${limit}`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
 }
 
 export async function createTopic(

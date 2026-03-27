@@ -172,7 +172,7 @@ export default function TopicView({
       return timeDiff !== 0 ? timeDiff : b.tradeVolume - a.tradeVolume;
     });
 
-  const visibleEvents = sortEvents(events ?? []);
+  const visibleEvents = sortEvents((events ?? []).filter((e) => e.status.toLowerCase() !== "closed"));
   const renderedEvents = filterBookmarked
     ? visibleEvents.filter((e) => bookmarkedIds.has(e.id))
     : visibleEvents;

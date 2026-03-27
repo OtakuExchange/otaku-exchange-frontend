@@ -19,6 +19,7 @@ import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/react";
 import { useApi } from "./hooks/useApi";
 import ProfilePage from "./components/ProfilePage";
 import PortfolioView from "./views/PortfolioView";
+import LeaderboardView from "./views/LeaderboardView";
 import EventView from "./views/EventView";
 import TopicView from "./views/TopicView";
 import type { Topic, UUID } from "./models/models";
@@ -63,7 +64,7 @@ interface NavTab {
 function EventViewRoute() {
   const { state } = useLocation();
   if (!state?.event) return <Navigate to="/" replace />;
-  return <EventView event={state.event} initialMarkets={state.markets} initialSide={state.side} initialMarketId={state.selectedMarketId} />;
+  return <EventView event={state.event} initialPools={state.pools} initialPoolId={state.selectedPoolId} />;
 }
 
 function App() {
@@ -157,6 +158,29 @@ function App() {
                 {isSignedIn && (
                   <>
                     <Box
+                      onClick={() => navigate("/leaderboard")}
+                      sx={{
+                        textAlign: "center",
+                        mr: 2,
+                        cursor: "pointer",
+                        px: 1.5,
+                        py: 0.5,
+                        borderRadius: 1,
+                        "&:hover": { bgcolor: "action.hover" },
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "center",
+                        height: "100%",
+                        minHeight: "38px",
+                      }}
+                    >
+                      <Typography
+                        sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}
+                      >
+                        Leaderboard
+                      </Typography>
+                    </Box>
+                    <Box
                       onClick={() => navigate("/portfolio")}
                       sx={{
                         textAlign: "center",
@@ -183,7 +207,7 @@ function App() {
                       <Typography
                         sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}
                       >
-                        Cash
+                        FillyBucks
                       </Typography>
                       <Typography
                         sx={{ color: "#3DB468", fontSize: "16px", lineHeight: 1.2, fontWeight: 600 }}
@@ -256,6 +280,7 @@ function App() {
               )}
               <Route path="/events/:eventId" element={<EventViewRoute />} />
               <Route path="/portfolio" element={<PortfolioView />} />
+              <Route path="/leaderboard" element={<LeaderboardView />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route
                 path="*"

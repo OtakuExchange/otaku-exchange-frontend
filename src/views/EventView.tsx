@@ -9,14 +9,16 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import type { Comment, Event, Market, Trade } from "../models/models";
+import type { Comment, Event, Pool } from "../models/models";
 import { useApi } from "../hooks/useApi";
 import { useUserId } from "../contexts/UserContext";
 import { useTopics } from "../contexts/TopicsContext";
-import { LineChart } from "@mui/x-charts/LineChart";
+import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
 import TradeCard from "../components/TradeCard";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+
+const ENABLE_COMMENTS = false;
 
 function CommentItem({
   comment,
@@ -63,7 +65,6 @@ interface TabPanelProps {
 
 function InfoTab(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
-
   return (
     <div
       role="tabpanel"
@@ -77,23 +78,17 @@ function InfoTab(props: TabPanelProps) {
   );
 }
 
-const ENABLE_COMMENTS = false;
-
 export default function EventView({
   event,
-  initialMarkets,
-  initialSide,
-  initialMarketId,
+  initialPools,
+  initialPoolId,
 }: {
   event: Event;
-  initialMarkets?: Market[];
-  initialSide?: "YES" | "NO";
-  initialMarketId?: string;
+  initialPools?: Pool[];
+  initialPoolId?: string;
 }) {
   const {
     fetchComments,
-    fetchMarkets,
-    fetchTrades,
     postComment,
     likeComment,
     unlikeComment,
@@ -103,114 +98,27 @@ export default function EventView({
   const topicName = topics.find((t) => t.id === event.topicId)?.topic;
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
-  const [markets, setMarkets] = useState<Market[]>(initialMarkets ?? []);
-  const [selectedMarket, setSelectedMarket] = useState<Market | null>(
-    (initialMarketId ? initialMarkets?.find((m) => m.id === initialMarketId) : null) ?? initialMarkets?.[0] ?? null,
-  );
-  const [selectedSide, setSelectedSide] = useState<"YES" | "NO">(initialSide ?? "YES");
-  const [tradesByMarket, setTradesByMarket] = useState<Record<string, Trade[]>>(
-    {},
+  const { data: poolsData, refetch: refetchPools } = usePoolsQuery(event.id);
+  const pools = poolsData ?? initialPools ?? [];
+  const [selectedPool, setSelectedPool] = useState<Pool | null>(
+    (initialPoolId ? initialPools?.find((p) => p.id === initialPoolId) : null) ?? initialPools?.[0] ?? null,
   );
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
   const [infoTabIdx, setInfoTabIdx] = useState<number>(0);
 
   useEffect(() => {
+    if (pools.length > 0 && !selectedPool) {
+      setSelectedPool(pools[0]);
+    }
+  }, [pools]);
+
+  useEffect(() => {
     fetchComments(event.id)
       .then(setComments)
       .catch(console.error)
       .finally(() => setCommentsLoading(false));
-    const marketsPromise = initialMarkets
-      ? Promise.resolve(initialMarkets)
-      : fetchMarkets(event.id).then((data) => {
-          setMarkets(data);
-          setSelectedMarket(data[0] ?? null);
-          return data;
-        });
-    marketsPromise
-      .then((data) => {
-        Promise.all(
-          data.map((m) =>
-            fetchTrades(m.id).then((trades) => ({ id: m.id, trades })),
-          ),
-        )
-          .then((results) =>
-            setTradesByMarket(
-              Object.fromEntries(results.map((r) => [r.id, r.trades])),
-            ),
-          )
-          .catch(console.error);
-      })
-      .catch(console.error);
   }, [event.id]);
-
-  const chartData = (() => {
-    const end = new Date();
-    const allTradeTimes: Date[] = [];
-    markets.forEach((m) =>
-      (tradesByMarket[m.id] ?? []).forEach((t) =>
-        allTradeTimes.push(new Date(t.executedAt)),
-      ),
-    );
-    const start = allTradeTimes.length > 0
-      ? new Date(Math.min(...allTradeTimes.map((d) => d.getTime())))
-      : new Date(event.createdAt);
-    const allTimes = [start, end, ...allTradeTimes];
-    const xData = [
-      ...new Map(allTimes.map((d) => [d.getTime(), d])).values(),
-    ].sort((a, b) => a.getTime() - b.getTime());
-
-    const series = markets.flatMap((m) => {
-      const trades = tradesByMarket[m.id] ?? [];
-      const tradeMap = new Map(
-        trades.map((t) => [new Date(t.executedAt).getTime(), t]),
-      );
-      let lastYes: number | null = null;
-      const yesData = xData.map((d) => {
-        const trade = tradeMap.get(d.getTime());
-        if (trade) lastYes = trade.yesPrice;
-        return trade ? trade.yesPrice : lastYes;
-      });
-      if (m.isMatch) {
-        let lastNo: number | null = null;
-        const noData = xData.map((d) => {
-          const trade = tradeMap.get(d.getTime());
-          if (trade) lastNo = trade.noPrice;
-          return trade ? trade.noPrice : lastNo;
-        });
-        return [
-          {
-            label: m.entity?.abbreviatedName ?? "Yes",
-            data: yesData,
-            connectNulls: true,
-            color: m.entity?.color ?? "#40c3ff",
-            showMark: false,
-            curve: "stepAfter" as const,
-          },
-          {
-            label: m.relatedEntity?.abbreviatedName ?? "No",
-            data: noData,
-            connectNulls: true,
-            color: m.relatedEntity?.color ?? "#ff3333",
-            showMark: false,
-            curve: "stepAfter" as const,
-          },
-        ];
-      }
-      return [
-        {
-          label: m.entity?.abbreviatedName ?? m.label,
-          data: yesData,
-          connectNulls: true,
-          color: m.entity?.color ?? undefined,
-          showMark: false,
-          curve: "stepAfter" as const,
-        },
-      ];
-    });
-
-    return { xData, series };
-  })();
 
   async function handlePost() {
     if (!draft.trim()) return;
@@ -230,15 +138,10 @@ export default function EventView({
   function handleLike(commentId: Comment["id"]) {
     const comment = comments.find((c) => c.id === commentId);
     if (!comment) return;
-    // Optimistically update UI immediately
     setComments((prev) =>
       prev.map((c) =>
         c.id === commentId
-          ? {
-              ...c,
-              likes: c.likedByUser ? c.likes - 1 : c.likes + 1,
-              likedByUser: !c.likedByUser,
-            }
+          ? { ...c, likes: c.likedByUser ? c.likes - 1 : c.likes + 1, likedByUser: !c.likedByUser }
           : c,
       ),
     );
@@ -246,15 +149,10 @@ export default function EventView({
       ? unlikeComment(event.id, commentId)
       : likeComment(event.id, commentId);
     action.catch(() => {
-      // Revert on failure
       setComments((prev) =>
         prev.map((c) =>
           c.id === commentId
-            ? {
-                ...c,
-                likes: comment.likedByUser ? c.likes + 1 : c.likes - 1,
-                likedByUser: comment.likedByUser,
-              }
+            ? { ...c, likes: comment.likedByUser ? c.likes + 1 : c.likes - 1, likedByUser: comment.likedByUser }
             : c,
         ),
       );
@@ -291,204 +189,75 @@ export default function EventView({
             </Typography>
           </Box>
         </Stack>
-        {chartData.series.length > 0 && (
-          <Stack direction="row" spacing={2} sx={{ flexWrap: "wrap", mb: 1 }}>
-            {chartData.series.map((s, i) => (
-              <Stack key={i} direction="row" alignItems="center" spacing={0.75}>
-                <Box sx={{ width: 8, height: 8, borderRadius: "50%", bgcolor: s.color, flexShrink: 0, position: "relative", top: -1 }} />
-                <Typography sx={{ fontSize: "13px", fontWeight: 600, color: "#7B8996" }}>{s.label}</Typography>
-              </Stack>
-            ))}
-          </Stack>
-        )}
-        {chartData.series.length > 0 && (
-          <Box sx={{ position: "relative" }}>
-            {Object.values(tradesByMarket).every((t) => t.length === 0) && (
-              <Typography sx={{
-                position: "absolute",
-                top: "50%",
-                left: "50%",
-                transform: "translate(-50%, -50%)",
-                fontSize: "20px",
-                fontWeight: 600,
-                color: "rgba(255,255,255,0.15)",
-                pointerEvents: "none",
-                zIndex: 1,
-              }}>
-                No Trades
-              </Typography>
-            )}
-          <LineChart
-            xAxis={[(() => {
-              const HOUR = 3_600_000;
-              const DAY = 86_400_000;
-              const WEEK = 7 * DAY;
-              const HALF_MONTH = 15 * DAY;
-              const MONTH = 30 * DAY;
 
-              const start = chartData.xData[0]?.getTime() ?? 0;
-              const end = chartData.xData[chartData.xData.length - 1]?.getTime() ?? 0;
-              const span = end - start;
-
-              let intervalMs: number;
-              if (span < 6 * HOUR) intervalMs = HOUR;
-              else if (span < 12 * HOUR) intervalMs = 2 * HOUR;
-              else if (span < DAY) intervalMs = 4 * HOUR;
-              else if (span < 2 * DAY) intervalMs = 8 * HOUR;
-              else if (span < 6 * DAY) intervalMs = DAY;
-              else if (span < 12 * DAY) intervalMs = 2 * DAY;
-              else if (span < 18 * DAY) intervalMs = 3 * DAY;
-              else if (span < 6 * WEEK) intervalMs = WEEK;
-              else if (span < 3 * MONTH) intervalMs = HALF_MONTH;
-              else intervalMs = MONTH;
-
-              const ticks: Date[] = [];
-              const firstTick = Math.ceil(start / intervalMs) * intervalMs;
-              for (let t = firstTick; t <= end && ticks.length < 5; t += intervalMs) {
-                ticks.push(new Date(t));
-              }
-
-              const valueFormatter = (value: Date | number) => {
-                const d = new Date(value);
-                return intervalMs >= DAY
-                  ? d.toLocaleDateString("en-US", { month: "short", day: "numeric" })
-                  : d.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" });
-              };
-
-              return {
-                data: chartData.xData,
-                scaleType: "time" as const,
-                disableLine: true,
-                disableTicks: true,
-                tickInterval: ticks,
-                valueFormatter,
-              };
-            })()]}
-            yAxis={[
-              {
-                min: 0,
-                max: 100,
-                tickInterval: [0, 25, 50, 75, 100],
-                disableLine: true,
-                disableTicks: true,
-                position: "right",
-                valueFormatter: (v: number) => `${v}%`,
-              },
-            ]}
-            series={chartData.series}
-            grid={{ horizontal: true }}
-            height={250}
-            margin={{ left: 20, right: 40, top: 20, bottom: 40 }}
-            slots={{ legend: () => null, tooltip: () => null }}
-            sx={{
-              "& .MuiChartsGrid-line": {
-                strokeDasharray: "4 4",
-                stroke: "rgba(255,255,255,0.15)",
-              },
-              "& .MuiChartsAxis-directionY .MuiChartsAxis-tickLabel": { fill: "#7B8996" },
-              "& .MuiChartsAxis-directionX .MuiChartsAxis-tickLabel": { fill: "#2E3841" },
-            }}
-          />
-          </Box>
-        )}
-        {markets.length > 0 && !markets.some((m) => m.isMatch) && (
-          <Stack sx={{ my: 2 }}>
-            {[...markets]
-              .sort((a, b) => {
-                const fa = a.forecast ?? -Infinity;
-                const fb = b.forecast ?? -Infinity;
-                return fb !== fa ? fb - fa : b.tradeVolume - a.tradeVolume;
-              })
-              .map((market, i, arr) => (
-                <Box key={market.id}>
+        {pools.length > 0 && (() => {
+          const totalVolume = pools.reduce((sum, p) => sum + p.volume, 0);
+          return (
+            <Stack sx={{ my: 2 }}>
+              {pools.map((pool, i, arr) => (
+                <Box key={pool.id}>
                   <Stack
                     direction="row"
                     alignItems="center"
                     spacing={1}
-                    onClick={() => setSelectedMarket(market)}
+                    onClick={() => setSelectedPool(pool)}
                     sx={{
                       height: 74,
                       cursor: "pointer",
                       borderRadius: "10px",
                       px: 1,
-                      position: "relative",
                       "&:hover": { bgcolor: "action.hover" },
                     }}
                   >
-                    {market.entity?.logoPath && (
-                      <Box
-                        component="img"
-                        src={market.entity.logoPath}
-                        sx={{ width: 48, height: 48, borderRadius: 0.5, flexShrink: 0 }}
-                      />
-                    )}
-                    <Box sx={{ flexGrow: 1 }}>
-                      <Typography sx={{ fontSize: "16px", fontWeight: 600 }}>
-                        {market.label}
-                      </Typography>
-                      <Typography sx={{ fontSize: "13px", color: "#7B8996", fontWeight: 600 }}>
-                        ${market.tradeVolume.toLocaleString()} Vol.
+                    <Stack direction="row" alignItems="center" spacing={1} sx={{ width: "20%", flexShrink: 0 }}>
+                      {pool.entity?.logoPath && (
+                        <Box
+                          component="img"
+                          src={pool.entity.logoPath}
+                          sx={{ width: 48, height: 48, borderRadius: 0.5, flexShrink: 0 }}
+                        />
+                      )}
+                      <Box>
+                        <Typography sx={{ fontSize: "16px", fontWeight: 600 }}>
+                          {pool.entity?.name ?? pool.label}
+                        </Typography>
+                        <Typography sx={{ fontSize: "13px", color: "#7B8996", fontWeight: 600 }}>
+                          {(pool.volume / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} Vol.
+                        </Typography>
+                      </Box>
+                    </Stack>
+                    <Box sx={{ flexGrow: 1, mx: 1.5, display: "flex", alignItems: "center", overflow: "hidden", minWidth: 0 }}>
+                      <Box sx={{
+                        width: totalVolume > 0 ? `${(pool.volume / totalVolume) * 100}%` : "0%",
+                        maxWidth: "calc(100% - 130px)",
+                        height: 16,
+                        borderRadius: 1,
+                        bgcolor: pool.entity?.color ?? "#1565c0",
+                        flexShrink: 0,
+                      }} />
+                      <Typography sx={{
+                        fontSize: "36px",
+                        fontWeight: 600,
+                        color: pool.entity?.color ?? "#1565c0",
+                        lineHeight: 1,
+                        ml: "18px",
+                        flexShrink: 0,
+                      }}>
+                        {totalVolume > 0 ? `${Math.round((pool.volume / totalVolume) * 100)}%` : "0%"}
                       </Typography>
                     </Box>
-                    <Typography sx={{
-                      fontSize: market.forecast != null ? "28px" : "16px",
-                      fontWeight: 600,
-                      color: market.forecast != null ? "inherit" : "#7B8996",
-                      position: "absolute",
-                      left: "50%",
-                      transform: "translateX(-50%)",
-                      pointerEvents: "none",
-                    }}>
-                      {market.forecast != null ? `${Math.round(market.forecast)}%` : "No bids"}
-                    </Typography>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={(e) => { e.stopPropagation(); setSelectedMarket(market); setSelectedSide("YES"); }}
-                      sx={{
-                        height: 48,
-                        px: 2,
-                        borderRadius: "8px",
-                        bgcolor: "#1a3d2b",
-                        color: "#4caf50",
-                        "&:hover": { bgcolor: "#1f4d33" },
-                        fontWeight: "bold",
-                        opacity: selectedMarket?.id === market.id && selectedSide === "YES" ? 1 : 0.4,
-                      }}
-                    >
-                      Buy Yes
-                    </Button>
-                    <Button
-                      size="small"
-                      variant="contained"
-                      onClick={(e) => { e.stopPropagation(); setSelectedMarket(market); setSelectedSide("NO"); }}
-                      sx={{
-                        height: 48,
-                        px: 2,
-                        borderRadius: "8px",
-                        bgcolor: "#3d1a1a",
-                        color: "#f44336",
-                        "&:hover": { bgcolor: "#4d1f1f" },
-                        fontWeight: "bold",
-                        opacity: selectedMarket?.id === market.id && selectedSide === "NO" ? 1 : 0.4,
-                      }}
-                    >
-                      Buy No
-                    </Button>
                   </Stack>
                   {i < arr.length - 1 && <Divider sx={{ mx: "10px" }} />}
                 </Box>
               ))}
-          </Stack>
-        )}
+            </Stack>
+          );
+        })()}
+
         <Divider sx={{ my: 2 }} />
         <Box sx={{ width: "100%" }}>
           <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
-            <Tabs
-              value={infoTabIdx}
-              onChange={handleChangeTab}
-              aria-label="info tab"
-            >
+            <Tabs value={infoTabIdx} onChange={handleChangeTab} aria-label="info tab">
               <Tab label="Rules" />
               <Tab label="Event Description" />
             </Tabs>
@@ -500,6 +269,7 @@ export default function EventView({
             {event.description}
           </InfoTab>
         </Box>
+
         {ENABLE_COMMENTS && (
           <>
             <Divider sx={{ my: 2 }} />
@@ -544,7 +314,12 @@ export default function EventView({
           </>
         )}
       </Box>
-      <TradeCard selectedMarket={selectedMarket} side={selectedSide} onSideChange={setSelectedSide} />
+      <TradeCard
+        pools={pools}
+        selectedPool={selectedPool}
+        onPoolChange={setSelectedPool}
+        onBuySuccess={() => refetchPools()}
+      />
     </Stack>
   );
 }

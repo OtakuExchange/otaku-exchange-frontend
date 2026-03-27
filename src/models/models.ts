@@ -61,6 +61,18 @@ export interface Market {
   createdAt: string;
 }
 
+export interface Pool {
+  id: UUID;
+  eventId: UUID;
+  entity: Entity | null;
+  label: string;
+  isWinner: boolean;
+  amount: number;
+  volume: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface CommentUser {
   id: UUID;
   username: string;

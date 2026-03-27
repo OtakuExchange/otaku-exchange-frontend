@@ -4,7 +4,9 @@ import {
   fetchEvents,
   fetchEventsBySubtopic,
   fetchMarkets,
+  fetchPools,
   fetchTrades,
+  createStake,
   fetchComments,
   postComment,
   likeComment,
@@ -24,6 +26,8 @@ import {
   fetchMyOrders,
   cancelOrder,
   fetchPortfolioTotal,
+  fetchLeaderboard,
+  fetchMyStakes,
 } from "../api";
 import type { CreateEventPayload, SeedMarketPayload } from "../api";
 import type { UUID } from "../models/models";
@@ -37,6 +41,7 @@ export function useApi() {
     fetchEventsBySubtopic: (subtopicId: UUID) =>
       fetchEventsBySubtopic(subtopicId, getToken),
     fetchMarkets: (eventId: UUID) => fetchMarkets(eventId, getToken),
+    fetchPools: (eventId: UUID) => fetchPools(eventId, getToken),
     fetchCurrentUser: () => fetchCurrentUser(getToken),
     fetchTrades: (marketId: UUID) => fetchTrades(marketId, getToken),
     createTopic: (topic: string, description: string) =>
@@ -85,5 +90,9 @@ export function useApi() {
       fetchMyOrders(status, orderType, getToken),
     cancelOrder: (orderId: UUID) => cancelOrder(orderId, getToken),
     fetchPortfolioTotal: () => fetchPortfolioTotal(getToken),
+    createStake: (marketPoolId: UUID, amount: number) =>
+      createStake(marketPoolId, amount, getToken),
+    fetchLeaderboard: (limit: number) => fetchLeaderboard(limit, getToken),
+    fetchMyStakes: () => fetchMyStakes(getToken),
   };
 }

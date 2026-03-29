@@ -468,3 +468,19 @@ export async function createMarketPool(
   });
   if (!res.ok) throw new Error(await res.text());
 }
+
+export async function updateEventStatus(
+  eventId: UUID,
+  status: string,
+  getToken: GetToken,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/events/${eventId}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
+    body: JSON.stringify({ status }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}

@@ -34,6 +34,7 @@ import {
   fetchEntities, 
   createEntity, 
   createMarketPool,
+  updateEventStatus,
 } from "../api";
 import type { CreateEventPayload, SeedMarketPayload  } from "../api";
 import type { UUID } from "../models/models";
@@ -108,5 +109,7 @@ export function useApi() {
       createEntity(payload, getToken),
     createMarketPool: (eventId: UUID, label: string, entityId: UUID | null) =>
       createMarketPool(eventId, label, entityId, getToken),
+    updateEventStatus: (eventId: UUID, status: string) =>
+      updateEventStatus(eventId, status, getToken),
   };
 }

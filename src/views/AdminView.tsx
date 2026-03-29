@@ -24,6 +24,7 @@ import DeleteView from "./admin/DeleteView";
 import type { UUID } from "../models/models";
 import ResolveEventView from "./admin/ResolveEventView";
 import CreateEntityView from "./admin/CreateEntityView";
+import EventStatusView from "./admin/EventStatusView";
 
 function AdminSidebar() {
   const navigate = useNavigate();
@@ -93,6 +94,9 @@ function AdminSidebar() {
           <ListItemText primary="Resolve Event" />
         </ListItemButton>
 
+        <ListItemButton sx={{ pl: 4 }} onClick={() => navigate("/admin/event-status")}>
+          <ListItemText primary="Event Visibility" />
+        </ListItemButton>
 
         <ListItemButton onClick={() => setSeedOpen((o) => !o)}>
           <GrassIcon fontSize="small" sx={{ mr: 1 }} />
@@ -261,6 +265,7 @@ export default function AdminView() {
             <Route path="create/market" element={<CreateMarketView />} />
             <Route path="create/entity" element={<CreateEntityView />} />
             <Route path="delete" element={<DeleteView />} />
+            <Route path="event-status" element={<EventStatusView />} />
             <Route path="seed/market" element={<SeedMarketView />} />
             <Route
               path="*"

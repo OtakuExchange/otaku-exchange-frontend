@@ -26,7 +26,6 @@ import type { Topic, UUID } from "./models/models";
 import { TopicsContext } from "./contexts/TopicsContext";
 import { UserContext } from "./contexts/UserContext";
 import { RefreshCashContext } from "./contexts/RefreshCashContext";
-import AdminView from "./views/AdminView";
 
 const darkTheme = createTheme({
   palette: {
@@ -92,6 +91,7 @@ function App() {
   const { fetchTopics, fetchCurrentUser } = useApi();
   const [topics, setTopics] = useState<Topic[]>([]);
   const [cash, setCash] = useState<number | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
 
 
@@ -111,6 +111,7 @@ function App() {
       .then((currentUser) => {
         if (!currentUser) return;
         setCash(currentUser.balance - currentUser.lockedBalance);
+        setIsAdmin(currentUser.isAdmin);
       })
       .catch(console.error);
   }
@@ -118,22 +119,26 @@ function App() {
   useEffect(() => {
     if (!isSignedIn) {
       setCash(null);
+      setIsAdmin(false);
       return;
     }
     fetchCurrentUser()
       .then((currentUser) => {
         if (!currentUser) return;
         setCash(currentUser.balance - currentUser.lockedBalance);
+        setIsAdmin(currentUser.isAdmin);
       })
       .catch(console.error);
   }, [isSignedIn]);
 
-  const navTabs: NavTab[] = topics.map((topic) => ({
-    id: topic.id,
-    label: topic.topic,
-    path: `/${topic.topic.toLowerCase().replace(/\s+/g, "-")}`,
-    subtopics: topic.subtopics,
-  }));
+  const navTabs: NavTab[] = topics
+    .filter((topic) => !topic.hidden || isAdmin)
+    .map((topic) => ({
+      id: topic.id,
+      label: topic.topic,
+      path: `/${topic.topic.toLowerCase().replace(/\s+/g, "-")}`,
+      subtopics: topic.subtopics,
+    }));
 
   const activeTab =
     navTabs.find((tab) => location.pathname.startsWith(tab.path))?.path ||
@@ -282,6 +287,7 @@ function App() {
                       topicId={tab.id}
                       topicLabel={tab.label}
                       subtopics={tab.subtopics}
+                      isAdmin={isAdmin}
                     />
                   }
                 />
@@ -296,7 +302,6 @@ function App() {
               <Route path="/portfolio" element={<PortfolioView />} />
               <Route path="/leaderboard" element={<LeaderboardView />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/admin/*" element={<AdminView />} />
               <Route
                 path="*"
                 element={

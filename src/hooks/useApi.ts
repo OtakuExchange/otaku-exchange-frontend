@@ -45,8 +45,8 @@ export function useApi() {
     fetchPools: (eventId: UUID) => fetchPools(eventId, getToken),
     fetchCurrentUser: () => fetchCurrentUser(getToken),
     fetchTrades: (marketId: UUID) => fetchTrades(marketId, getToken),
-    createTopic: (topic: string, description: string) =>
-      createTopic(topic, description, getToken),
+    createTopic: (topic: string, description: string, hidden: boolean) =>
+      createTopic(topic, description, hidden, getToken),
     createEvent: (payload: CreateEventPayload) =>
       createEvent(payload, getToken),
     createMarket: (eventId: UUID, label: string, status: string) =>

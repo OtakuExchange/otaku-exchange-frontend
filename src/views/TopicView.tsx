@@ -133,10 +133,12 @@ export default function TopicView({
   topicId,
   topicLabel,
   subtopics,
+  isAdmin,
 }: {
   topicId: UUID;
   topicLabel: string;
   subtopics: Subtopic[];
+  isAdmin: boolean;
 }) {
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<UUID>>(new Set());
   const [filterBookmarked, setFilterBookmarked] = useState(false);
@@ -172,7 +174,13 @@ export default function TopicView({
       return timeDiff !== 0 ? timeDiff : b.tradeVolume - a.tradeVolume;
     });
 
-  const visibleEvents = sortEvents((events ?? []).filter((e) => e.status.toLowerCase() === "open" || e.status.toLowerCase() === "staking_closed"));
+  const visibleEvents = sortEvents(
+    (events ?? []).filter((e) => {
+      const status = e.status.toLowerCase();
+      if (status === "hidden") return isAdmin;
+      return status !== "closed" && status !== "resolved";
+    })
+  );
   const renderedEvents = filterBookmarked
     ? visibleEvents.filter((e) => bookmarkedIds.has(e.id))
     : visibleEvents;

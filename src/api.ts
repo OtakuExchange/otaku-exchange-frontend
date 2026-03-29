@@ -380,6 +380,7 @@ export async function fetchLeaderboard(
 export async function createTopic(
   topic: string,
   description: string,
+  hidden: boolean,
   getToken: GetToken,
 ): Promise<Topic> {
   return fetch(`${API_URL}/topics`, {
@@ -388,7 +389,7 @@ export async function createTopic(
       "Content-Type": "application/json",
       ...(await authHeaders(getToken)),
     },
-    body: JSON.stringify({ topic, description }),
+    body: JSON.stringify({ topic, description, hidden }),
   }).then((r) => r.json());
 }
 

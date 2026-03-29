@@ -20,6 +20,7 @@ export interface Topic {
   id: UUID;
   topic: string;
   description: string;
+  hidden: boolean;
   subtopics: Subtopic[];
 }
 

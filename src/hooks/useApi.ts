@@ -29,8 +29,13 @@ import {
   fetchLeaderboard,
   fetchMyStakes,
   resolveEvent,
+  fetchDailyStreak, 
+  claimDailyReward,
+  fetchEntities, 
+  createEntity, 
+  createMarketPool,
 } from "../api";
-import type { CreateEventPayload, SeedMarketPayload } from "../api";
+import type { CreateEventPayload, SeedMarketPayload  } from "../api";
 import type { UUID } from "../models/models";
 
 export function useApi() {
@@ -96,5 +101,12 @@ export function useApi() {
     fetchLeaderboard: (limit: number) => fetchLeaderboard(limit, getToken),
     fetchMyStakes: () => fetchMyStakes(getToken),
     resolveEvent: (eventId: UUID, winningPoolId: UUID) => resolveEvent(eventId, winningPoolId, getToken),
+    fetchDailyStreak: () => fetchDailyStreak(getToken),
+    claimDailyReward: () => claimDailyReward(getToken),
+    fetchEntities: () => fetchEntities(getToken),
+    createEntity: (payload: { name: string; abbreviatedName?: string; logoPath: string; color?: string }) =>
+      createEntity(payload, getToken),
+    createMarketPool: (eventId: UUID, label: string, entityId: UUID | null) =>
+      createMarketPool(eventId, label, entityId, getToken),
   };
 }

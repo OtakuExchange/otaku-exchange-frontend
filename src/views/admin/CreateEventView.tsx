@@ -13,7 +13,7 @@ import { useApi } from "../../hooks/useApi";
 import { useTopics } from "../../contexts/TopicsContext";
 
 const FORMAT_OPTIONS = ["binary", "multi"];
-const STATUS_OPTIONS = ["open", "closed", "resolved"];
+const STATUS_OPTIONS = ["open", "closed", "resolved", "hidden"];
 
 export default function CreateEventView() {
   const { createEvent } = useApi();
@@ -25,6 +25,7 @@ export default function CreateEventView() {
   const [closeTime, setCloseTime] = useState<Dayjs | null>(null);
   const [status, setStatus] = useState("open");
   const [resolutionRule, setResolutionRule] = useState("");
+  const [logoPath, setLogoPath] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
@@ -42,12 +43,14 @@ export default function CreateEventView() {
         closeTime: closeTime!.toISOString(),
         status,
         resolutionRule,
+        logoPath: logoPath.trim() || undefined,
       });
       setSuccess(true);
       setName("");
       setDescription("");
       setCloseTime(null);
       setResolutionRule("");
+      setLogoPath("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to create event");
     } finally {
@@ -60,9 +63,7 @@ export default function CreateEventView() {
 
   return (
     <LocalizationProvider dateAdapter={AdapterDayjs}>
-      <Box
-        sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 480 }}
-      >
+      <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 480 }}>
         <Typography variant="h5">Create Event</Typography>
         <TextField
           select
@@ -103,6 +104,13 @@ export default function CreateEventView() {
           multiline
           rows={3}
           disabled={loading}
+        />
+        <TextField
+          label="Logo URL"
+          value={logoPath}
+          onChange={(e) => setLogoPath(e.target.value)}
+          disabled={loading}
+          placeholder="https://..."
         />
         <DateTimePicker
           label="Close Time"

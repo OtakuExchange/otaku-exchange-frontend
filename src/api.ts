@@ -7,6 +7,7 @@ import type {
   Topic,
   Trade,
   UUID,
+  Entity,
 } from "./models/models";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -119,6 +120,7 @@ export interface CreateEventPayload {
   closeTime: string;
   status: string;
   resolutionRule: string;
+  logoPath?: string;
 }
 
 export async function createEvent(
@@ -405,6 +407,64 @@ export async function resolveEvent(
       ...(await authHeaders(getToken)),
     },
     body: JSON.stringify({ winningPoolId }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export interface StreakStatus {
+  streak: number;
+  rewardCents: number;
+  canClaim: boolean;
+}
+
+export async function fetchDailyStreak(getToken: GetToken): Promise<StreakStatus> {
+  return fetch(`${API_URL}/rewards/daily`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
+}
+
+export async function claimDailyReward(getToken: GetToken): Promise<StreakStatus> {
+  const res = await fetch(`${API_URL}/rewards/daily/claim`, {
+    method: "POST",
+    headers: await authHeaders(getToken),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function fetchEntities(getToken: GetToken): Promise<Entity[]> {
+  return fetch(`${API_URL}/entities`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
+}
+
+export async function createEntity(
+  payload: { name: string; abbreviatedName?: string; logoPath: string; color?: string },
+  getToken: GetToken,
+): Promise<Entity> {
+  return fetch(`${API_URL}/entities`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
+    body: JSON.stringify(payload),
+  }).then((r) => r.json());
+}
+
+export async function createMarketPool(
+  eventId: UUID,
+  label: string,
+  entityId: UUID | null,
+  getToken: GetToken,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/events/${eventId}/pools`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
+    body: JSON.stringify({ label, entityId }),
   });
   if (!res.ok) throw new Error(await res.text());
 }

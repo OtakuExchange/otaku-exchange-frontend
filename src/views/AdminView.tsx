@@ -23,6 +23,7 @@ import CreateMarketView from "./admin/CreateMarketView";
 import DeleteView from "./admin/DeleteView";
 import type { UUID } from "../models/models";
 import ResolveEventView from "./admin/ResolveEventView";
+import CreateEntityView from "./admin/CreateEntityView";
 
 function AdminSidebar() {
   const navigate = useNavigate();
@@ -59,6 +60,9 @@ function AdminSidebar() {
               onClick={() => navigate("/admin/create/event")}
             >
               <ListItemText primary="Event" />
+            </ListItemButton>
+            <ListItemButton sx={{ pl: 4 }} onClick={() => navigate("/admin/create/entity")}>
+              <ListItemText primary="Entity" />
             </ListItemButton>
             <ListItemButton
               sx={{ pl: 4 }}
@@ -255,6 +259,7 @@ export default function AdminView() {
             <Route path="create/topic" element={<CreateTopicView />} />
             <Route path="create/event" element={<CreateEventView />} />
             <Route path="create/market" element={<CreateMarketView />} />
+            <Route path="create/entity" element={<CreateEntityView />} />
             <Route path="delete" element={<DeleteView />} />
             <Route path="seed/market" element={<SeedMarketView />} />
             <Route

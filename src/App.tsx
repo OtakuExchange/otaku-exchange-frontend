@@ -27,6 +27,7 @@ import { TopicsContext } from "./contexts/TopicsContext";
 import { UserContext } from "./contexts/UserContext";
 import { RefreshCashContext } from "./contexts/RefreshCashContext";
 import AdminView from "./views/AdminView";
+import DailyRewardButton from "./components/DailyRewardButton";
 
 const darkTheme = createTheme({
   palette: {
@@ -223,6 +224,7 @@ function App() {
                         Portfolio
                       </Typography>
                     </Box>
+                    <DailyRewardButton />
                     <Box sx={{ textAlign: "center", mr: 2 }}>
                       <Typography
                         sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}

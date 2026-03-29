@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip from "@mui/material/Tooltip";
-import Typography from "@mui/material/Typography";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import type { StreakStatus } from "../api";
 import { useApi } from "../hooks/useApi";

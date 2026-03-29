@@ -22,6 +22,7 @@ import CreateEventView from "./admin/CreateEventView";
 import CreateMarketView from "./admin/CreateMarketView";
 import DeleteView from "./admin/DeleteView";
 import type { UUID } from "../models/models";
+import ResolveEventView from "./admin/ResolveEventView";
 
 function AdminSidebar() {
   const navigate = useNavigate();
@@ -83,6 +84,11 @@ function AdminSidebar() {
             </ListItemButton>
           </List>
         </Collapse>
+
+        <ListItemButton sx={{ pl: 4 }} onClick={() => navigate("/admin/resolve/event")}>
+          <ListItemText primary="Resolve Event" />
+        </ListItemButton>
+
 
         <ListItemButton onClick={() => setSeedOpen((o) => !o)}>
           <GrassIcon fontSize="small" sx={{ mr: 1 }} />
@@ -255,6 +261,7 @@ export default function AdminView() {
               path="*"
               element={<Navigate to="/admin/create/topic" replace />}
             />
+            <Route path="resolve/event" element={<ResolveEventView />} />
           </Routes>
         </Box>
       </Box>

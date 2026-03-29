@@ -314,12 +314,14 @@ export default function EventView({
           </>
         )}
       </Box>
-      <TradeCard
-        pools={pools}
-        selectedPool={selectedPool}
-        onPoolChange={setSelectedPool}
-        onBuySuccess={() => refetchPools()}
-      />
+      {event.status === "open" && (
+        <TradeCard
+          pools={pools}
+          selectedPool={selectedPool}
+          onPoolChange={setSelectedPool}
+          onBuySuccess={() => refetchPools()}
+        />
+      )}
     </Stack>
   );
 }

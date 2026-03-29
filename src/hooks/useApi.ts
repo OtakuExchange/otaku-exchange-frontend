@@ -28,6 +28,7 @@ import {
   fetchPortfolioTotal,
   fetchLeaderboard,
   fetchMyStakes,
+  resolveEvent,
 } from "../api";
 import type { CreateEventPayload, SeedMarketPayload } from "../api";
 import type { UUID } from "../models/models";
@@ -94,5 +95,6 @@ export function useApi() {
       createStake(marketPoolId, amount, getToken),
     fetchLeaderboard: (limit: number) => fetchLeaderboard(limit, getToken),
     fetchMyStakes: () => fetchMyStakes(getToken),
+    resolveEvent: (eventId: UUID, winningPoolId: UUID) => resolveEvent(eventId, winningPoolId, getToken),
   };
 }

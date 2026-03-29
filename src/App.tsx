@@ -26,6 +26,7 @@ import type { Topic, UUID } from "./models/models";
 import { TopicsContext } from "./contexts/TopicsContext";
 import { UserContext } from "./contexts/UserContext";
 import { RefreshCashContext } from "./contexts/RefreshCashContext";
+import AdminView from "./views/AdminView";
 
 const darkTheme = createTheme({
   palette: {
@@ -295,6 +296,7 @@ function App() {
               <Route path="/portfolio" element={<PortfolioView />} />
               <Route path="/leaderboard" element={<LeaderboardView />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/admin/*" element={<AdminView />} />
               <Route
                 path="*"
                 element={

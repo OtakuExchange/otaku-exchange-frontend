@@ -391,3 +391,19 @@ export async function createTopic(
     body: JSON.stringify({ topic, description }),
   }).then((r) => r.json());
 }
+
+export async function resolveEvent(
+  eventId: UUID,
+  winningPoolId: UUID,
+  getToken: GetToken,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/events/${eventId}/resolve`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
+    body: JSON.stringify({ winningPoolId }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}

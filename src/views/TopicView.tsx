@@ -146,7 +146,7 @@ export default function TopicView({
   const { data: events, isLoading, error } = useTopicEventsQuery(topicId, selectedSubtopic);
 
   useEffect(() => {
-    setSelectedSubtopic(null);
+    setSelectedSubtopic(subtopics.length > 0 ? subtopics[0].id : null);
   }, [topicId]);
 
   useEffect(() => {

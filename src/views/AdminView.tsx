@@ -25,6 +25,7 @@ import type { UUID } from "../models/models";
 import ResolveEventView from "./admin/ResolveEventView";
 import CreateEntityView from "./admin/CreateEntityView";
 import EventStatusView from "./admin/EventStatusView";
+import SubtopicAdminView from "./admin/SubtopicAdminView";
 
 function AdminSidebar() {
   const navigate = useNavigate();
@@ -70,6 +71,12 @@ function AdminSidebar() {
               onClick={() => navigate("/admin/create/market")}
             >
               <ListItemText primary="Market" />
+            </ListItemButton>
+            <ListItemButton
+              sx={{ pl: 4 }}
+              onClick={() => navigate("/admin/subtopics")}
+            >
+              <ListItemText primary="Subtopic" />
             </ListItemButton>
           </List>
         </Collapse>
@@ -272,6 +279,7 @@ export default function AdminView() {
               element={<Navigate to="/admin/create/topic" replace />}
             />
             <Route path="resolve/event" element={<ResolveEventView />} />
+            <Route path="subtopics" element={<SubtopicAdminView />} />
           </Routes>
         </Box>
       </Box>

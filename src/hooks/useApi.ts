@@ -35,6 +35,11 @@ import {
   createEntity, 
   createMarketPool,
   updateEventStatus,
+  updateEntity,
+  createSubtopic,
+  deleteSubtopic,
+  linkEventToSubtopic,
+  unlinkEventFromSubtopic,
 } from "../api";
 import type { CreateEventPayload, SeedMarketPayload  } from "../api";
 import type { UUID } from "../models/models";
@@ -111,5 +116,14 @@ export function useApi() {
       createMarketPool(eventId, label, entityId, getToken),
     updateEventStatus: (eventId: UUID, status: string) =>
       updateEventStatus(eventId, status, getToken),
+    updateEntity: (entityId: UUID, payload: { name: string; abbreviatedName?: string; logoPath: string; color?: string; pandaScoreId?: number }) =>
+      updateEntity(entityId, payload, getToken),
+    createSubtopic: (topicId: UUID, name: string) =>
+      createSubtopic(topicId, name, getToken),
+    deleteSubtopic: (subtopicId: UUID) => deleteSubtopic(subtopicId, getToken),
+    linkEventToSubtopic: (eventId: UUID, subtopicId: UUID) =>
+      linkEventToSubtopic(eventId, subtopicId, getToken),
+    unlinkEventFromSubtopic: (eventId: UUID, subtopicId: UUID) =>
+      unlinkEventFromSubtopic(eventId, subtopicId, getToken),
   };
 }

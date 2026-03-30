@@ -484,3 +484,72 @@ export async function updateEventStatus(
   });
   if (!res.ok) throw new Error(await res.text());
 }
+
+export async function createSubtopic(
+  topicId: UUID,
+  name: string,
+  getToken: GetToken,
+): Promise<import("./models/models").Subtopic> {
+  const res = await fetch(`${API_URL}/topics/${topicId}/subtopics`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
+    body: JSON.stringify({ name, topicId }),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}
+
+export async function deleteSubtopic(
+  subtopicId: UUID,
+  getToken: GetToken,
+): Promise<void> {
+  const res = await fetch(`${API_URL}/subtopics/${subtopicId}`, {
+    method: "DELETE",
+    headers: await authHeaders(getToken),
+  });
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function linkEventToSubtopic(
+  eventId: UUID,
+  subtopicId: UUID,
+  getToken: GetToken,
+): Promise<void> {
+  const res = await fetch(
+    `${API_URL}/events/${eventId}/subtopics/${subtopicId}`,
+    { method: "POST", headers: await authHeaders(getToken) },
+  );
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function unlinkEventFromSubtopic(
+  eventId: UUID,
+  subtopicId: UUID,
+  getToken: GetToken,
+): Promise<void> {
+  const res = await fetch(
+    `${API_URL}/events/${eventId}/subtopics/${subtopicId}`,
+    { method: "DELETE", headers: await authHeaders(getToken) },
+  );
+  if (!res.ok) throw new Error(await res.text());
+}
+
+export async function updateEntity(
+  entityId: UUID,
+  payload: { name: string; abbreviatedName?: string; logoPath: string; color?: string; pandaScoreId?: number },
+  getToken: GetToken,
+): Promise<Entity> {
+  const res = await fetch(`${API_URL}/entities/${entityId}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await authHeaders(getToken)),
+    },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
+}

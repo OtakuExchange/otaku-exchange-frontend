@@ -356,6 +356,24 @@ export interface Stake {
   updatedAt: string;
 }
 
+export interface PortfolioItem {
+  id: UUID;
+  eventId: UUID;
+  label: string;
+  entity: Entity | null;
+  isWinner: boolean;
+  amount: number;
+  volume: number;
+  userStake: number | null;
+  eventStatus: string;
+}
+
+export async function fetchPortfolio(getToken: GetToken): Promise<PortfolioItem[]> {
+  return fetch(`${API_URL}/portfolio/me`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
+}
+
 export async function fetchMyStakes(getToken: GetToken): Promise<Stake[]> {
   return fetch(`${API_URL}/stakes/me`, {
     headers: await authHeaders(getToken),

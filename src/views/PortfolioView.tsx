@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
@@ -6,20 +5,12 @@ import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { PortfolioItem } from "../api";
-import { useApi } from "../hooks/useApi";
+import { usePortfolioQuery } from "../hooks/queries/usePortfolioQuery";
 
 export default function PortfolioView() {
-  const { fetchPortfolio } = useApi();
+  const { data, isLoading: loading } = usePortfolioQuery();
   const navigate = useNavigate();
-  const [items, setItems] = useState<PortfolioItem[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    fetchPortfolio()
-      .then(setItems)
-      .catch(console.error)
-      .finally(() => setLoading(false));
-  }, []);
+  const items = data ?? [];
 
   // Group by eventId, then render one row per staked pool
   const grouped = items.reduce<Record<string, PortfolioItem[]>>((acc, item) => {

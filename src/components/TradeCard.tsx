@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
@@ -56,6 +57,7 @@ export default function TradeCard({
 }) {
   const { createStake, fetchPayoutPreview } = useApi();
   const refreshCash = useRefreshCash();
+  const queryClient = useQueryClient();
   const [rawAmount, setRawAmount] = useState("");
   const [buying, setBuying] = useState(false);
   const [payoutPreview, setPayoutPreview] = useState<PayoutPreview | null>(null);
@@ -120,6 +122,7 @@ export default function TradeCard({
       setToast({ message: `Bought ${usd} stake in ${label}`, severity: "success" });
       setToastOpen(true);
       refreshCash();
+      queryClient.invalidateQueries({ queryKey: ["portfolio", "me"] });
       onBuySuccess?.();
     } catch (e) {
       console.error(e);

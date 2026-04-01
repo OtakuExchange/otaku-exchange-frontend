@@ -9,7 +9,9 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
+import Avatar from "@mui/material/Avatar";
 import type { Comment, Event, Pool } from "../models/models";
+import type { EventStake } from "../api";
 import { useApi } from "../hooks/useApi";
 import { useUserId } from "../contexts/UserContext";
 import { useTopics } from "../contexts/TopicsContext";
@@ -89,6 +91,7 @@ export default function EventView({
 }) {
   const {
     fetchComments,
+    fetchEventStakes,
     postComment,
     likeComment,
     unlikeComment,
@@ -106,6 +109,8 @@ export default function EventView({
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
   const [infoTabIdx, setInfoTabIdx] = useState<number>(0);
+  const [eventStakes, setEventStakes] = useState<EventStake[]>([]);
+  const [stakesLoading, setStakesLoading] = useState(true);
 
   useEffect(() => {
     if (pools.length > 0 && !selectedPool) {
@@ -118,6 +123,11 @@ export default function EventView({
       .then(setComments)
       .catch(console.error)
       .finally(() => setCommentsLoading(false));
+
+    fetchEventStakes(event.id, 3)
+      .then(setEventStakes)
+      .catch(console.error)
+      .finally(() => setStakesLoading(false));
   }, [event.id]);
 
   async function handlePost() {
@@ -269,6 +279,52 @@ export default function EventView({
             {event.description}
           </InfoTab>
         </Box>
+
+        <Divider sx={{ my: 2 }} />
+        <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>Top Stakes</Typography>
+        {stakesLoading ? (
+          <Stack spacing={1}>
+            {[0, 1, 2].map((i) => <Skeleton key={i} variant="rectangular" height={40} sx={{ borderRadius: 1 }} />)}
+          </Stack>
+        ) : eventStakes.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">No stakes yet.</Typography>
+        ) : (() => {
+          const grouped = eventStakes.reduce<Record<string, typeof eventStakes>>((acc, s) => {
+            (acc[s.marketPoolId] ??= []).push(s);
+            return acc;
+          }, {});
+          const sortedGroups = Object.values(grouped).sort((a, b) => {
+            const aIdx = pools.findIndex((p) => p.id === a[0].marketPoolId);
+            const bIdx = pools.findIndex((p) => p.id === b[0].marketPoolId);
+            return aIdx - bIdx;
+          });
+          return (
+            <Stack direction="row" spacing={4}>
+              {sortedGroups.map((group) => (
+                <Box key={group[0].marketPoolId} sx={{ flex: 1 }}>
+                  <Typography variant="caption" fontWeight={700} sx={{ color: "#7B8996", mb: 0.5, display: "block" }}>
+                    {group[0].poolLabel}
+                  </Typography>
+                  <Stack spacing={1}>
+                    {group.map((stake) => (
+                      <Stack key={stake.id} direction="row" alignItems="center" spacing={1.5}>
+                        <Avatar src={stake.avatarUrl ?? undefined} sx={{ width: 28, height: 28, fontSize: 13 }}>
+                          {stake.username[0].toUpperCase()}
+                        </Avatar>
+                        <Typography variant="body2" fontWeight={600} sx={{ flexGrow: 1 }}>
+                          {stake.username}
+                        </Typography>
+                        <Typography variant="body2" fontWeight={600}>
+                          {(stake.amount / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                        </Typography>
+                      </Stack>
+                    ))}
+                  </Stack>
+                </Box>
+              ))}
+            </Stack>
+          );
+        })()}
 
         {ENABLE_COMMENTS && (
           <>

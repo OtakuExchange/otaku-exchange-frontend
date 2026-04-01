@@ -345,6 +345,28 @@ export async function createStake(
   if (!res.ok) throw new Error(`${res.status}`);
 }
 
+export interface EventStake {
+  id: UUID;
+  userId: UUID;
+  username: string;
+  avatarUrl: string | null;
+  marketPoolId: UUID;
+  poolLabel: string;
+  amount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export async function fetchEventStakes(
+  eventId: UUID,
+  limit: number,
+  getToken: GetToken,
+): Promise<EventStake[]> {
+  return fetch(`${API_URL}/events/${eventId}/stakes?limit=${limit}&includeAdmins=false`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
+}
+
 export interface Stake {
   id: UUID;
   userId: UUID;

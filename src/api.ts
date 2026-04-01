@@ -8,6 +8,7 @@ import type {
   Trade,
   UUID,
   Entity,
+  PayoutPreview,
 } from "./models/models";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -570,4 +571,15 @@ export async function updateEntity(
   });
   if (!res.ok) throw new Error(await res.text());
   return res.json();
+}
+
+export async function fetchPayoutPreview(
+  eventId: UUID,
+  poolId: UUID,
+  amount: number,
+  getToken: GetToken,
+): Promise<PayoutPreview> {
+  return fetch(`${API_URL}/events/${eventId}/pools/${poolId}/preview?amount=${amount}`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
 }

@@ -41,6 +41,7 @@ import {
   deleteSubtopic,
   linkEventToSubtopic,
   unlinkEventFromSubtopic,
+  fetchPayoutPreview,
 } from "../api";
 import type { CreateEventPayload, SeedMarketPayload  } from "../api";
 import type { UUID } from "../models/models";
@@ -101,6 +102,8 @@ export function useApi() {
       seedMarket(marketId, payload, getToken),
     fetchMyOrders: (status: string, orderType: string) =>
       fetchMyOrders(status, orderType, getToken),
+    fetchPayoutPreview: (eventId: UUID, poolId: UUID, amount: number) =>
+      fetchPayoutPreview(eventId, poolId, amount, getToken),
     cancelOrder: (orderId: UUID) => cancelOrder(orderId, getToken),
     fetchPortfolioTotal: () => fetchPortfolioTotal(getToken),
     createStake: (marketPoolId: UUID, amount: number) =>

@@ -284,11 +284,12 @@ function App() {
               {navTabs.map((tab) => (
                 <Route
                   key={tab.path}
-                  path={tab.path}
+                  path={`${tab.path}/*`}
                   element={
                     <TopicView
                       topicId={tab.id}
                       topicLabel={tab.label}
+                      topicPath={tab.path}
                       subtopics={tab.subtopics}
                       isAdmin={isAdmin}
                     />

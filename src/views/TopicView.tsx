@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
@@ -129,25 +130,38 @@ function EventsGrid({
   );
 }
 
+function toSlug(name: string) {
+  return name.toLowerCase().replace(/\s+/g, "-");
+}
+
 export default function TopicView({
   topicId,
   topicLabel,
+  topicPath,
   subtopics,
   isAdmin,
 }: {
   topicId: UUID;
   topicLabel: string;
+  topicPath: string;
   subtopics: Subtopic[];
   isAdmin: boolean;
 }) {
+  const { "*": subtopicSlug } = useParams();
+  const navigate = useNavigate();
   const [bookmarkedIds, setBookmarkedIds] = useState<Set<UUID>>(new Set());
   const [filterBookmarked, setFilterBookmarked] = useState(false);
-  const [selectedSubtopic, setSelectedSubtopic] = useState<UUID | null>(null);
+
+  const selectedSubtopic =
+    subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ?? null;
+
   const { data: events, isLoading, error } = useTopicEventsQuery(topicId, selectedSubtopic);
 
   useEffect(() => {
-    setSelectedSubtopic(subtopics.length > 0 ? subtopics[0].id : null);
-  }, [topicId]);
+    if (subtopics.length > 0 && !subtopicSlug) {
+      navigate(`${topicPath}/${toSlug(subtopics[0].name)}`, { replace: true });
+    }
+  }, [topicId, subtopics]);
 
   useEffect(() => {
     setBookmarkedIds(
@@ -191,7 +205,10 @@ export default function TopicView({
         <SubtopicNav
           subtopics={subtopics}
           selected={selectedSubtopic}
-          onSelect={setSelectedSubtopic}
+          onSelect={(id) => {
+            const sub = subtopics.find((s) => s.id === id);
+            if (sub) navigate(`${topicPath}/${toSlug(sub.name)}`);
+          }}
         />
       )}
       <Box

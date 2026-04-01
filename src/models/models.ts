@@ -122,3 +122,8 @@ export interface Order {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface PayoutPreview {
+  hypotheticalStake: number;
+  projectedPayout: number;
+}

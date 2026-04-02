@@ -38,7 +38,7 @@ const PayoutPreview = ({ payoutPreview, loading }: { payoutPreview: PayoutPrevie
         variant="body2"
         sx={{ fontWeight: 700, color: payoutPreview ? "success.main" : "text.secondary" }}
       >
-        {payoutPreview ? `$${(payoutPreview?.projectedPayout / 100).toFixed(2)}` : "—"}
+        {payoutPreview ? `+$${((payoutPreview.projectedPayout - payoutPreview.hypotheticalStake) / 100).toFixed(2)}` : "—"}
       </Typography>
     </Stack>
   </Box>

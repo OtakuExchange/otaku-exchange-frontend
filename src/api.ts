@@ -389,6 +389,7 @@ export interface PortfolioItem {
   volume: number;
   userStake: number | null;
   eventStatus: string;
+  createdAt: string;
 }
 
 export interface PortfolioResponse {
@@ -397,6 +398,7 @@ export interface PortfolioResponse {
   avatarUrl: string | null;
   balance: number;
   pools: PortfolioItem[];
+  createdAt: string;
 }
 
 export async function fetchPortfolio(getToken: GetToken): Promise<PortfolioResponse> {

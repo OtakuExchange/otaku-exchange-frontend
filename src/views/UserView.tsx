@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import { fetchUserPortfolio } from "../api";
 import type { PortfolioItem } from "../api";
 import type { UUID } from "../models/models";
+import { calcPayout, calcLegacyPayout } from "../utils/parimutuel";
 
 function formatCents(cents: number): string {
   const d = cents / 100;
@@ -36,21 +37,21 @@ function PortfolioRows({ items, loading }: { items: PortfolioItem[]; loading: bo
   });
 
   const currentRows = rows.filter((r) => r.pool.eventStatus.toLowerCase() !== "resolved");
-  const closedRows = rows.filter((r) => r.pool.eventStatus.toLowerCase() === "resolved");
+  const closedRows  = rows.filter((r) => r.pool.eventStatus.toLowerCase() === "resolved");
 
-  function renderRow({ pool, opponents, totalVolume }: typeof rows[0], clickable: boolean) {
-    const myColor = pool.entity?.color ?? "#1565c0";
+  function renderRow({ pool, opponents, totalVolume }: typeof rows[0]) {
+    const myColor   = pool.entity?.color ?? "#1565c0";
     const stakedPct = totalVolume > 0 ? (pool.volume / totalVolume) * 100 : 50;
-    const oppPct = 100 - stakedPct;
-    const oppColor = "#3d4550";
+    const oppPct    = 100 - stakedPct;
+    const oppColor  = "#3d4550";
+    const userStake = pool.userStake ?? 0;
+    const LEGACY_CUTOFF = new Date("2026-04-01");
+    const payout = new Date(pool.createdAt) < LEGACY_CUTOFF
+      ? calcLegacyPayout(userStake, pool.volume, totalVolume)
+      : calcPayout(userStake, pool.volume, totalVolume);
 
     return (
-      <Stack
-        key={pool.id}
-        direction="row"
-        alignItems="center"
-        sx={{ py: 2, px: "20px", gap: 0, ...(clickable ? {} : {}) }}
-      >
+      <Stack key={pool.id} direction="row" alignItems="center" sx={{ py: 2, px: "20px", gap: 0 }}>
         <Stack direction="row" alignItems="center" spacing={1} sx={{ width: "15%", flexShrink: 0, minWidth: 0 }}>
           {pool.entity?.logoPath && (
             <Box component="img" src={pool.entity.logoPath} sx={{ width: 40, height: 40, borderRadius: 0.5, flexShrink: 0 }} />
@@ -93,31 +94,27 @@ function PortfolioRows({ items, loading }: { items: PortfolioItem[]; loading: bo
           <Box sx={{ width: 80, textAlign: "center" }}>
             <Typography variant="caption" sx={{ color: "#7B8996", display: "block" }}>Stake</Typography>
             <Typography variant="body2" fontWeight={600}>
-              {((pool.userStake ?? 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })}
+              {(userStake / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })}
             </Typography>
           </Box>
           <Box sx={{ width: 80, textAlign: "center" }}>
             {pool.isWinner ? (
               <Box sx={{ bgcolor: "#3DB468", borderRadius: 1, px: 1, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d", fontSize: "13px" }}>
-                  +{pool.volume > 0
-                    ? formatCents(((pool.userStake ?? 0) * totalVolume / pool.volume) - (pool.userStake ?? 0))
-                    : "$0.00"}
+                  +{formatCents(payout - userStake)}
                 </Typography>
               </Box>
             ) : pool.eventStatus.toLowerCase() === "resolved" ? (
               <Box sx={{ bgcolor: "#AC3031", borderRadius: 1, px: 1, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
                 <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d", fontSize: "13px" }}>
-                  -{formatCents(pool.userStake ?? 0)}
+                  -{formatCents(userStake)}
                 </Typography>
               </Box>
             ) : (
               <>
                 <Typography variant="caption" sx={{ color: "#7B8996", display: "block" }}>Payout</Typography>
                 <Typography variant="body2" fontWeight={600} sx={{ color: "#3DB468" }}>
-                  {pool.volume > 0
-                    ? (((pool.userStake ?? 0) * totalVolume / pool.volume) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })
-                    : "$0.00"}
+                  {(payout / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })}
                 </Typography>
               </>
             )}
@@ -136,7 +133,7 @@ function PortfolioRows({ items, loading }: { items: PortfolioItem[]; loading: bo
         ) : currentRows.length === 0 ? (
           <Typography variant="body2" color="text.secondary">No current stakes.</Typography>
         ) : (
-          currentRows.map((row) => renderRow(row, true))
+          currentRows.map((row) => renderRow(row))
         )}
       </Stack>
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>Closed Stakes</Typography>
@@ -146,7 +143,7 @@ function PortfolioRows({ items, loading }: { items: PortfolioItem[]; loading: bo
         ) : closedRows.length === 0 ? (
           <Typography variant="body2" color="text.secondary">No closed stakes.</Typography>
         ) : (
-          closedRows.map((row) => renderRow(row, false))
+          closedRows.map((row) => renderRow(row))
         )}
       </Stack>
     </>
@@ -187,7 +184,10 @@ export default function UserView() {
           <Box sx={{ textAlign: "right" }}>
             <Typography sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}>FillyBucks</Typography>
             <Typography sx={{ color: "#3DB468", fontSize: "20px", fontWeight: 600, lineHeight: 1.2 }}>
-              {((data.balance + (data.pools ?? []).filter((p) => p.eventStatus.toLowerCase() !== "resolved").reduce((sum, p) => sum + (p.userStake ?? 0), 0)) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })}
+              {((data.balance + (data.pools ?? [])
+                .filter((p) => p.eventStatus.toLowerCase() !== "resolved")
+                .reduce((sum, p) => sum + (p.userStake ?? 0), 0)) / 100)
+                .toLocaleString("en-US", { style: "currency", currency: "USD" })}
             </Typography>
           </Box>
         )}

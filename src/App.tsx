@@ -27,6 +27,7 @@ import { TopicsContext } from "./contexts/TopicsContext";
 import { UserContext } from "./contexts/UserContext";
 import { RefreshCashContext } from "./contexts/RefreshCashContext";
 import AdminView from "./views/AdminView";
+import UserView from "./views/UserView";
 import DailyRewardButton from "./components/DailyRewardButton";
 
 const darkTheme = createTheme({
@@ -306,6 +307,7 @@ function App() {
               <Route path="/portfolio" element={<PortfolioView />} />
               <Route path="/leaderboard" element={<LeaderboardView />} />
               <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/users/:userId" element={<UserView />} />
               <Route path="/admin/*" element={<AdminView />} />
               <Route
                 path="*"

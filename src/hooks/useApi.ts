@@ -43,6 +43,7 @@ import {
   linkEventToSubtopic,
   unlinkEventFromSubtopic,
   fetchPayoutPreview,
+  fetchUserPortfolio,
 } from "../api";
 import type { CreateEventPayload, SeedMarketPayload  } from "../api";
 import type { UUID } from "../models/models";
@@ -132,5 +133,6 @@ export function useApi() {
       linkEventToSubtopic(eventId, subtopicId, getToken),
     unlinkEventFromSubtopic: (eventId: UUID, subtopicId: UUID) =>
       unlinkEventFromSubtopic(eventId, subtopicId, getToken),
+    fetchUserPortfolio: (userId: UUID) => fetchUserPortfolio(userId, getToken),
   };
 }

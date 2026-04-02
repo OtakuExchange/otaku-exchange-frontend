@@ -7,10 +7,19 @@ import Typography from "@mui/material/Typography";
 import type { PortfolioItem } from "../api";
 import { usePortfolioQuery } from "../hooks/queries/usePortfolioQuery";
 
+function formatCents(cents: number): string {
+  const d = cents / 100;
+  if (d < 1000) return d.toLocaleString("en-US", { style: "currency", currency: "USD" });
+  const k = d / 1000;
+  if (k < 10) return `$${k.toFixed(3)}K`;
+  if (k < 100) return `$${k.toFixed(2)}K`;
+  return `$${k.toFixed(1)}K`;
+}
+
 export default function PortfolioView() {
   const { data, isLoading: loading } = usePortfolioQuery();
   const navigate = useNavigate();
-  const items = data ?? [];
+  const items = data?.pools ?? [];
 
   // Group by eventId, then render one row per staked pool
   const grouped = items.reduce<Record<string, PortfolioItem[]>>((acc, item) => {
@@ -116,16 +125,16 @@ export default function PortfolioView() {
                   <Box sx={{ width: 80, textAlign: "center" }}>
                     {pool.isWinner ? (
                       <Box sx={{ bgcolor: "#3DB468", borderRadius: 1, px: 1, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d" }}>
+                        <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d", fontSize: "13px" }}>
                           +{pool.volume > 0
-                            ? ((((pool.userStake ?? 0) * totalVolume / pool.volume) - (pool.userStake ?? 0)) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                            ? formatCents(((pool.userStake ?? 0) * totalVolume / pool.volume) - (pool.userStake ?? 0))
                             : "$0.00"}
                         </Typography>
                       </Box>
                     ) : pool.eventStatus.toLowerCase() === "resolved" ? (
                       <Box sx={{ bgcolor: "#AC3031", borderRadius: 1, px: 1, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d" }}>
-                          -{((pool.userStake ?? 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                        <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d", fontSize: "13px" }}>
+                          -{formatCents(pool.userStake ?? 0)}
                         </Typography>
                       </Box>
                     ) : (
@@ -210,16 +219,16 @@ export default function PortfolioView() {
                   <Box sx={{ width: 80, textAlign: "center" }}>
                     {pool.isWinner ? (
                       <Box sx={{ bgcolor: "#3DB468", borderRadius: 1, px: 1, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d" }}>
+                        <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d", fontSize: "13px" }}>
                           +{pool.volume > 0
-                            ? ((((pool.userStake ?? 0) * totalVolume / pool.volume) - (pool.userStake ?? 0)) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })
+                            ? formatCents(((pool.userStake ?? 0) * totalVolume / pool.volume) - (pool.userStake ?? 0))
                             : "$0.00"}
                         </Typography>
                       </Box>
                     ) : pool.eventStatus.toLowerCase() === "resolved" ? (
                       <Box sx={{ bgcolor: "#AC3031", borderRadius: 1, px: 1, height: 40, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                        <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d" }}>
-                          -{((pool.userStake ?? 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                        <Typography variant="body2" fontWeight={700} sx={{ color: "#16191d", fontSize: "13px" }}>
+                          -{formatCents(pool.userStake ?? 0)}
                         </Typography>
                       </Box>
                     ) : (

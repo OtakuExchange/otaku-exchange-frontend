@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Divider from "@mui/material/Divider";
@@ -10,6 +11,7 @@ import { useApi } from "../hooks/useApi";
 
 export default function LeaderboardView() {
   const { fetchLeaderboard } = useApi();
+  const navigate = useNavigate();
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -25,7 +27,7 @@ export default function LeaderboardView() {
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Leaderboard
       </Typography>
-      <Stack divider={<Divider />}>
+      <Stack divider={<Divider sx={{ mx: "4px" }} />}>
         {loading
           ? [0, 1, 2, 3, 4].map((i) => (
               <Stack key={i} direction="row" alignItems="center" spacing={2} sx={{ py: 1.5 }}>
@@ -36,7 +38,7 @@ export default function LeaderboardView() {
               </Stack>
             ))
           : entries.map((entry) => (
-              <Stack key={entry.userId} direction="row" alignItems="center" spacing={2} sx={{ py: 1.5 }}>
+              <Stack key={entry.userId} direction="row" alignItems="center" spacing={2} sx={{ py: 1.5, px: "20px", cursor: "pointer", borderRadius: 1, "&:hover": { bgcolor: "action.hover" } }} onClick={() => navigate(`/users/${entry.userId}`, { state: { username: entry.username, avatarUrl: entry.avatarUrl, balance: entry.balance } })}>
                 <Typography sx={{ width: 24, textAlign: "right", color: "text.secondary", fontWeight: 600 }}>
                   {entry.rank}
                 </Typography>

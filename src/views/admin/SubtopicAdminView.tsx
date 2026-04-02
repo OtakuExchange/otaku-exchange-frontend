@@ -109,8 +109,8 @@ export default function SubtopicAdminView() {
     .flatMap((t) => t.subtopics)
     .find((s) => s.id === linkSubtopicId);
   const filteredEvents = selectedSubtopic
-    ? events.filter((e) => e.topicId === selectedSubtopic.topicId)
-    : events;
+  ? events.filter((e) => e.topicId === selectedSubtopic.topicId && (e.status.toLowerCase() === "open" || e.status.toLowerCase() === "hidden"))
+  : events.filter((e) => e.status.toLowerCase() === "open" || e.status.toLowerCase() === "hidden");
 
   if (loading) {
     return (

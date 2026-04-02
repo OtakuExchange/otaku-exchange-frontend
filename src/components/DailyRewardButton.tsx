@@ -34,9 +34,25 @@ export default function DailyRewardButton() {
 
   if (!status) return null;
 
-  const rewardDollars = `$${(status.rewardCents / 100).toFixed(0)}`;
+  const base = status.rewardCents;
+  const bonus = status.comebackBonusCents ?? 0;
+  const total = base + bonus;
+  const hasBonus = bonus > 0;
+
+  const fmt = (cents: number) => `$${(cents / 100).toFixed(0)}`;
+
+  const buttonLabel = (() => {
+    if (claiming) return "Claiming...";
+    if (justClaimed) return `+${fmt(total)} claimed!`;
+    if (!status.canClaim) return `🔥 ${status.streak}`;
+    if (hasBonus) return `Claim ${fmt(base)} + ${fmt(bonus)} comeback`;
+    return `Claim ${fmt(base)}`;
+  })();
+
   const tooltipText = status.canClaim
-    ? `Day ${status.streak + 1} — claim ${rewardDollars}`
+    ? hasBonus
+      ? `Day ${status.streak + 1} streak — ${fmt(base)} base + ${fmt(bonus)} comeback bonus (20% of gap to #1)`
+      : `Day ${status.streak + 1} — claim ${fmt(base)}`
     : `Come back tomorrow! 🔥 ${status.streak} day streak`;
 
   return (
@@ -56,24 +72,20 @@ export default function DailyRewardButton() {
           }
           sx={{
             mr: 2,
-            bgcolor: status.canClaim ? "#f5a623" : "transparent",
-            color: status.canClaim ? "#000" : "#7B8996",
+            bgcolor: status.canClaim ? (hasBonus ? "#7b1fa2" : "#f5a623") : "transparent",
+            color: status.canClaim ? "#fff" : "#7B8996",
             fontWeight: 700,
             fontSize: "13px",
             textTransform: "none",
-            "&:hover": { bgcolor: status.canClaim ? "#e09510" : "action.hover" },
+            "&:hover": {
+              bgcolor: status.canClaim ? (hasBonus ? "#6a1b9a" : "#e09510") : "action.hover",
+            },
             "&.Mui-disabled": {
               color: "#7B8996",
             },
           }}
         >
-          {claiming
-            ? "Claiming..."
-            : justClaimed
-            ? `+${rewardDollars} claimed!`
-            : status.canClaim
-            ? `Claim ${rewardDollars}`
-            : `🔥 ${status.streak}`}
+          {buttonLabel}
         </Button>
       </span>
     </Tooltip>

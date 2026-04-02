@@ -456,6 +456,7 @@ export interface StreakStatus {
   streak: number;
   rewardCents: number;
   canClaim: boolean;
+  comebackBonusCents: number;
 }
 
 export async function fetchDailyStreak(getToken: GetToken): Promise<StreakStatus> {

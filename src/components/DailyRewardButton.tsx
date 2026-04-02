@@ -45,7 +45,7 @@ export default function DailyRewardButton() {
     if (claiming) return "Claiming...";
     if (justClaimed) return `+${fmt(total)} claimed!`;
     if (!status.canClaim) return `🔥 ${status.streak}`;
-    if (hasBonus) return `Claim ${fmt(base)} + ${fmt(bonus)} comeback`;
+    if (hasBonus) return `Claim ${fmt(base)} + ${fmt(bonus)} boost`;
     return `Claim ${fmt(base)}`;
   })();
 

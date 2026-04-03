@@ -14,6 +14,7 @@ import {
   Routes,
   useLocation,
   useNavigate,
+  useParams,
 } from "react-router-dom";
 import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/react";
 import { useApi } from "./hooks/useApi";
@@ -29,6 +30,9 @@ import { RefreshCashContext } from "./contexts/RefreshCashContext";
 import AdminView from "./views/AdminView";
 import UserView from "./views/UserView";
 import DailyRewardButton from "./components/DailyRewardButton";
+import { usePoolsQuery } from "./hooks/queries/usePoolsQuery";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useEventQuery } from "./hooks/queries/useEventQuery";
 
 const darkTheme = createTheme({
   palette: {
@@ -65,25 +69,13 @@ interface NavTab {
 }
 
 function EventViewRoute() {
-  const { state, pathname } = useLocation();
+  const { state } = useLocation();
+  const eventId = useParams().eventId as UUID;
+  const { data: event, isLoading: eventLoading, isError: eventError } = useEventQuery(eventId);
+  const { data: pools, isLoading: poolsLoading, isError: poolsError } = usePoolsQuery(eventId);
 
-  const event = state?.event ?? (() => {
-    try { return JSON.parse(sessionStorage.getItem(`event:${pathname}`) ?? "null"); } catch { return null; }
-  })();
-  const pools = state?.pools ?? (() => {
-    try { return JSON.parse(sessionStorage.getItem(`pools:${pathname}`) ?? "null"); } catch { return null; }
-  })();
-
-  useEffect(() => {
-    if (state?.event) {
-      sessionStorage.setItem(`event:${pathname}`, JSON.stringify(state.event));
-    }
-    if (state?.pools) {
-      sessionStorage.setItem(`pools:${pathname}`, JSON.stringify(state.pools));
-    }
-  }, [pathname, state]);
-
-  if (!event) return <Navigate to="/" replace />;
+  if (eventLoading || poolsLoading) return <CircularProgress />;
+  if (eventError || poolsError || !event || !pools) return <Navigate to="/" replace />;
   return <EventView event={event} initialPools={pools ?? undefined} initialPoolId={state?.selectedPoolId} />;
 }
 

@@ -622,3 +622,9 @@ export async function fetchPayoutPreview(
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
+
+export async function fetchEvent(eventId: UUID, getToken: GetToken): Promise<Event> {
+  return fetch(`${API_URL}/events/${eventId}`, {
+    headers: await authHeaders(getToken),
+  }).then((r) => r.json());
+}

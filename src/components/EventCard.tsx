@@ -13,6 +13,8 @@ import type { Event } from "../models/models";
 import { useApi } from "../hooks/useApi";
 import { entityTextColor } from "../utils/entityTextColor";
 import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "../queryKeys";
 
 export default function EventCard({
   event,
@@ -25,6 +27,7 @@ export default function EventCard({
 }) {
   const navigate = useNavigate();
   const { bookmarkEvent, unbookmarkEvent } = useApi();
+  const queryClient = useQueryClient();
   const { data: pools, isLoading } = usePoolsQuery(event.id);
 
   function handleBookmark() {
@@ -33,6 +36,14 @@ export default function EventCard({
       ? unbookmarkEvent(event.id)
       : bookmarkEvent(event.id);
     action.catch(console.error);
+  }
+
+  function primeEventRouteCache() {
+    // Avoid full-screen spinner on /events/:id by seeding react-query cache.
+    queryClient.setQueryData(queryKeys.eventById(event.id), event);
+    if (pools) {
+      queryClient.setQueryData(queryKeys.poolsByEventId(event.id), pools);
+    }
   }
 
   return (
@@ -59,9 +70,10 @@ export default function EventCard({
               return (
                 <Stack
                   sx={{ mb: 1 }}
-                  onClick={() =>
-                    navigate(`/events/${event.id}`, { state: { event, pools } })
-                  }
+                  onClick={() => {
+                    primeEventRouteCache();
+                    navigate(`/events/${event.id}`);
+                  }}
                 >
                   {(pools ?? []).map((pool, i) => {
                     const pct = totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
@@ -123,9 +135,10 @@ export default function EventCard({
                       "&:hover": { bgcolor: color + "40" },
                     }}
                     onClick={() =>
+                      (primeEventRouteCache(),
                       navigate(`/events/${event.id}`, {
-                        state: { event, pools, selectedPoolId: pool.id },
-                      })
+                        state: { selectedPoolId: pool.id },
+                      }))
                     }
                   >
                     {pool.entity?.abbreviatedName ?? pool.label}

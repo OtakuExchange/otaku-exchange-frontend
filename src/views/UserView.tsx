@@ -294,7 +294,7 @@ function PortfolioRows({
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
         Current Stakes
       </Typography>
-      <Stack divider={<Divider />} sx={{ maxWidth: 750, mb: 4 }}>
+      <Stack divider={<Divider />} sx={{ maxWidth: 800, mb: 4 }}>
         {loading ? (
           [0, 1, 2].map((i) => (
             <Skeleton
@@ -315,7 +315,7 @@ function PortfolioRows({
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
         Closed Stakes
       </Typography>
-      <Stack divider={<Divider />} sx={{ maxWidth: 750 }}>
+      <Stack divider={<Divider />} sx={{ maxWidth: 800 }}>
         {loading ? (
           [0, 1, 2].map((i) => (
             <Skeleton

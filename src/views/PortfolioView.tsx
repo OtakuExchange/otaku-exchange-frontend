@@ -134,7 +134,7 @@ export default function PortfolioView() {
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
       <Typography variant="h4" fontWeight="bold" gutterBottom>Portfolio</Typography>
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>Current Stakes</Typography>
-      <Stack divider={<Divider />} sx={{ maxWidth: 750, mb: 4 }}>
+      <Stack divider={<Divider />} sx={{ maxWidth: 800, mb: 4 }}>
         {loading ? (
           [0, 1, 2].map((i) => <Skeleton key={i} variant="rectangular" height={72} sx={{ borderRadius: 2, my: 0.5 }} />)
         ) : currentRows.length === 0 ? (
@@ -144,7 +144,7 @@ export default function PortfolioView() {
         )}
       </Stack>
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>Closed Stakes</Typography>
-      <Stack divider={<Divider />} sx={{ maxWidth: 750 }}>
+      <Stack divider={<Divider />} sx={{ maxWidth: 800 }}>
         {loading ? (
           [0, 1, 2].map((i) => <Skeleton key={i} variant="rectangular" height={72} sx={{ borderRadius: 2, my: 0.5 }} />)
         ) : closedRows.length === 0 ? (

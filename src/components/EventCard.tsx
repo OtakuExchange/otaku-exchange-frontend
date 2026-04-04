@@ -15,6 +15,7 @@ import { entityTextColor } from "../utils/entityTextColor";
 import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
+import { multiplierColor } from "../utils/parimutuel";
 
 export default function EventCard({
   event,
@@ -39,7 +40,6 @@ export default function EventCard({
   }
 
   function primeEventRouteCache() {
-    // Avoid full-screen spinner on /events/:id by seeding react-query cache.
     queryClient.setQueryData(queryKeys.eventById(event.id), event);
     if (pools) {
       queryClient.setQueryData(queryKeys.poolsByEventId(event.id), pools);
@@ -53,6 +53,7 @@ export default function EventCard({
         height: 188,
         display: "flex",
         flexDirection: "column",
+        position: "relative",
       }}
     >
       <CardContent
@@ -158,9 +159,28 @@ export default function EventCard({
           mb: "8px",
         }}
       >
-        <Typography variant="caption" sx={{ flexGrow: 1, color: "#7B8996" }}>
+        <Typography variant="caption" sx={{ color: "#7B8996" }}>
           {((pools ?? []).reduce((sum, p) => sum + p.volume, 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} Vol.
         </Typography>
+        {event.multiplier > 1 && (
+          <Box
+            sx={{
+              ml: 1,
+              bgcolor: multiplierColor(event.multiplier),
+              color: "#000",
+              fontWeight: 800,
+              fontSize: "11px",
+              px: 0.75,
+              py: 0.25,
+              borderRadius: 1,
+              lineHeight: 1.4,
+              letterSpacing: "0.02em",
+            }}
+          >
+            {event.multiplier}x
+          </Box>
+        )}
+        <Box sx={{ flexGrow: 1 }} />
         <IconButton
           size="small"
           sx={{ p: 0, color: "#7B8996" }}

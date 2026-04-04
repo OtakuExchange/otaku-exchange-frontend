@@ -390,6 +390,7 @@ export interface PortfolioItem {
   userStake: number | null;
   eventStatus: string;
   createdAt: string;
+  eventMultiplier: number;
 }
 
 export interface PortfolioResponse {

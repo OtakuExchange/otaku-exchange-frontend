@@ -38,6 +38,7 @@ export interface Event {
   bookmarked: boolean;
   createdAt: string;
   tradeVolume: number;
+  multiplier: number;
 }
 
 export interface Entity {

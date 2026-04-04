@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import Divider from "@mui/material/Divider";
 import Skeleton from "@mui/material/Skeleton";
 import IconButton from "@mui/material/IconButton";
@@ -19,6 +20,7 @@ import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
 import TradeCard from "../components/TradeCard";
 import Tabs from "@mui/material/Tabs";
 import Tab from "@mui/material/Tab";
+import { multiplierColor } from "../utils/parimutuel";
 
 const ENABLE_COMMENTS = false;
 
@@ -194,9 +196,25 @@ export default function EventView({
                 {topicName}
               </Typography>
             )}
-            <Typography component="h1" variant="h4" sx={{ fontWeight: 600, fontSize: "24px" }}>
-              {event.name}
-            </Typography>
+            <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap">
+              <Typography component="h1" variant="h4" sx={{ fontWeight: 600, fontSize: "24px" }}>
+                {event.name}
+              </Typography>
+              {event.multiplier > 1 && (
+                <Chip
+                  label={`${event.multiplier}x`}
+                  size="small"
+                  sx={{
+                    bgcolor: multiplierColor(event.multiplier),
+                    color: "#000",
+                    fontWeight: 800,
+                    fontSize: "13px",
+                    height: 24,
+                    letterSpacing: "0.02em",
+                  }}
+                />
+              )}
+            </Stack>
           </Box>
         </Stack>
 
@@ -370,7 +388,7 @@ export default function EventView({
           </>
         )}
       </Box>
-      {event.status === "open" && (
+      {(event.status === "open" || event.status === "hidden") && (
         <TradeCard
           pools={pools}
           selectedPool={selectedPool}

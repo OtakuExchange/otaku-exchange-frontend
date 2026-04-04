@@ -48,7 +48,7 @@ export default function PortfolioView() {
     const LEGACY_CUTOFF = new Date("2026-04-01");
     const payout = new Date(pool.createdAt) < LEGACY_CUTOFF
       ? calcLegacyPayout(userStake, pool.volume, totalVolume)
-      : calcPayout(userStake, pool.volume, totalVolume);
+      : calcPayout(userStake, pool.volume, totalVolume, pool.eventMultiplier);
 
     return (
       <Stack

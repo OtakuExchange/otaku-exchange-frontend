@@ -1,9 +1,11 @@
 export const POOL_SEED_AMOUNT = 50000; // must match ParimutuelService.POOL_SEED_AMOUNT
 
-export function calcPayout(userStake: number, poolVolume: number, totalVolume: number): number {
-  if (poolVolume <= 0) return 0;
-  const shareOfPool = userStake / (poolVolume - POOL_SEED_AMOUNT);
-  return shareOfPool * (totalVolume - POOL_SEED_AMOUNT);
+export function calcPayout(userStake: number, poolVolume: number, totalVolume: number, multiplier: number = 1): number {
+  const userPoolTotal = poolVolume - POOL_SEED_AMOUNT;
+  if (userPoolTotal <= 0) return 0;
+  const basePayout = (userStake / userPoolTotal) * (totalVolume - POOL_SEED_AMOUNT);
+  const profit = basePayout - userStake;
+  return userStake + (profit * multiplier);
 }
 
 export function calcLegacyPayout(userStake: number, poolVolume: number, totalVolume: number): number {
@@ -12,9 +14,11 @@ export function calcLegacyPayout(userStake: number, poolVolume: number, totalVol
   return shareOfPool * (totalVolume);
 }
 
-export function calcPreviewPayout(hypotheticalAmount: number, currentPoolTotal: number, currentGrandTotal: number): number {
-  const newPoolTotal  = currentPoolTotal + hypotheticalAmount;
-  const newGrandTotal = currentGrandTotal + hypotheticalAmount;
-  if (newPoolTotal === 0) return hypotheticalAmount;
-  return calcPayout(hypotheticalAmount, newPoolTotal, newGrandTotal);
+
+export function multiplierColor(multiplier: number): string {
+  if (multiplier >= 5) return "#e53935"; // red
+  if (multiplier >= 4) return "#e64a19"; // deep orange
+  if (multiplier >= 3) return "#f57c00"; // orange
+  if (multiplier >= 2) return "#f5a623"; // amber
+  return "#f5a623";                      // default amber (1x, never shown)
 }

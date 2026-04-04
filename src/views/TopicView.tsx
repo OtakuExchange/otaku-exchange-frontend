@@ -116,7 +116,7 @@ function EventsGrid({
     : { xs: 12, sm: 6, md: 4, lg: 3 };
 
   return (
-    <Grid container spacing={2}>
+    <Grid container spacing={{ xs: 1, sm: 2 }}>
       {events.map((event) => (
         <Grid key={event.id} size={itemSize}>
           <EventCard
@@ -211,7 +211,7 @@ export default function TopicView({
     : visibleEvents;
 
   return (
-    <Stack direction="row" sx={{ minHeight: "80vh" }}>
+    <Stack direction={{ xs: "column", md: "row" }} sx={{ minHeight: "80vh" }}>
       {subtopics.length > 0 && (
         <SubtopicNav
           subtopics={subtopics}

@@ -32,7 +32,7 @@ export default function ResolveEventView() {
     setLoadingEvents(true);
     Promise.all(topics.map((t) => fetchEvents(t.id)))
       .then((results) => {
-        const all = results.flat().filter((e) => e.status !== "RESOLVED" && e.status !== "resolved");
+        const all = results.flat().filter((e) => e.status !== "resolved");
         setEvents(all);
       })
       .catch(console.error)

@@ -15,6 +15,7 @@ import { entityTextColor } from "../utils/entityTextColor";
 import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
+import { EventStatusTag } from "./EventStatusTag";
 
 export default function EventCard({
   event,
@@ -50,7 +51,7 @@ export default function EventCard({
     <Card
       sx={{
         borderRadius: 3,
-        height: 188,
+        height: 210,
         display: "flex",
         flexDirection: "column",
       }}
@@ -58,6 +59,9 @@ export default function EventCard({
       <CardContent
         sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}
       >
+        <Box sx={{ mb: 0.5, lineHeight: 1 }}>
+          <EventStatusTag status={event.status} closeTime={event.closeTime} />
+        </Box>
         {isLoading ? (
           <Stack spacing={1} sx={{ flexGrow: 1, justifyContent: "center" }}>
             <Skeleton variant="rectangular" height={36} sx={{ borderRadius: 1 }} />

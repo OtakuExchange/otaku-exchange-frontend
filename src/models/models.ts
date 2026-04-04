@@ -24,6 +24,8 @@ export interface Topic {
   subtopics: Subtopic[];
 }
 
+export type EventStatus = "open" | "hidden" | "staking_closed" | "resolved";
+
 export interface Event {
   id: UUID;
   topicId: UUID;
@@ -31,7 +33,7 @@ export interface Event {
   name: string;
   description: string;
   closeTime: string;
-  status: string;
+  status: EventStatus;
   resolutionRule: string;
   logoPath: string | null;
   pandaScoreId: string | null;

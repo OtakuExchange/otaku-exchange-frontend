@@ -138,7 +138,6 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
   const effectiveIsAdmin = isSignedIn ? isAdmin : false;
-  const [showInfoBanner, setShowInfoBanner] = useState(true);
 
 
   useEffect(() => {

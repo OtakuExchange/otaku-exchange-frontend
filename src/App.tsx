@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Button from "@mui/material/Button";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -8,6 +8,8 @@ import Tabs from "@mui/material/Tabs";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import IconButton from "@mui/material/IconButton";
+import CloseIcon from "@mui/icons-material/Close";
 import {
   Navigate,
   Route,
@@ -79,6 +81,53 @@ function EventViewRoute() {
   return <EventView event={event} initialPools={pools ?? undefined} initialPoolId={state?.selectedPoolId} />;
 }
 
+// use localStorage to persist the state of the banner
+function InfoBanner() {
+  const [hideInfoBanner, setHideInfoBanner] = useState(() => {
+    try {
+      return localStorage.getItem("hideInfoBanner") === "true";
+    } catch {
+        return false;
+      }
+    },
+  );
+
+  const handleDismiss = useCallback(() => {
+    setHideInfoBanner(true);
+    localStorage.setItem("hideInfoBanner", "true");
+  }, []);
+
+  if (hideInfoBanner) return null;
+
+  return (
+    <Box
+      sx={{
+        bgcolor: "#1e2a3a",
+        borderBottom: "1px solid #252b31",
+        px: 3,
+        py: 1,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 2,
+      }}
+    >
+      <Typography sx={{ fontSize: "13px", color: "#7B8996" }}>
+        💡 <strong style={{ color: "#e8e8e8" }}>How payouts work:</strong>{" "}
+        FillyB himself has gifted 500 Fillybucks to each pool. The bigger your steak is relative to all the other degens who guessed right, the more you earn. If the only bet is you betting $1 and your team wins, you get $500. If someone else bet $1 as well, you would get $250.
+      </Typography>
+      <IconButton
+        size="small"
+        aria-label="Dismiss payouts info"
+        onClick={handleDismiss}
+        sx={{ color: "#7B8996" }}
+      >
+        <CloseIcon fontSize="small" />
+      </IconButton>
+    </Box>
+  )
+}
+
 function App() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -89,6 +138,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
   const effectiveIsAdmin = isSignedIn ? isAdmin : false;
+  const [showInfoBanner, setShowInfoBanner] = useState(true);
 
 
   useEffect(() => {
@@ -272,23 +322,7 @@ function App() {
             </AppBar>
             <Toolbar />
             <Box sx={{ height: 48 }} />
-            <Box
-              sx={{
-                bgcolor: "#1e2a3a",
-                borderBottom: "1px solid #252b31",
-                px: 3,
-                py: 1,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: 2,
-              }}
-            >
-              <Typography sx={{ fontSize: "13px", color: "#7B8996" }}>
-                💡 <strong style={{ color: "#e8e8e8" }}>How payouts work:</strong>{" "}
-                FillyB himself has gifted 500 Fillybucks to each pool. The bigger your steak is relative to all the other degens who guessed right, the more you earn. If the only bet is you betting $1 and your team wins, you get $500. If someone else bet $1 as well, you would get $250.
-              </Typography>
-            </Box>
+            <InfoBanner />
             <Routes>
               {navTabs.map((tab) => (
                 <Route

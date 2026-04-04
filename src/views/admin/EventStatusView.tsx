@@ -7,7 +7,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { Event, UUID } from "../../models/models";
+import type { Event, EventStatus, UUID } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
 import { useTopics } from "../../contexts/TopicsContext";
 
@@ -68,7 +68,7 @@ export default function EventStatusView() {
         prev.map((group) => ({
           ...group,
           events: group.events.map((e) =>
-            e.id === event.id ? { ...e, status: newStatus } : e
+            e.id === event.id ? { ...e, status: newStatus as EventStatus } : e
           ),
         }))
       );

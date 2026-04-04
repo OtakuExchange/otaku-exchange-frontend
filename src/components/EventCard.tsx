@@ -15,6 +15,7 @@ import { entityTextColor } from "../utils/entityTextColor";
 import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
+import { EventStatusTag } from "./EventStatusTag";
 import { multiplierColor } from "../utils/parimutuel";
 
 export default function EventCard({
@@ -50,7 +51,7 @@ export default function EventCard({
     <Card
       sx={{
         borderRadius: 3,
-        height: 188,
+        height: 210,
         display: "flex",
         flexDirection: "column",
         position: "relative",
@@ -59,6 +60,9 @@ export default function EventCard({
       <CardContent
         sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}
       >
+        <Box sx={{ mb: 0.5, lineHeight: 1 }}>
+          <EventStatusTag status={event.status} closeTime={event.closeTime} />
+        </Box>
         {isLoading ? (
           <Stack spacing={1} sx={{ flexGrow: 1, justifyContent: "center" }}>
             <Skeleton variant="rectangular" height={36} sx={{ borderRadius: 1 }} />
@@ -162,24 +166,6 @@ export default function EventCard({
         <Typography variant="caption" sx={{ color: "#7B8996" }}>
           {((pools ?? []).reduce((sum, p) => sum + p.volume, 0) / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })} Vol.
         </Typography>
-        {event.multiplier > 1 && (
-          <Box
-            sx={{
-              ml: 1,
-              bgcolor: multiplierColor(event.multiplier),
-              color: "#000",
-              fontWeight: 800,
-              fontSize: "11px",
-              px: 0.75,
-              py: 0.25,
-              borderRadius: 1,
-              lineHeight: 1.4,
-              letterSpacing: "0.02em",
-            }}
-          >
-            {event.multiplier}x
-          </Box>
-        )}
         <Box sx={{ flexGrow: 1 }} />
         <IconButton
           size="small"
@@ -193,6 +179,28 @@ export default function EventCard({
           )}
         </IconButton>
       </Box>
+      {event.multiplier > 1 && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            bgcolor: multiplierColor(event.multiplier),
+            color: "#000",
+            fontWeight: 800,
+            fontSize: "11px",
+            px: 0.75,
+            py: 0.25,
+            borderRadius: 1,
+            lineHeight: 1.4,
+            letterSpacing: "0.02em",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
+        >
+          {event.multiplier}x
+        </Box>
+      )}
     </Card>
   );
 }

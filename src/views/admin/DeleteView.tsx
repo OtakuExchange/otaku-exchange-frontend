@@ -30,7 +30,7 @@ export default function DeleteView() {
     fetchEvents(topicId as Topic["id"])
       .then(setEvents)
       .catch(console.error);
-  }, [topicId]);
+  }, [topicId, fetchEvents]);
 
   useEffect(() => {
     if (!eventId) {
@@ -41,7 +41,7 @@ export default function DeleteView() {
     fetchMarkets(eventId as Event["id"])
       .then(setMarkets)
       .catch(console.error);
-  }, [eventId]);
+  }, [eventId, fetchMarkets]);
 
   const buttonLabel = marketId
     ? "Delete Market"

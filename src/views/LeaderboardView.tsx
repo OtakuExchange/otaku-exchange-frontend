@@ -20,7 +20,7 @@ export default function LeaderboardView() {
       .then(setEntries)
       .catch(console.error)
       .finally(() => setLoading(false));
-  }, []);
+  }, [fetchLeaderboard]);
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 }, maxWidth: 600 }}>

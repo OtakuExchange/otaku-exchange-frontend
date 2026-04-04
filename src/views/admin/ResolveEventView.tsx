@@ -37,7 +37,7 @@ export default function ResolveEventView() {
       })
       .catch(console.error)
       .finally(() => setLoadingEvents(false));
-  }, [topics]);
+  }, [topics, fetchEvents]);
 
   async function handleExpand(event: Event) {
     if (expandedEventId === event.id) {

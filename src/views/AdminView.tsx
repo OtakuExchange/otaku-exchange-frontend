@@ -146,7 +146,7 @@ function SeedMarketView() {
         useLastPrice,
       });
       setResult({ success: true, message });
-    } catch (e) {
+    } catch {
       setResult({ success: false, message: "Failed to seed market" });
     } finally {
       setLoading(false);
@@ -222,12 +222,7 @@ function AdminGuard({ children }: { children: React.ReactNode }) {
       "| isSignedIn:",
       isSignedIn,
     );
-    if (!isLoaded) return;
-    if (!isSignedIn) {
-      console.log("[AdminGuard] Not signed in — blocking access");
-      setIsAdmin(false);
-      return;
-    }
+    if (!isLoaded || !isSignedIn) return;
     fetchCurrentUser()
       .then((user) => {
         console.log("[AdminGuard] /users/me response:", user);
@@ -238,9 +233,9 @@ function AdminGuard({ children }: { children: React.ReactNode }) {
         console.error("[AdminGuard] fetchCurrentUser error:", err);
         setIsAdmin(false);
       });
-  }, [isLoaded, isSignedIn]);
+  }, [isLoaded, isSignedIn, fetchCurrentUser]);
 
-  if (!isLoaded || isAdmin === null) {
+  if (!isLoaded) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
         <CircularProgress />
@@ -248,7 +243,20 @@ function AdminGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!isSignedIn || !isAdmin) {
+  if (!isSignedIn) {
+    console.log("[AdminGuard] Not signed in — redirecting to /");
+    return <Navigate to="/" replace />;
+  }
+
+  if (isAdmin === null) {
+    return (
+      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (!isAdmin) {
     console.log("[AdminGuard] Access denied — redirecting to /");
     return <Navigate to="/" replace />;
   }

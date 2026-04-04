@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
@@ -38,9 +38,7 @@ export default function SubtopicAdminView() {
   const [linking, setLinking] = useState(false);
   const [linkResult, setLinkResult] = useState<{ ok: boolean; msg: string } | null>(null);
 
-  useEffect(() => { load(); }, []);
-
-  async function load() {
+  const load = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
     try {
@@ -52,16 +50,22 @@ export default function SubtopicAdminView() {
           try {
             const evts = await api.fetchEvents(t.id);
             allEvents.push(...evts);
-          } catch {}
+          } catch (e) {
+            const message = e instanceof Error ? e.message : "Failed to load events";
+            setLoadError(message);
+          }
         }),
       );
       setEvents(allEvents);
-    } catch (e: any) {
-      setLoadError(e?.message ?? "Failed to load");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to load";
+      setLoadError(message);
     } finally {
       setLoading(false);
     }
-  }
+  }, [api]);
+
+  useEffect(() => { load(); }, [load]);
 
   async function handleCreate() {
     if (!createTopicId || !createName.trim()) return;
@@ -72,8 +76,9 @@ export default function SubtopicAdminView() {
       setCreateResult({ ok: true, msg: "Subtopic created." });
       setCreateName("");
       await load();
-    } catch (e: any) {
-      setCreateResult({ ok: false, msg: e?.message ?? "Failed to create subtopic." });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to create subtopic.";
+      setCreateResult({ ok: false, msg: message });
     } finally {
       setCreating(false);
     }
@@ -84,8 +89,9 @@ export default function SubtopicAdminView() {
     try {
       await api.deleteSubtopic(subtopic.id);
       await load();
-    } catch (e: any) {
-      alert(e?.message ?? "Failed to delete");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to delete";
+      alert(message);
     }
   }
 
@@ -97,8 +103,9 @@ export default function SubtopicAdminView() {
       await api.linkEventToSubtopic(linkEvent.id, linkSubtopicId as UUID);
       setLinkResult({ ok: true, msg: `Linked "${linkEvent.name}" successfully.` });
       setLinkEvent(null);
-    } catch (e: any) {
-      setLinkResult({ ok: false, msg: e?.message ?? "Failed to link." });
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Failed to link.";
+      setLinkResult({ ok: false, msg: message });
     } finally {
       setLinking(false);
     }

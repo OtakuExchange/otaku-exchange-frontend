@@ -56,7 +56,7 @@ export default function EventStatusView() {
       })
       .catch(() => setError("Failed to load events"))
       .finally(() => setLoading(false));
-  }, [topics]);
+  }, [topics, fetchEvents]);
 
   async function handleToggle(event: Event, newStatus: string) {
     if (event.status.toLowerCase() === newStatus) return;

@@ -16,7 +16,7 @@ export default function DailyRewardButton() {
 
   useEffect(() => {
     fetchDailyStreak().then(setStatus).catch(console.error);
-  }, []);
+  }, [fetchDailyStreak]);
 
   async function handleClaim() {
     setClaiming(true);

@@ -88,6 +88,7 @@ function App() {
   const [cash, setCash] = useState<number | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
+  const effectiveIsAdmin = isSignedIn ? isAdmin : false;
 
 
   useEffect(() => {
@@ -95,11 +96,11 @@ function App() {
       navigate("/");
     }
     prevIsSignedIn.current = isSignedIn;
-  }, [isSignedIn]);
+  }, [isSignedIn, navigate]);
 
   useEffect(() => {
     fetchTopics().then(setTopics).catch(console.error);
-  }, [isSignedIn]);
+  }, [isSignedIn, fetchTopics]);
 
   function refreshCash() {
     fetchCurrentUser()
@@ -113,8 +114,6 @@ function App() {
 
   useEffect(() => {
     if (!isSignedIn) {
-      setCash(null);
-      setIsAdmin(false);
       return;
     }
     fetchCurrentUser()
@@ -124,10 +123,10 @@ function App() {
         setIsAdmin(currentUser.isAdmin);
       })
       .catch(console.error);
-  }, [isSignedIn]);
+  }, [isSignedIn, fetchCurrentUser]);
 
   const navTabs: NavTab[] = topics
-    .filter((topic) => !topic.hidden || isAdmin)
+    .filter((topic) => !topic.hidden || effectiveIsAdmin)
     .map((topic) => ({
       id: topic.id,
       label: topic.topic,

@@ -32,7 +32,7 @@ export default function CreateMarketView() {
 
   useEffect(() => {
     fetchEntities().then(setEntities).catch(console.error);
-  }, []);
+  }, [fetchEntities]);
 
   useEffect(() => {
     if (!topicId) { setEvents([]); setSelectedEventId(""); return; }
@@ -41,7 +41,7 @@ export default function CreateMarketView() {
       .then((evts) => setEvents(evts.map((e) => ({ id: e.id, name: e.name, status: e.status }))))
       .catch(console.error)
       .finally(() => setLoadingEvents(false));
-  }, [topicId]);
+  }, [topicId, fetchEvents]);
 
   function updatePool(index: number, field: "label" | "entityId", value: string) {
     setPools((prev) => prev.map((p, i) => i === index ? { ...p, [field]: value } : p));

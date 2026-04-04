@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Chip from "@mui/material/Chip";
@@ -104,7 +104,7 @@ export default function EventView({
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
   const { data: poolsData, refetch: refetchPools } = usePoolsQuery(event.id);
-  const pools = poolsData ?? initialPools ?? [];
+  const pools = useMemo(() => poolsData ?? initialPools ?? [], [poolsData, initialPools]);
   const [selectedPool, setSelectedPool] = useState<Pool | null>(
     (initialPoolId ? initialPools?.find((p) => p.id === initialPoolId) : null) ?? initialPools?.[0] ?? null,
   );
@@ -118,7 +118,7 @@ export default function EventView({
     if (pools.length > 0 && !selectedPool) {
       setSelectedPool(pools[0]);
     }
-  }, [pools]);
+  }, [pools, selectedPool]);
 
   useEffect(() => {
     fetchComments(event.id)
@@ -130,7 +130,7 @@ export default function EventView({
       .then(setEventStakes)
       .catch(console.error)
       .finally(() => setStakesLoading(false));
-  }, [event.id]);
+  }, [event.id, fetchComments, fetchEventStakes]);
 
   async function handlePost() {
     if (!draft.trim()) return;

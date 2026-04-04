@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -149,7 +149,9 @@ export default function TopicView({
 }) {
   const { "*": subtopicSlug } = useParams();
   const navigate = useNavigate();
-  const [bookmarkedIds, setBookmarkedIds] = useState<Set<UUID>>(new Set());
+  const [bookmarkOverrides, setBookmarkOverrides] = useState<Map<UUID, boolean>>(
+    () => new Map(),
+  );
   const [filterBookmarked, setFilterBookmarked] = useState(false);
 
   const selectedSubtopic =
@@ -157,22 +159,31 @@ export default function TopicView({
 
   const { data: events, isLoading, error } = useTopicEventsQuery(topicId, selectedSubtopic);
 
+  const serverBookmarkedIds = useMemo(
+    () => new Set((events ?? []).filter((e) => e.bookmarked).map((e) => e.id)),
+    [events],
+  );
+
+  const bookmarkedIds = useMemo(() => {
+    const next = new Set(serverBookmarkedIds);
+    for (const [id, bookmarked] of bookmarkOverrides) {
+      bookmarked ? next.add(id) : next.delete(id);
+    }
+    return next;
+  }, [serverBookmarkedIds, bookmarkOverrides]);
+
   useEffect(() => {
     if (subtopics.length > 0 && !subtopicSlug) {
       navigate(`${topicPath}/${toSlug(subtopics[0].name)}`, { replace: true });
     }
-  }, [topicId, subtopics]);
-
-  useEffect(() => {
-    setBookmarkedIds(
-      new Set((events ?? []).filter((e) => e.bookmarked).map((e) => e.id)),
-    );
-  }, [events]);
+  }, [topicId, subtopics, navigate, topicPath, subtopicSlug]);
 
   function handleBookmarkChange(id: UUID, bookmarked: boolean) {
-    setBookmarkedIds((prev) => {
-      const next = new Set(prev);
-      bookmarked ? next.add(id) : next.delete(id);
+    setBookmarkOverrides((prev) => {
+      const next = new Map(prev);
+      const serverHas = serverBookmarkedIds.has(id);
+      if (bookmarked === serverHas) next.delete(id);
+      else next.set(id, bookmarked);
       return next;
     });
   }

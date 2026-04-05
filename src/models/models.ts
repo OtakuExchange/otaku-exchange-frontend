@@ -14,6 +14,8 @@ export interface Subtopic {
   topicId: UUID;
   name: string;
   createdAt: string;
+  eventCount?: number;
+  isNew?: boolean;
 }
 
 export interface Topic {
@@ -41,6 +43,7 @@ export interface Event {
   createdAt: string;
   tradeVolume: number;
   multiplier: number;
+  isNew: boolean;
 }
 
 export interface Entity {

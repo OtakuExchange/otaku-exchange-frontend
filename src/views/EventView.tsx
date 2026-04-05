@@ -5,9 +5,11 @@ import { DesktopEventView } from "../components/event/desktop/DesktopEventView";
 import { MobileEventView } from "../components/event/mobile/MobileEventView";
 import type { PoolStat } from "../components/event/types";
 import { useTopics } from "../contexts/TopicsContext";
+import { useRefreshTopics } from "../contexts/RefreshTopicsContext";
 import { useUserId } from "../contexts/UserContext";
 import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
 import { useApi } from "../hooks/useApi";
+import { useQueryClient } from "@tanstack/react-query";
 import type { Event, Pool } from "../models/models";
 
 export default function EventView({
@@ -19,8 +21,10 @@ export default function EventView({
   initialPools?: Pool[];
   initialPoolId?: string;
 }) {
-  const { fetchEventStakes } = useApi();
-  useUserId();
+  const { fetchEventStakes, markEventSeen } = useApi();
+  const userId = useUserId();
+  const queryClient = useQueryClient();
+  const refreshTopics = useRefreshTopics();
   const topics = useTopics();
   const topicName = topics.find((t) => t.id === event.topicId)?.topic;
   const { data: poolsData, refetch: refetchPools } = usePoolsQuery(event.id);
@@ -61,11 +65,17 @@ export default function EventView({
   }, [pools, totalVolume]);
 
   useEffect(() => {
+    if (userId) markEventSeen(event.id).then(() => {
+      queryClient.setQueriesData<Event[]>({ queryKey: ["events"] }, (cached) =>
+        cached?.map((e) => e.id === event.id ? { ...e, isNew: false } : e)
+      );
+      refreshTopics();
+    }).catch(console.error);
     fetchEventStakes(event.id, 3)
       .then(setEventStakes)
       .catch(console.error)
       .finally(() => setStakesLoading(false));
-  }, [event.id, fetchEventStakes]);
+  }, [event.id, fetchEventStakes, markEventSeen]);
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);

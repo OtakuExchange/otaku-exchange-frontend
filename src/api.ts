@@ -71,6 +71,14 @@ export async function fetchPools(
   }).then((r) => r.json());
 }
 
+export async function markEventSeen(eventId: UUID, getToken: GetToken): Promise<void> {
+  const headers = await authHeaders(getToken);
+  await fetch(`${API_URL}/events/${eventId}/seen`, {
+    method: "POST",
+    headers,
+  });
+}
+
 export interface CurrentUser {
   id: UUID;
   username: string;

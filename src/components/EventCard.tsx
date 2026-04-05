@@ -328,6 +328,24 @@ export default function EventCard({
         display: "flex",
         flexDirection: "column",
         position: "relative",
+        ...(event.isNew && {
+          "&::before": {
+            content: '""',
+            position: "absolute",
+            inset: 0,
+            borderRadius: "inherit",
+            background: "linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%)",
+            backgroundSize: "200% 100%",
+            animation: "shimmer 2.5s infinite",
+            pointerEvents: "none",
+            zIndex: 1,
+          },
+          "@keyframes shimmer": {
+            "0%": { backgroundPosition: "200% 0" },
+            "100%": { backgroundPosition: "-200% 0" },
+          },
+          boxShadow: "0 0 0 1.5px rgba(255,255,255,0.12)",
+        }),
       }}
     >
       <CardContent

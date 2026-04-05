@@ -29,6 +29,7 @@ import type { Topic, UUID } from "./models/models";
 import { TopicsContext } from "./contexts/TopicsContext";
 import { UserContext } from "./contexts/UserContext";
 import { RefreshCashContext } from "./contexts/RefreshCashContext";
+import { RefreshTopicsContext } from "./contexts/RefreshTopicsContext";
 import AdminView from "./views/AdminView";
 import UserView from "./views/UserView";
 import DailyRewardButton from "./components/DailyRewardButton";
@@ -167,6 +168,10 @@ function App() {
     fetchTopics().then(setTopics).catch(console.error);
   }, [isSignedIn, fetchTopics]);
 
+  function refreshTopics() {
+    fetchTopics().then(setTopics).catch(console.error);
+  }
+
   function refreshCash() {
     fetchCurrentUser()
       .then((currentUser) => {
@@ -204,6 +209,7 @@ function App() {
     false;
 
   return (
+    <RefreshTopicsContext.Provider value={refreshTopics}>
     <RefreshCashContext.Provider value={refreshCash}>
       <UserContext.Provider value={user?.id ?? null}>
         <TopicsContext.Provider value={topics}>
@@ -418,6 +424,7 @@ function App() {
         </TopicsContext.Provider>
       </UserContext.Provider>
     </RefreshCashContext.Provider>
+    </RefreshTopicsContext.Provider>
   );
 }
 

@@ -192,7 +192,7 @@ function App() {
               <TopNavLayout>
                 <Toolbar>
                   <Navbar
-                    isSignedIn={isSignedIn}
+                    isSignedIn={isSignedIn ?? false}
                     effectiveIsAdmin={effectiveIsAdmin}
                     cash={cash}
                   />

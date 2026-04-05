@@ -65,11 +65,16 @@ function NavbarCashDisplayMobile({ cash }: { cash: number | null }) {
   );
 }
 
-function NavbarBrand({ onHome }: { onHome: () => void }) {
+function NavbarBrand() {
+  const navigate = useNavigate();
+  const handleHome = () => {
+    navigate("/");
+  };
+
   return (
     <Stack direction="row" alignItems="center" spacing={1} sx={{ minWidth: 0 }}>
       <Box
-        onClick={onHome}
+        onClick={handleHome}
         component="img"
         src="https://pub-2b85124d43d84ca0b9bfb397755879db.r2.dev/cropped%20pink%20rat.png"
         sx={{ width: 30, height: 30, cursor: "pointer", flexShrink: 0 }}
@@ -77,7 +82,7 @@ function NavbarBrand({ onHome }: { onHome: () => void }) {
       <Typography
         variant="h6"
         component="div"
-        onClick={onHome}
+        onClick={handleHome}
         sx={{
           fontWeight: 600,
           cursor: "pointer",
@@ -171,50 +176,36 @@ function NavbarActionsDesktop({
   isSignedIn,
   effectiveIsAdmin,
   cash,
-  onNavigate,
 }: {
   isSignedIn: boolean;
   effectiveIsAdmin: boolean;
   cash: number | null;
-  onNavigate: (path: string) => void;
 }) {
+  const navigate = useNavigate();
   return (
-    <>
+    <Box sx={{ display: { xs: "none", md: "flex" } }}>
       {effectiveIsAdmin && (
-        <NavbarButton label="Admin" onClick={() => onNavigate("/admin")} />
+        <NavbarButton label="Admin" onClick={() => navigate("/admin")} />
       )}
       {isSignedIn && (
         <>
           <NavbarButton
             label="Leaderboard"
-            onClick={() => onNavigate("/leaderboard")}
+            onClick={() => navigate("/leaderboard")}
           />
-          <NavbarButton label="Portfolio" onClick={() => onNavigate("/portfolio")} />
-          <Box sx={{ display: { xs: "none", md: "block" } }}>
-            <DailyRewardButton variant="desktop" />
-          </Box>
+          <NavbarButton label="Portfolio" onClick={() => navigate("/portfolio")} />
+          <DailyRewardButton variant="desktop" />
           <NavbarCashDisplayDesktop cash={cash} />
         </>
       )}
-    </>
+    </Box>
   );
 }
 
-function NavbarActionsMobile({
-  isSignedIn,
-  effectiveIsAdmin,
-  cash,
-  onNavigate,
-}: {
-  isSignedIn: boolean;
-  effectiveIsAdmin: boolean;
-  cash: number | null;
-  onNavigate: (path: string) => void;
-}) {
+function NavbarMobileHamburgerButton({ effectiveIsAdmin }: { effectiveIsAdmin: boolean }) {
+  const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
-  if (!isSignedIn) return null;
 
   const items: Array<{ label: string; path: string }> = [
     { label: "Leaderboard", path: "/leaderboard" },
@@ -222,16 +213,19 @@ function NavbarActionsMobile({
   ];
   if (effectiveIsAdmin) items.unshift({ label: "Admin", path: "/admin" });
 
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
   return (
-    <Stack
-      direction="row"
-      alignItems="center"
-      spacing={0.5}
-      sx={{ display: { xs: "flex", md: "none" } }}
-    >
-      <IconButton
+    <Box sx={{ display: { xs: "flex", md: "none" } }}>
+    <IconButton
         size="small"
-        onClick={(e) => setAnchorEl(e.currentTarget)}
+        onClick={handleClick}
         aria-label="Open menu"
       >
         <MenuIcon fontSize="small" />
@@ -239,7 +233,7 @@ function NavbarActionsMobile({
       <Menu
         anchorEl={anchorEl}
         open={open}
-        onClose={() => setAnchorEl(null)}
+        onClose={handleClose}
         transformOrigin={{ vertical: "top", horizontal: "right" }}
         anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       >
@@ -248,14 +242,33 @@ function NavbarActionsMobile({
             key={it.path}
             onClick={() => {
               setAnchorEl(null);
-              onNavigate(it.path);
+              navigate(it.path);
             }}
           >
             {it.label}
           </MenuItem>
         ))}
       </Menu>
+    </Box>
+  )
+}
 
+function NavbarInfoMobile({
+  isSignedIn,
+  cash,
+}: {
+  isSignedIn: boolean;
+  cash: number | null;
+}) {
+  if (!isSignedIn) return null;
+
+  return (
+    <Stack
+      direction="row"
+      alignItems="center"
+      spacing={0.5}
+      sx={{ display: { xs: "flex", md: "none" } }}
+    >
       <DailyRewardButton variant="mobile" />
       <NavbarCashDisplayMobile cash={cash} />
     </Stack>
@@ -271,24 +284,25 @@ export function Navbar({
   effectiveIsAdmin: boolean;
   cash: number | null;
 }) {
-  const navigate = useNavigate();
-
+  
   return (
     <>
-      <NavbarBrand onHome={() => navigate("/")} />
+      <NavbarBrand />
+      <NavbarMobileHamburgerButton effectiveIsAdmin={effectiveIsAdmin} />
+
+      {/* Desktop actions */}
       <Box sx={{ flexGrow: 1, minWidth: 0 }} />
         <NavbarActionsDesktop
           isSignedIn={isSignedIn}
           effectiveIsAdmin={effectiveIsAdmin}
           cash={cash}
-          onNavigate={navigate}
         />
+
+      {/* Mobile actions */}
       <Box sx={{ display: "flex", gap: { xs: "10px", md: 0 } }}>
-        <NavbarActionsMobile
+        <NavbarInfoMobile
           isSignedIn={isSignedIn}
-          effectiveIsAdmin={effectiveIsAdmin}
           cash={cash}
-          onNavigate={navigate}
         />
         {isSignedIn ? <UserButton /> : <NavbarSignInButton />}
       </Box>

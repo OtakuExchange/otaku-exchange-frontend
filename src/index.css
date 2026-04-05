@@ -16,3 +16,16 @@ body,
   color: #ffffff !important;
   opacity: 1 !important;
 }
+
+@media (max-width: 600px) {
+  html,
+  body {
+    scrollbar-width: none;      /* Firefox */
+    -ms-overflow-style: none;   /* IE/old Edge */
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;              /* Chrome/Safari */
+  }
+}

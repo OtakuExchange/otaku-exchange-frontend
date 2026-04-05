@@ -20,13 +20,19 @@ function MobileSubtopicNav({
       sx={{
         display: { xs: "block", md: "none" },
         px: { xs: 2, sm: 3 },
-        pt: 1,
+        pt: 2,
         pb: 1,
         borderBottom: "1px solid #252b31",
         bgcolor: "background.default",
       }}
     >
-      <Box sx={{ overflowX: "auto" }}>
+      <Box sx={{ 
+        overflowX: "auto",
+        WebkitOverflowScrolling: "touch",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+        "&::-webkit-scrollbar": { display: "none" },
+      }}>
         <Stack direction="row" spacing={1} sx={{ minWidth: "max-content" }}>
           {subtopics.map((subtopic) => {
             const isSelected = selected === subtopic.id;

@@ -27,13 +27,15 @@ function MobileSubtopicNav({
         bgcolor: "background.default",
       }}
     >
-      <Box sx={{ 
-        overflowX: "auto",
-        WebkitOverflowScrolling: "touch",
-        scrollbarWidth: "none",
-        msOverflowStyle: "none",
-        "&::-webkit-scrollbar": { display: "none" },
-      }}>
+      <Box
+        sx={{
+          overflowX: "auto",
+          WebkitOverflowScrolling: "touch",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+          "&::-webkit-scrollbar": { display: "none" },
+        }}
+      >
         <Stack direction="row" spacing={1} sx={{ minWidth: "max-content" }}>
           {subtopics.map((subtopic) => {
             const isSelected = selected === subtopic.id;

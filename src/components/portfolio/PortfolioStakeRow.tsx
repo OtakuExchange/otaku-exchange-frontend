@@ -342,36 +342,44 @@ function DesktopStakeRow({
 function OpenStakeOutcome({ amountCents }: { amountCents: number }) {
   return (
     <Box sx={{ width: 80, textAlign: "center" }}>
-      <Typography
-        variant="caption"
-        sx={{ color: "#7B8996", display: "block" }}
-      >
+      <Typography variant="caption" sx={{ color: "#7B8996", display: "block" }}>
         Payout
       </Typography>
-      <OutcomeAmountChip
-        variant="open_payout"
-        amountCents={amountCents}
-      />
+      <OutcomeAmountChip variant="open_payout" amountCents={amountCents} />
     </Box>
-  )
+  );
 }
 
-function ResolvedStakeOutcome({ pool, model }: { pool: PortfolioItem; model: RowModel }) {
+function ResolvedStakeOutcome({
+  pool,
+  model,
+}: {
+  pool: PortfolioItem;
+  model: RowModel;
+}) {
   return (
-    <Box sx={{ width: 80, textAlign: "center", display: "flex", alignItems: "center", justifyContent: "center" }}>
-    {pool.isWinner ? (
-      <OutcomeAmountChip
-        variant="winner_profit"
-        amountCents={model.payout - model.userStake}
-      />
-    ) : (
-      <OutcomeAmountChip
-        variant="resolved_loss"
-        amountCents={model.userStake}
-      />
-    )}
-  </Box>
-  )
+    <Box
+      sx={{
+        width: 80,
+        textAlign: "center",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+      }}
+    >
+      {pool.isWinner ? (
+        <OutcomeAmountChip
+          variant="winner_profit"
+          amountCents={model.payout - model.userStake}
+        />
+      ) : (
+        <OutcomeAmountChip
+          variant="resolved_loss"
+          amountCents={model.userStake}
+        />
+      )}
+    </Box>
+  );
 }
 
 export function PortfolioStakeRow({

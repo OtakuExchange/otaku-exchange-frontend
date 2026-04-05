@@ -7,7 +7,11 @@ import type { StreakStatus } from "../api";
 import { useApi } from "../hooks/useApi";
 import { useRefreshCash } from "../contexts/RefreshCashContext";
 
-export default function DailyRewardButton() {
+export default function DailyRewardButton({
+  variant = "desktop",
+}: {
+  variant?: "desktop" | "mobile";
+}) {
   const { fetchDailyStreak, claimDailyReward } = useApi();
   const refreshCash = useRefreshCash();
   const [status, setStatus] = useState<StreakStatus | null>(null);
@@ -32,16 +36,15 @@ export default function DailyRewardButton() {
     }
   }
 
-  if (!status) return null;
+  const fmt = (cents: number) => `$${(cents / 100).toFixed(0)}`;
 
-  const base = status.rewardCents;
-  const bonus = status.comebackBonusCents ?? 0;
+  const base = status?.rewardCents ?? 0;
+  const bonus = status?.comebackBonusCents ?? 0;
   const total = base + bonus;
   const hasBonus = bonus > 0;
 
-  const fmt = (cents: number) => `$${(cents / 100).toFixed(0)}`;
-
   const buttonLabel = (() => {
+    if (!status) return "…";
     if (claiming) return "Claiming...";
     if (justClaimed) return `+${fmt(total)} claimed!`;
     if (!status.canClaim) return `🔥 ${status.streak}`;
@@ -49,20 +52,30 @@ export default function DailyRewardButton() {
     return `Claim ${fmt(base)}`;
   })();
 
-  const tooltipText = status.canClaim
-    ? hasBonus
-      ? `Day ${status.streak + 1} streak — ${fmt(base)} base + ${fmt(bonus)} comeback bonus (20% of gap to #1)`
-      : `Day ${status.streak + 1} — claim ${fmt(base)}`
-    : `Come back tomorrow! 🔥 ${status.streak} day streak`;
+  const tooltipText = !status
+    ? "Loading daily reward…"
+    : status.canClaim
+      ? hasBonus
+        ? `Day ${status.streak + 1} streak — ${fmt(base)} base + ${fmt(bonus)} comeback bonus (20% of gap to #1)`
+        : `Day ${status.streak + 1} — claim ${fmt(base)}`
+      : `Come back tomorrow! 🔥 ${status.streak} day streak`;
+
+  const mobileLabel = (() => {
+    if (!status) return "";
+    if (claiming) return "";
+    if (justClaimed) return `+${fmt(total)}`;
+    if (!status.canClaim) return `🔥${status.streak}`;
+    return `+${fmt(total)}`;
+  })();
 
   return (
     <Tooltip title={tooltipText}>
       <span>
         <Button
           size="small"
-          variant={status.canClaim ? "contained" : "text"}
+          variant={status?.canClaim ? "contained" : "text"}
           onClick={handleClaim}
-          disabled={!status.canClaim || claiming}
+          disabled={!status?.canClaim || claiming}
           startIcon={
             claiming ? (
               <CircularProgress size={14} />
@@ -71,18 +84,20 @@ export default function DailyRewardButton() {
             )
           }
           sx={{
-            mr: 2,
-            bgcolor: status.canClaim
+            mr: variant === "desktop" ? 2 : 1,
+            minWidth: variant === "mobile" ? 36 : undefined,
+            px: variant === "mobile" ? 1.25 : undefined,
+            bgcolor: status?.canClaim
               ? hasBonus
                 ? "#7b1fa2"
                 : "#f5a623"
               : "transparent",
-            color: status.canClaim ? "#fff" : "#7B8996",
+            color: status?.canClaim ? "#fff" : "#7B8996",
             fontWeight: 700,
             fontSize: "13px",
             textTransform: "none",
             "&:hover": {
-              bgcolor: status.canClaim
+              bgcolor: status?.canClaim
                 ? hasBonus
                   ? "#6a1b9a"
                   : "#e09510"
@@ -91,9 +106,12 @@ export default function DailyRewardButton() {
             "&.Mui-disabled": {
               color: "#7B8996",
             },
+            alignItems: "center",
+            justifyContent: "center",
+            height: "100%",
           }}
         >
-          {buttonLabel}
+          {variant === "mobile" ? mobileLabel : buttonLabel}
         </Button>
       </span>
     </Tooltip>

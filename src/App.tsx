@@ -1,10 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import Button from "@mui/material/Button";
-import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
-import Tab from "@mui/material/Tab";
-import Tabs from "@mui/material/Tabs";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -18,7 +14,7 @@ import {
   useNavigate,
   useParams,
 } from "react-router-dom";
-import { SignInButton, SignUpButton, UserButton, useUser } from "@clerk/react";
+import { useUser } from "@clerk/react";
 import { useApi } from "./hooks/useApi";
 import ProfilePage from "./components/ProfilePage";
 import PortfolioView from "./views/PortfolioView";
@@ -32,10 +28,13 @@ import { RefreshCashContext } from "./contexts/RefreshCashContext";
 import { RefreshTopicsContext } from "./contexts/RefreshTopicsContext";
 import AdminView from "./views/AdminView";
 import UserView from "./views/UserView";
-import DailyRewardButton from "./components/DailyRewardButton";
 import { usePoolsQuery } from "./hooks/queries/usePoolsQuery";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useEventQuery } from "./hooks/queries/useEventQuery";
+import { useNavbarTopics } from "./components/navbar/useNavbarTopics";
+import { TopNavLayout } from "./components/navbar/TopNavLayout";
+import { Navbar } from "./components/navbar/Navbar";
+import { TopicTabs } from "./components/navbar/TopicTabs";
 
 const darkTheme = createTheme({
   palette: {
@@ -63,13 +62,6 @@ const darkTheme = createTheme({
     },
   },
 });
-
-interface NavTab {
-  id: UUID;
-  label: string;
-  path: string;
-  subtopics: Topic["subtopics"];
-}
 
 function EventViewRoute() {
   const { state } = useLocation();
@@ -147,7 +139,6 @@ function InfoBanner() {
 }
 
 function App() {
-  const location = useLocation();
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
   const { fetchTopics, fetchCurrentUser } = useApi();
@@ -156,6 +147,7 @@ function App() {
   const [isAdmin, setIsAdmin] = useState(false);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
   const effectiveIsAdmin = isSignedIn ? isAdmin : false;
+  const { navTabs, activeTab } = useNavbarTopics({ topics, effectiveIsAdmin });
 
   useEffect(() => {
     if (prevIsSignedIn.current === false && isSignedIn) {
@@ -195,19 +187,6 @@ function App() {
       .catch(console.error);
   }, [isSignedIn, fetchCurrentUser]);
 
-  const navTabs: NavTab[] = topics
-    .filter((topic) => !topic.hidden || effectiveIsAdmin)
-    .map((topic) => ({
-      id: topic.id,
-      label: topic.topic,
-      path: `/${topic.topic.toLowerCase().replace(/\s+/g, "-")}`,
-      subtopics: topic.subtopics,
-    }));
-
-  const activeTab =
-    navTabs.find((tab) => location.pathname.startsWith(tab.path))?.path ||
-    false;
-
   return (
     <RefreshTopicsContext.Provider value={refreshTopics}>
     <RefreshCashContext.Provider value={refreshCash}>
@@ -216,167 +195,16 @@ function App() {
           <ThemeProvider theme={darkTheme}>
             <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
               <CssBaseline />
-              <AppBar
-                position="fixed"
-                color="inherit"
-                sx={{
-                  bgcolor: "#16191d",
-                  borderBottom: 1,
-                  borderColor: "#252b31",
-                }}
-              >
+              <TopNavLayout>
                 <Toolbar>
-                  <Box
-                    onClick={() => navigate("/")}
-                    component="img"
-                    src="https://pub-2b85124d43d84ca0b9bfb397755879db.r2.dev/cropped%20pink%20rat.png"
-                    sx={{ width: 30, height: 30, mr: 1, cursor: "pointer" }}
+                  <Navbar
+                    isSignedIn={isSignedIn ?? false}
+                    effectiveIsAdmin={effectiveIsAdmin}
+                    cash={cash}
                   />
-                  <Typography
-                    variant="h6"
-                    component="div"
-                    sx={{ flexGrow: 1, fontWeight: 600 }}
-                  >
-                    FillyB Exchange
-                  </Typography>
-                  {isSignedIn && (
-                    <>
-                      <Box
-                        onClick={() => navigate("/leaderboard")}
-                        sx={{
-                          textAlign: "center",
-                          mr: 2,
-                          cursor: "pointer",
-                          px: 1.5,
-                          py: 0.5,
-                          borderRadius: 1,
-                          "&:hover": { bgcolor: "action.hover" },
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          height: "100%",
-                          minHeight: "38px",
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            color: "#7B8996",
-                            fontSize: "12px",
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          Leaderboard
-                        </Typography>
-                      </Box>
-                      <Box
-                        onClick={() => navigate("/portfolio")}
-                        sx={{
-                          textAlign: "center",
-                          mr: 2,
-                          cursor: "pointer",
-                          px: 1.5,
-                          py: 0.5,
-                          borderRadius: 1,
-                          "&:hover": { bgcolor: "action.hover" },
-                          display: "flex",
-                          flexDirection: "column",
-                          justifyContent: "center",
-                          height: "100%",
-                          minHeight: "38px",
-                        }}
-                      >
-                        <Typography
-                          sx={{
-                            color: "#7B8996",
-                            fontSize: "12px",
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          Portfolio
-                        </Typography>
-                      </Box>
-                      <DailyRewardButton />
-                      <Box sx={{ textAlign: "center", mr: 2 }}>
-                        <Typography
-                          sx={{
-                            color: "#7B8996",
-                            fontSize: "12px",
-                            lineHeight: 1.2,
-                          }}
-                        >
-                          FillyBucks
-                        </Typography>
-                        <Typography
-                          sx={{
-                            color: "#3DB468",
-                            fontSize: "16px",
-                            lineHeight: 1.2,
-                            fontWeight: 600,
-                          }}
-                        >
-                          ${((cash ?? 0) / 100).toFixed(2)}
-                        </Typography>
-                      </Box>
-                    </>
-                  )}
-                  {isSignedIn ? (
-                    <UserButton />
-                  ) : (
-                    <>
-                      <SignInButton mode="modal">
-                        <Button
-                          variant="text"
-                          size="small"
-                          sx={{
-                            color: "#0093FD",
-                            fontWeight: 600,
-                            fontSize: "14px",
-                            height: "36px",
-                            borderRadius: "6px",
-                            padding: "8px 16px",
-                            textTransform: "none",
-                          }}
-                        >
-                          Login
-                        </Button>
-                      </SignInButton>
-                      <SignUpButton mode="modal">
-                        <Button
-                          variant="contained"
-                          size="small"
-                          sx={{
-                            ml: 1,
-                            bgcolor: "#0093FD",
-                            color: "#fff",
-                            fontWeight: 600,
-                            fontSize: "14px",
-                            height: "36px",
-                            borderRadius: "6px",
-                            padding: "8px 16px",
-                            textTransform: "none",
-                            "&:hover": { bgcolor: "#0093FD" },
-                          }}
-                        >
-                          Sign Up
-                        </Button>
-                      </SignUpButton>
-                    </>
-                  )}
                 </Toolbar>
-                <Tabs
-                  value={activeTab}
-                  onChange={(_, nextPath: string) => navigate(nextPath)}
-                  variant="scrollable"
-                  scrollButtons="auto"
-                  allowScrollButtonsMobile
-                  textColor="inherit"
-                  slotProps={{ indicator: { style: { display: "none" } } }}
-                >
-                  {navTabs.map((tab) => (
-                    <Tab key={tab.path} value={tab.path} label={tab.label} />
-                  ))}
-                </Tabs>
-              </AppBar>
+                <TopicTabs activeTab={activeTab} navTabs={navTabs} />
+              </TopNavLayout>
               <Toolbar />
               <Box sx={{ height: 48 }} />
               <InfoBanner />

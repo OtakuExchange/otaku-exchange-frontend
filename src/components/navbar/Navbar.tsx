@@ -142,7 +142,10 @@ export function Navbar({
             label="Leaderboard"
             onClick={() => navigate("/leaderboard")}
           />
-          <NavbarButton label="Portfolio" onClick={() => navigate("/portfolio")} />
+          <NavbarButton
+            label="Portfolio"
+            onClick={() => navigate("/portfolio")}
+          />
           <DailyRewardButton />
           <NavbarCashDisplay cash={cash} />
         </>

@@ -32,6 +32,8 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { useEventQuery } from "./hooks/queries/useEventQuery";
 import { useNavbarTopics } from "./components/navbar/useNavbarTopics";
 import { TopNavLayout } from "./components/navbar/TopNavLayout";
+import { Navbar } from "./components/navbar/Navbar";
+import { TopicTabs } from "./components/navbar/TopicTabs";
 
 const darkTheme = createTheme({
   palette: {
@@ -187,13 +189,16 @@ function App() {
           <ThemeProvider theme={darkTheme}>
             <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
               <CssBaseline />
-              <TopNavLayout
-                isSignedIn={isSignedIn}
-                effectiveIsAdmin={effectiveIsAdmin}
-                cash={cash}
-                activeTab={activeTab}
-                navTabs={navTabs}
-              />
+              <TopNavLayout>
+                <Toolbar>
+                  <Navbar
+                    isSignedIn={isSignedIn}
+                    effectiveIsAdmin={effectiveIsAdmin}
+                    cash={cash}
+                  />
+                </Toolbar>
+                <TopicTabs activeTab={activeTab} navTabs={navTabs} />
+              </TopNavLayout>
               <Toolbar />
               <Box sx={{ height: 48 }} />
               <InfoBanner />

@@ -1,22 +1,6 @@
 import AppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import { Navbar } from "./Navbar";
-import { TopicTabs } from "./TopicTabs";
-import type { NavTab } from "./useNavbarTopics";
 
-export function TopNavLayout({
-  isSignedIn,
-  effectiveIsAdmin,
-  cash,
-  activeTab,
-  navTabs,
-}: {
-  isSignedIn: boolean;
-  effectiveIsAdmin: boolean;
-  cash: number | null;
-  activeTab: string | false;
-  navTabs: NavTab[];
-}) {
+export function TopNavLayout({ children }: { children: React.ReactNode }) {
   return (
     <AppBar
       position="fixed"
@@ -27,14 +11,7 @@ export function TopNavLayout({
         borderColor: "#252b31",
       }}
     >
-      <Toolbar>
-        <Navbar
-          isSignedIn={isSignedIn}
-          effectiveIsAdmin={effectiveIsAdmin}
-          cash={cash}
-        />
-      </Toolbar>
-      <TopicTabs activeTab={activeTab} navTabs={navTabs} />
+      {children}
     </AppBar>
   );
 }

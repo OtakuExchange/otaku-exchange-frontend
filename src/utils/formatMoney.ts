@@ -8,3 +8,9 @@ export function formatCentsCompact(cents: number): string {
   return `$${k.toFixed(1)}K`;
 }
 
+export function formatUsdFromCents(cents: number): string {
+  return (cents / 100).toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+  });
+}

@@ -1,6 +1,7 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import type { EventStatus } from "../models/models";
+import { formatCloseTime } from "../utils/formatTime";
 
 const labelSx = {
   fontWeight: 800,
@@ -21,20 +22,6 @@ const liveDotSx = {
     "50%": { opacity: 0.25, transform: "scale(0.85)" },
   },
 } as const;
-
-function formatCloseTime(closeTime: string): string | null {
-  const d = new Date(closeTime);
-  if (Number.isNaN(d.getTime())) return null;
-  const dow = d.toLocaleString("en-US", { weekday: "short" });
-  const month = d.toLocaleString("en-US", { month: "short" });
-  const day = d.getDate();
-  const time = d.toLocaleString("en-US", {
-    hour: "numeric",
-    minute: "2-digit",
-    hour12: true,
-  });
-  return `${dow} ${month} ${day} @ ${time}`;
-}
 
 export function EventStatusTag({
   status,

@@ -72,13 +72,21 @@ export default function DailyRewardButton() {
           }
           sx={{
             mr: 2,
-            bgcolor: status.canClaim ? (hasBonus ? "#7b1fa2" : "#f5a623") : "transparent",
+            bgcolor: status.canClaim
+              ? hasBonus
+                ? "#7b1fa2"
+                : "#f5a623"
+              : "transparent",
             color: status.canClaim ? "#fff" : "#7B8996",
             fontWeight: 700,
             fontSize: "13px",
             textTransform: "none",
             "&:hover": {
-              bgcolor: status.canClaim ? (hasBonus ? "#6a1b9a" : "#e09510") : "action.hover",
+              bgcolor: status.canClaim
+                ? hasBonus
+                  ? "#6a1b9a"
+                  : "#e09510"
+                : "action.hover",
             },
             "&.Mui-disabled": {
               color: "#7B8996",

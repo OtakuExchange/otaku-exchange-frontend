@@ -16,7 +16,9 @@ export default function CreateMarketView() {
   const topics = useTopics();
 
   const [topicId, setTopicId] = useState<UUID | "">("");
-  const [events, setEvents] = useState<{ id: UUID; name: string; status: string }[]>([]);
+  const [events, setEvents] = useState<
+    { id: UUID; name: string; status: string }[]
+  >([]);
   const [loadingEvents, setLoadingEvents] = useState(false);
   const [entities, setEntities] = useState<Entity[]>([]);
 
@@ -35,16 +37,30 @@ export default function CreateMarketView() {
   }, [fetchEntities]);
 
   useEffect(() => {
-    if (!topicId) { setEvents([]); setSelectedEventId(""); return; }
+    if (!topicId) {
+      setEvents([]);
+      setSelectedEventId("");
+      return;
+    }
     setLoadingEvents(true);
     fetchEvents(topicId)
-      .then((evts) => setEvents(evts.map((e) => ({ id: e.id, name: e.name, status: e.status }))))
+      .then((evts) =>
+        setEvents(
+          evts.map((e) => ({ id: e.id, name: e.name, status: e.status })),
+        ),
+      )
       .catch(console.error)
       .finally(() => setLoadingEvents(false));
   }, [topicId, fetchEvents]);
 
-  function updatePool(index: number, field: "label" | "entityId", value: string) {
-    setPools((prev) => prev.map((p, i) => i === index ? { ...p, [field]: value } : p));
+  function updatePool(
+    index: number,
+    field: "label" | "entityId",
+    value: string,
+  ) {
+    setPools((prev) =>
+      prev.map((p, i) => (i === index ? { ...p, [field]: value } : p)),
+    );
   }
 
   function addPool() {
@@ -66,12 +82,15 @@ export default function CreateMarketView() {
           createMarketPool(
             selectedEventId,
             p.label,
-            p.entityId ? (p.entityId as UUID) : null
-          )
-        )
+            p.entityId ? (p.entityId as UUID) : null,
+          ),
+        ),
       );
       setSuccess(true);
-      setPools([{ label: "", entityId: "" }, { label: "", entityId: "" }]);
+      setPools([
+        { label: "", entityId: "" },
+        { label: "", entityId: "" },
+      ]);
       setSelectedEventId("");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to create pools");
@@ -87,7 +106,9 @@ export default function CreateMarketView() {
     pools.every((p) => p.label.trim());
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 520 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 520 }}
+    >
       <Typography variant="h5">Create Market Pools</Typography>
 
       <TextField
@@ -98,7 +119,9 @@ export default function CreateMarketView() {
         disabled={loading}
       >
         {topics.map((t) => (
-          <MenuItem key={t.id} value={t.id}>{t.topic}</MenuItem>
+          <MenuItem key={t.id} value={t.id}>
+            {t.topic}
+          </MenuItem>
         ))}
       </TextField>
 
@@ -113,9 +136,15 @@ export default function CreateMarketView() {
           disabled={loading || !topicId || events.length === 0}
         >
           {events
-            .filter((e) => e.status?.toLowerCase() === "open" || e.status?.toLowerCase() === "hidden")
+            .filter(
+              (e) =>
+                e.status?.toLowerCase() === "open" ||
+                e.status?.toLowerCase() === "hidden",
+            )
             .map((e) => (
-              <MenuItem key={e.id} value={e.id}>{e.name}</MenuItem>
+              <MenuItem key={e.id} value={e.id}>
+                {e.name}
+              </MenuItem>
             ))}
         </TextField>
       )}
@@ -144,16 +173,26 @@ export default function CreateMarketView() {
           >
             <MenuItem value="">None</MenuItem>
             {entities.map((e) => (
-              <MenuItem key={e.id} value={e.id}>{e.name}</MenuItem>
+              <MenuItem key={e.id} value={e.id}>
+                {e.name}
+              </MenuItem>
             ))}
           </TextField>
           {pools.length > 2 && (
-            <Button size="small" color="error" onClick={() => removePool(i)}>✕</Button>
+            <Button size="small" color="error" onClick={() => removePool(i)}>
+              ✕
+            </Button>
           )}
         </Box>
       ))}
 
-      <Button variant="outlined" size="small" onClick={addPool} disabled={loading} sx={{ alignSelf: "flex-start" }}>
+      <Button
+        variant="outlined"
+        size="small"
+        onClick={addPool}
+        disabled={loading}
+        sx={{ alignSelf: "flex-start" }}
+      >
         + Add Pool
       </Button>
 

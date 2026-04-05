@@ -34,8 +34,12 @@ export function PortfolioStakeSections({
     });
   });
 
-  const currentRows = rows.filter((r) => r.pool.eventStatus.toLowerCase() !== "resolved");
-  const closedRows = rows.filter((r) => r.pool.eventStatus.toLowerCase() === "resolved");
+  const currentRows = rows.filter(
+    (r) => r.pool.eventStatus.toLowerCase() !== "resolved",
+  );
+  const closedRows = rows.filter(
+    (r) => r.pool.eventStatus.toLowerCase() === "resolved",
+  );
 
   function handleRowClick(eventId: string, poolId: string) {
     if (onRowClick) return onRowClick(eventId, poolId);
@@ -107,4 +111,3 @@ export function PortfolioStakeSections({
     </Box>
   );
 }
-

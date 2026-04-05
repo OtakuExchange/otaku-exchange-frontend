@@ -12,8 +12,8 @@ export function useEventQuery(eventId: UUID) {
     queryFn: () => fetchEvent(eventId, getToken),
 
     // caching knobs
-    staleTime: 60_000,        // 1 min: switching tabs won't refetch immediately
-    gcTime: 10 * 60_000,      // 10 min: keep cache around after unmount
+    staleTime: 60_000, // 1 min: switching tabs won't refetch immediately
+    gcTime: 10 * 60_000, // 10 min: keep cache around after unmount
     refetchOnWindowFocus: false,
   });
 }

@@ -84,15 +84,21 @@ export default function ResolveEventView() {
   if (events.length === 0) {
     return (
       <Box>
-        <Typography variant="h5" gutterBottom>Resolve Event</Typography>
-        <Typography color="text.secondary">No open events to resolve.</Typography>
+        <Typography variant="h5" gutterBottom>
+          Resolve Event
+        </Typography>
+        <Typography color="text.secondary">
+          No open events to resolve.
+        </Typography>
       </Box>
     );
   }
 
   return (
     <Box sx={{ maxWidth: 600 }}>
-      <Typography variant="h5" gutterBottom>Resolve Event</Typography>
+      <Typography variant="h5" gutterBottom>
+        Resolve Event
+      </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Select an event, pick the winning pool, and resolve it.
       </Typography>
@@ -124,7 +130,15 @@ export default function ResolveEventView() {
           </Box>
 
           {expandedEventId === event.id && (
-            <Box sx={{ pl: 2, pb: 2, display: "flex", flexDirection: "column", gap: 1.5 }}>
+            <Box
+              sx={{
+                pl: 2,
+                pb: 2,
+                display: "flex",
+                flexDirection: "column",
+                gap: 1.5,
+              }}
+            >
               {loadingPoolsFor === event.id ? (
                 <CircularProgress size={20} />
               ) : poolsMap[event.id]?.length > 0 ? (
@@ -135,7 +149,10 @@ export default function ResolveEventView() {
                     size="small"
                     value={winningPoolIds[event.id] ?? ""}
                     onChange={(e) =>
-                      setWinningPoolIds((prev) => ({ ...prev, [event.id]: e.target.value as UUID }))
+                      setWinningPoolIds((prev) => ({
+                        ...prev,
+                        [event.id]: e.target.value as UUID,
+                      }))
                     }
                     sx={{ maxWidth: 320 }}
                   >
@@ -156,15 +173,25 @@ export default function ResolveEventView() {
                     color="error"
                     size="small"
                     sx={{ maxWidth: 160 }}
-                    disabled={!winningPoolIds[event.id] || resolvingId === event.id}
+                    disabled={
+                      !winningPoolIds[event.id] || resolvingId === event.id
+                    }
                     onClick={() => handleResolve(event)}
-                    startIcon={resolvingId === event.id ? <CircularProgress size={14} /> : null}
+                    startIcon={
+                      resolvingId === event.id ? (
+                        <CircularProgress size={14} />
+                      ) : null
+                    }
                   >
-                    {resolvingId === event.id ? "Resolving..." : "Confirm Resolve"}
+                    {resolvingId === event.id
+                      ? "Resolving..."
+                      : "Confirm Resolve"}
                   </Button>
                 </>
               ) : (
-                <Typography variant="body2" color="text.secondary">No pools found.</Typography>
+                <Typography variant="body2" color="text.secondary">
+                  No pools found.
+                </Typography>
               )}
             </Box>
           )}

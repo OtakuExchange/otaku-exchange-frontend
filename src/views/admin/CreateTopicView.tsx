@@ -34,7 +34,9 @@ export default function CreateTopicView() {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 480 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 480 }}
+    >
       <Typography variant="h5">Create Topic</Typography>
       <TextField
         label="Name"

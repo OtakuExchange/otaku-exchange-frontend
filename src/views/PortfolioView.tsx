@@ -8,7 +8,9 @@ export default function PortfolioView() {
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>
-      <Typography variant="h4" fontWeight="bold" gutterBottom>Portfolio</Typography>
+      <Typography variant="h4" fontWeight="bold" gutterBottom>
+        Portfolio
+      </Typography>
       <PortfolioStakeSections items={data?.pools ?? []} loading={loading} />
     </Box>
   );

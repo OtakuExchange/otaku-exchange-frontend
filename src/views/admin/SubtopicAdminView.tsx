@@ -30,19 +30,25 @@ export default function SubtopicAdminView() {
   const [createTopicId, setCreateTopicId] = useState<UUID | "">("");
   const [createName, setCreateName] = useState("");
   const [creating, setCreating] = useState(false);
-  const [createResult, setCreateResult] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [createResult, setCreateResult] = useState<{
+    ok: boolean;
+    msg: string;
+  } | null>(null);
 
   // link form
   const [linkSubtopicId, setLinkSubtopicId] = useState<UUID | "">("");
   const [linkEvent, setLinkEvent] = useState<Event | null>(null);
   const [linking, setLinking] = useState(false);
-  const [linkResult, setLinkResult] = useState<{ ok: boolean; msg: string } | null>(null);
+  const [linkResult, setLinkResult] = useState<{
+    ok: boolean;
+    msg: string;
+  } | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     setLoadError(null);
     try {
-      const topicsData = await api.fetchTopics() as Topic[];
+      const topicsData = (await api.fetchTopics()) as Topic[];
       setTopics(topicsData);
       const allEvents: Event[] = [];
       await Promise.all(
@@ -51,7 +57,8 @@ export default function SubtopicAdminView() {
             const evts = await api.fetchEvents(t.id);
             allEvents.push(...evts);
           } catch (e) {
-            const message = e instanceof Error ? e.message : "Failed to load events";
+            const message =
+              e instanceof Error ? e.message : "Failed to load events";
             setLoadError(message);
           }
         }),
@@ -65,7 +72,9 @@ export default function SubtopicAdminView() {
     }
   }, [api]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   async function handleCreate() {
     if (!createTopicId || !createName.trim()) return;
@@ -77,7 +86,8 @@ export default function SubtopicAdminView() {
       setCreateName("");
       await load();
     } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to create subtopic.";
+      const message =
+        e instanceof Error ? e.message : "Failed to create subtopic.";
       setCreateResult({ ok: false, msg: message });
     } finally {
       setCreating(false);
@@ -101,7 +111,10 @@ export default function SubtopicAdminView() {
     setLinkResult(null);
     try {
       await api.linkEventToSubtopic(linkEvent.id, linkSubtopicId as UUID);
-      setLinkResult({ ok: true, msg: `Linked "${linkEvent.name}" successfully.` });
+      setLinkResult({
+        ok: true,
+        msg: `Linked "${linkEvent.name}" successfully.`,
+      });
       setLinkEvent(null);
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to link.";
@@ -116,8 +129,17 @@ export default function SubtopicAdminView() {
     .flatMap((t) => t.subtopics)
     .find((s) => s.id === linkSubtopicId);
   const filteredEvents = selectedSubtopic
-  ? events.filter((e) => e.topicId === selectedSubtopic.topicId && (e.status.toLowerCase() === "open" || e.status.toLowerCase() === "hidden"))
-  : events.filter((e) => e.status.toLowerCase() === "open" || e.status.toLowerCase() === "hidden");
+    ? events.filter(
+        (e) =>
+          e.topicId === selectedSubtopic.topicId &&
+          (e.status.toLowerCase() === "open" ||
+            e.status.toLowerCase() === "hidden"),
+      )
+    : events.filter(
+        (e) =>
+          e.status.toLowerCase() === "open" ||
+          e.status.toLowerCase() === "hidden",
+      );
 
   if (loading) {
     return (
@@ -132,7 +154,9 @@ export default function SubtopicAdminView() {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 4, maxWidth: 560 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 4, maxWidth: 560 }}
+    >
       <Typography variant="h5">Subtopics</Typography>
 
       {/* ── Create ─────────────────────────────────────────────────────────── */}
@@ -149,7 +173,9 @@ export default function SubtopicAdminView() {
             onChange={(e) => setCreateTopicId(e.target.value as UUID)}
           >
             {topics.map((t) => (
-              <MenuItem key={t.id} value={t.id}>{t.topic}</MenuItem>
+              <MenuItem key={t.id} value={t.id}>
+                {t.topic}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
@@ -164,7 +190,10 @@ export default function SubtopicAdminView() {
         />
 
         {createResult && (
-          <Alert severity={createResult.ok ? "success" : "error"} onClose={() => setCreateResult(null)}>
+          <Alert
+            severity={createResult.ok ? "success" : "error"}
+            onClose={() => setCreateResult(null)}
+          >
             {createResult.msg}
           </Alert>
         )}
@@ -200,18 +229,22 @@ export default function SubtopicAdminView() {
             }}
           >
             {topics.map((t) =>
-              t.subtopics.length === 0 ? null : (
-                [
-                  <MenuItem key={`header-${t.id}`} disabled sx={{ opacity: 0.5, fontSize: 12 }}>
-                    {t.topic.toUpperCase()}
-                  </MenuItem>,
-                  ...t.subtopics.map((s) => (
-                    <MenuItem key={s.id} value={s.id} sx={{ pl: 3 }}>
-                      {s.name}
-                    </MenuItem>
-                  )),
-                ]
-              )
+              t.subtopics.length === 0
+                ? null
+                : [
+                    <MenuItem
+                      key={`header-${t.id}`}
+                      disabled
+                      sx={{ opacity: 0.5, fontSize: 12 }}
+                    >
+                      {t.topic.toUpperCase()}
+                    </MenuItem>,
+                    ...t.subtopics.map((s) => (
+                      <MenuItem key={s.id} value={s.id} sx={{ pl: 3 }}>
+                        {s.name}
+                      </MenuItem>
+                    )),
+                  ],
             )}
           </Select>
         </FormControl>
@@ -232,7 +265,10 @@ export default function SubtopicAdminView() {
         />
 
         {linkResult && (
-          <Alert severity={linkResult.ok ? "success" : "error"} onClose={() => setLinkResult(null)}>
+          <Alert
+            severity={linkResult.ok ? "success" : "error"}
+            onClose={() => setLinkResult(null)}
+          >
             {linkResult.msg}
           </Alert>
         )}
@@ -268,7 +304,12 @@ export default function SubtopicAdminView() {
                   <Typography
                     variant="caption"
                     color="text.secondary"
-                    sx={{ display: "block", mb: 1, textTransform: "uppercase", letterSpacing: "0.08em" }}
+                    sx={{
+                      display: "block",
+                      mb: 1,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.08em",
+                    }}
                   >
                     {t.topic}
                   </Typography>
@@ -284,7 +325,7 @@ export default function SubtopicAdminView() {
                     ))}
                   </Stack>
                 </Box>
-              )
+              ),
             )}
           </Stack>
         )}

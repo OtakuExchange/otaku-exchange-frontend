@@ -39,13 +39,15 @@ export function EventStatusTag({
   const formattedClose = closeTime ? formatCloseTime(closeTime) : null;
 
   const badgeColor = isLive ? "#ff3b30" : isOpen ? "#3DB468" : "#7B8996";
-  const badgeBg =
-    isLive ? "rgba(255, 59, 48, 0.14)"
-      : isOpen ? "rgba(61, 180, 104, 0.14)"
+  const badgeBg = isLive
+    ? "rgba(255, 59, 48, 0.14)"
+    : isOpen
+      ? "rgba(61, 180, 104, 0.14)"
       : "rgba(123, 137, 150, 0.16)";
-  const badgeBorder =
-    isLive ? "rgba(255, 59, 48, 0.35)"
-      : isOpen ? "rgba(61, 180, 104, 0.35)"
+  const badgeBorder = isLive
+    ? "rgba(255, 59, 48, 0.35)"
+    : isOpen
+      ? "rgba(61, 180, 104, 0.35)"
       : "rgba(123, 137, 150, 0.35)";
 
   return (
@@ -90,4 +92,3 @@ export function EventStatusTag({
     </Box>
   );
 }
-

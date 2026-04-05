@@ -149,15 +149,19 @@ export default function TopicView({
 }) {
   const { "*": subtopicSlug } = useParams();
   const navigate = useNavigate();
-  const [bookmarkOverrides, setBookmarkOverrides] = useState<Map<UUID, boolean>>(
-    () => new Map(),
-  );
+  const [bookmarkOverrides, setBookmarkOverrides] = useState<
+    Map<UUID, boolean>
+  >(() => new Map());
   const [filterBookmarked, setFilterBookmarked] = useState(false);
 
   const selectedSubtopic =
     subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ?? null;
 
-  const { data: events, isLoading, error } = useTopicEventsQuery(topicId, selectedSubtopic);
+  const {
+    data: events,
+    isLoading,
+    error,
+  } = useTopicEventsQuery(topicId, selectedSubtopic);
 
   const serverBookmarkedIds = useMemo(
     () => new Set((events ?? []).filter((e) => e.bookmarked).map((e) => e.id)),
@@ -204,7 +208,7 @@ export default function TopicView({
       const status = e.status.toLowerCase();
       if (status === "hidden") return isAdmin;
       return status !== "closed" && status !== "resolved";
-    })
+    }),
   );
   const renderedEvents = filterBookmarked
     ? visibleEvents.filter((e) => bookmarkedIds.has(e.id))

@@ -9,7 +9,9 @@ export function StakePercentBar({
   leftColor: string;
   rightColor?: string;
 }) {
-  const safe = Number.isFinite(leftPct) ? Math.max(0, Math.min(100, leftPct)) : 0;
+  const safe = Number.isFinite(leftPct)
+    ? Math.max(0, Math.min(100, leftPct))
+    : 0;
   const rightPct = 100 - safe;
 
   return (
@@ -40,4 +42,3 @@ export function StakePercentBar({
     </Box>
   );
 }
-

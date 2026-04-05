@@ -31,10 +31,10 @@ import {
   fetchPortfolio,
   fetchEventStakes,
   resolveEvent,
-  fetchDailyStreak, 
+  fetchDailyStreak,
   claimDailyReward,
-  fetchEntities, 
-  createEntity, 
+  fetchEntities,
+  createEntity,
   createMarketPool,
   updateEventStatus,
   updateEntity,
@@ -45,7 +45,7 @@ import {
   fetchPayoutPreview,
   fetchUserPortfolio,
 } from "../api";
-import type { CreateEventPayload, SeedMarketPayload  } from "../api";
+import type { CreateEventPayload, SeedMarketPayload } from "../api";
 import type { UUID } from "../models/models";
 
 export function useApi() {
@@ -113,19 +113,33 @@ export function useApi() {
     fetchLeaderboard: (limit: number) => fetchLeaderboard(limit, getToken),
     fetchMyStakes: () => fetchMyStakes(getToken),
     fetchPortfolio: () => fetchPortfolio(getToken),
-    fetchEventStakes: (eventId: UUID, limit: number) => fetchEventStakes(eventId, limit, getToken),
-    resolveEvent: (eventId: UUID, winningPoolId: UUID) => resolveEvent(eventId, winningPoolId, getToken),
+    fetchEventStakes: (eventId: UUID, limit: number) =>
+      fetchEventStakes(eventId, limit, getToken),
+    resolveEvent: (eventId: UUID, winningPoolId: UUID) =>
+      resolveEvent(eventId, winningPoolId, getToken),
     fetchDailyStreak: () => fetchDailyStreak(getToken),
     claimDailyReward: () => claimDailyReward(getToken),
     fetchEntities: () => fetchEntities(getToken),
-    createEntity: (payload: { name: string; abbreviatedName?: string; logoPath: string; color?: string }) =>
-      createEntity(payload, getToken),
+    createEntity: (payload: {
+      name: string;
+      abbreviatedName?: string;
+      logoPath: string;
+      color?: string;
+    }) => createEntity(payload, getToken),
     createMarketPool: (eventId: UUID, label: string, entityId: UUID | null) =>
       createMarketPool(eventId, label, entityId, getToken),
     updateEventStatus: (eventId: UUID, status: string) =>
       updateEventStatus(eventId, status, getToken),
-    updateEntity: (entityId: UUID, payload: { name: string; abbreviatedName?: string; logoPath: string; color?: string; pandaScoreId?: number }) =>
-      updateEntity(entityId, payload, getToken),
+    updateEntity: (
+      entityId: UUID,
+      payload: {
+        name: string;
+        abbreviatedName?: string;
+        logoPath: string;
+        color?: string;
+        pandaScoreId?: number;
+      },
+    ) => updateEntity(entityId, payload, getToken),
     createSubtopic: (topicId: UUID, name: string) =>
       createSubtopic(topicId, name, getToken),
     deleteSubtopic: (subtopicId: UUID) => deleteSubtopic(subtopicId, getToken),

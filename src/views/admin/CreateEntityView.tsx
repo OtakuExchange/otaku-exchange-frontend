@@ -40,7 +40,9 @@ export default function CreateEntityView() {
   }
 
   return (
-    <Box sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 480 }}>
+    <Box
+      sx={{ display: "flex", flexDirection: "column", gap: 2, maxWidth: 480 }}
+    >
       <Typography variant="h5">Create Entity</Typography>
       <TextField
         label="Name"
@@ -70,7 +72,9 @@ export default function CreateEntityView() {
         placeholder="#1565c0"
       />
       {error && <Alert severity="error">{error}</Alert>}
-      {success && <Alert severity="success">Entity created successfully.</Alert>}
+      {success && (
+        <Alert severity="success">Entity created successfully.</Alert>
+      )}
       <Button
         variant="contained"
         onClick={handleSubmit}

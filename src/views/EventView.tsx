@@ -24,7 +24,10 @@ export default function EventView({
   const topics = useTopics();
   const topicName = topics.find((t) => t.id === event.topicId)?.topic;
   const { data: poolsData, refetch: refetchPools } = usePoolsQuery(event.id);
-  const pools = useMemo(() => poolsData ?? initialPools ?? [], [poolsData, initialPools]);
+  const pools = useMemo(
+    () => poolsData ?? initialPools ?? [],
+    [poolsData, initialPools],
+  );
   const [selectedPoolId, setSelectedPoolId] = useState<string | null>(
     initialPoolId ?? initialPools?.[0]?.id ?? null,
   );

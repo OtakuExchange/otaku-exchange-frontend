@@ -30,7 +30,13 @@ export default function LeaderboardView() {
       <Stack divider={<Divider sx={{ mx: "4px" }} />}>
         {loading
           ? [0, 1, 2, 3, 4].map((i) => (
-              <Stack key={i} direction="row" alignItems="center" spacing={2} sx={{ py: 1.5 }}>
+              <Stack
+                key={i}
+                direction="row"
+                alignItems="center"
+                spacing={2}
+                sx={{ py: 1.5 }}
+              >
                 <Skeleton variant="circular" width={36} height={36} />
                 <Skeleton variant="text" width={120} />
                 <Box sx={{ flexGrow: 1 }} />
@@ -38,17 +44,51 @@ export default function LeaderboardView() {
               </Stack>
             ))
           : entries.map((entry) => (
-              <Stack key={entry.userId} direction="row" alignItems="center" spacing={2} sx={{ py: 1.5, px: "20px", cursor: "pointer", borderRadius: 1, "&:hover": { bgcolor: "action.hover" } }} onClick={() => navigate(`/users/${entry.userId}`, { state: { username: entry.username, avatarUrl: entry.avatarUrl, balance: entry.balance } })}>
-                <Typography sx={{ width: 24, textAlign: "right", color: "text.secondary", fontWeight: 600 }}>
+              <Stack
+                key={entry.userId}
+                direction="row"
+                alignItems="center"
+                spacing={2}
+                sx={{
+                  py: 1.5,
+                  px: "20px",
+                  cursor: "pointer",
+                  borderRadius: 1,
+                  "&:hover": { bgcolor: "action.hover" },
+                }}
+                onClick={() =>
+                  navigate(`/users/${entry.userId}`, {
+                    state: {
+                      username: entry.username,
+                      avatarUrl: entry.avatarUrl,
+                      balance: entry.balance,
+                    },
+                  })
+                }
+              >
+                <Typography
+                  sx={{
+                    width: 24,
+                    textAlign: "right",
+                    color: "text.secondary",
+                    fontWeight: 600,
+                  }}
+                >
                   {entry.rank}
                 </Typography>
-                <Avatar src={entry.avatarUrl ?? undefined} sx={{ width: 36, height: 36 }}>
+                <Avatar
+                  src={entry.avatarUrl ?? undefined}
+                  sx={{ width: 36, height: 36 }}
+                >
                   {entry.username[0].toUpperCase()}
                 </Avatar>
                 <Typography fontWeight={600}>{entry.username}</Typography>
                 <Box sx={{ flexGrow: 1 }} />
                 <Typography fontWeight={600}>
-                  {(entry.balance / 100).toLocaleString("en-US", { style: "currency", currency: "USD" })}
+                  {(entry.balance / 100).toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  })}
                 </Typography>
               </Stack>
             ))}

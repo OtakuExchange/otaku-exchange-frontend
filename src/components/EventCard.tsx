@@ -191,7 +191,11 @@ function DesktopEventCardBody({
               <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600 }}>
                 {pool.entity?.name ?? pool.label}
               </Typography>
-              <Typography variant="body2" fontWeight={700} sx={{ color: "#7B8996" }}>
+              <Typography
+                variant="body2"
+                fontWeight={700}
+                sx={{ color: "#7B8996" }}
+              >
                 {pct}%
               </Typography>
             </Stack>
@@ -253,10 +257,9 @@ function DesktopEventCardFooter({
       }}
     >
       <Typography variant="caption" sx={{ color: "#7B8996" }}>
-        {((pools ?? []).reduce((sum, p) => sum + p.volume, 0) / 100).toLocaleString(
-          "en-US",
-          { style: "currency", currency: "USD" },
-        )}{" "}
+        {(
+          (pools ?? []).reduce((sum, p) => sum + p.volume, 0) / 100
+        ).toLocaleString("en-US", { style: "currency", currency: "USD" })}{" "}
         Vol.
       </Typography>
       <Box sx={{ flexGrow: 1 }} />

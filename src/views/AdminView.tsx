@@ -63,7 +63,10 @@ function AdminSidebar() {
             >
               <ListItemText primary="Event" />
             </ListItemButton>
-            <ListItemButton sx={{ pl: 4 }} onClick={() => navigate("/admin/create/entity")}>
+            <ListItemButton
+              sx={{ pl: 4 }}
+              onClick={() => navigate("/admin/create/entity")}
+            >
               <ListItemText primary="Entity" />
             </ListItemButton>
             <ListItemButton
@@ -97,11 +100,17 @@ function AdminSidebar() {
           </List>
         </Collapse>
 
-        <ListItemButton sx={{ pl: 4 }} onClick={() => navigate("/admin/resolve/event")}>
+        <ListItemButton
+          sx={{ pl: 4 }}
+          onClick={() => navigate("/admin/resolve/event")}
+        >
           <ListItemText primary="Resolve Event" />
         </ListItemButton>
 
-        <ListItemButton sx={{ pl: 4 }} onClick={() => navigate("/admin/event-status")}>
+        <ListItemButton
+          sx={{ pl: 4 }}
+          onClick={() => navigate("/admin/event-status")}
+        >
           <ListItemText primary="Event Visibility" />
         </ListItemButton>
 

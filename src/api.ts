@@ -363,9 +363,12 @@ export async function fetchEventStakes(
   limit: number,
   getToken: GetToken,
 ): Promise<EventStake[]> {
-  return fetch(`${API_URL}/events/${eventId}/stakes?limit=${limit}&includeAdmins=false`, {
-    headers: await authHeaders(getToken),
-  }).then((r) => r.json());
+  return fetch(
+    `${API_URL}/events/${eventId}/stakes?limit=${limit}&includeAdmins=false`,
+    {
+      headers: await authHeaders(getToken),
+    },
+  ).then((r) => r.json());
 }
 
 export interface Stake {
@@ -402,13 +405,18 @@ export interface PortfolioResponse {
   createdAt: string;
 }
 
-export async function fetchPortfolio(getToken: GetToken): Promise<PortfolioResponse> {
+export async function fetchPortfolio(
+  getToken: GetToken,
+): Promise<PortfolioResponse> {
   return fetch(`${API_URL}/portfolio/me`, {
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
 
-export async function fetchUserPortfolio(userId: UUID, getToken: GetToken): Promise<PortfolioResponse> {
+export async function fetchUserPortfolio(
+  userId: UUID,
+  getToken: GetToken,
+): Promise<PortfolioResponse> {
   return fetch(`${API_URL}/portfolio/${userId}`, {
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
@@ -476,13 +484,17 @@ export interface StreakStatus {
   comebackBonusCents: number;
 }
 
-export async function fetchDailyStreak(getToken: GetToken): Promise<StreakStatus> {
+export async function fetchDailyStreak(
+  getToken: GetToken,
+): Promise<StreakStatus> {
   return fetch(`${API_URL}/rewards/daily`, {
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
 
-export async function claimDailyReward(getToken: GetToken): Promise<StreakStatus> {
+export async function claimDailyReward(
+  getToken: GetToken,
+): Promise<StreakStatus> {
   const res = await fetch(`${API_URL}/rewards/daily/claim`, {
     method: "POST",
     headers: await authHeaders(getToken),
@@ -498,7 +510,12 @@ export async function fetchEntities(getToken: GetToken): Promise<Entity[]> {
 }
 
 export async function createEntity(
-  payload: { name: string; abbreviatedName?: string; logoPath: string; color?: string },
+  payload: {
+    name: string;
+    abbreviatedName?: string;
+    logoPath: string;
+    color?: string;
+  },
   getToken: GetToken,
 ): Promise<Entity> {
   return fetch(`${API_URL}/entities`, {
@@ -598,7 +615,13 @@ export async function unlinkEventFromSubtopic(
 
 export async function updateEntity(
   entityId: UUID,
-  payload: { name: string; abbreviatedName?: string; logoPath: string; color?: string; pandaScoreId?: number },
+  payload: {
+    name: string;
+    abbreviatedName?: string;
+    logoPath: string;
+    color?: string;
+    pandaScoreId?: number;
+  },
   getToken: GetToken,
 ): Promise<Entity> {
   const res = await fetch(`${API_URL}/entities/${entityId}`, {
@@ -619,12 +642,18 @@ export async function fetchPayoutPreview(
   amount: number,
   getToken: GetToken,
 ): Promise<PayoutPreview> {
-  return fetch(`${API_URL}/events/${eventId}/pools/${poolId}/preview?amount=${amount}`, {
-    headers: await authHeaders(getToken),
-  }).then((r) => r.json());
+  return fetch(
+    `${API_URL}/events/${eventId}/pools/${poolId}/preview?amount=${amount}`,
+    {
+      headers: await authHeaders(getToken),
+    },
+  ).then((r) => r.json());
 }
 
-export async function fetchEvent(eventId: UUID, getToken: GetToken): Promise<Event> {
+export async function fetchEvent(
+  eventId: UUID,
+  getToken: GetToken,
+): Promise<Event> {
   return fetch(`${API_URL}/events/${eventId}`, {
     headers: await authHeaders(getToken),
   }).then((r) => r.json());

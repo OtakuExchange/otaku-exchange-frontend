@@ -27,7 +27,7 @@ function MobileSubtopicNav({
       sx={{
         display: { xs: "block", md: "none" },
         px: { xs: 2, sm: 3 },
-        pt: 2,
+        pt: 1,
         pb: 1,
         borderBottom: "1px solid #252b31",
         bgcolor: "background.default",

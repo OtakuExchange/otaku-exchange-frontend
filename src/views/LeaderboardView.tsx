@@ -58,7 +58,7 @@ const LeaderboardRow = ({ entry }: { entry: LeaderboardEntry }) => {
       <Typography
         sx={{
           width: 24,
-          textAlign: "right",
+          textAlign: "center",
           color: "text.secondary",
           fontWeight: 600,
         }}

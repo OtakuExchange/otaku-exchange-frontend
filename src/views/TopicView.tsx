@@ -59,6 +59,7 @@ function EmptyState({ topicLabel }: { topicLabel: string }) {
         alignItems: "center",
         flexGrow: 1,
         height: "100%",
+        width: "100%",
         mb: 8,
         mr: 8,
       }}

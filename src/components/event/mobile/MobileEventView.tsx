@@ -3,7 +3,6 @@ import Divider from "@mui/material/Divider";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { EventStake } from "../../../api";
 import type { Pool } from "../../../models/models";
 import { InfoSection } from "../InfoSection";
 import { EventHeaderSectionMobile } from "./EventHeaderSectionMobile";
@@ -12,6 +11,7 @@ import { TopStakesSectionMobile } from "./TopStakesSectionMobile";
 import type { PoolStat } from "../types";
 import type { Event } from "../../../models/models";
 import { TradeDockMobile } from "../../trade-card/TradeDockMobile";
+import { useEventStakesQuery } from "../../../hooks/queries/useEventStakesQuery";
 
 export function MobileEventView({
   event,
@@ -22,8 +22,6 @@ export function MobileEventView({
   selectedPool,
   infoTabIdx,
   onChangeTab,
-  stakesLoading,
-  eventStakes,
   pools,
   refetchPools,
 }: {
@@ -35,11 +33,10 @@ export function MobileEventView({
   selectedPool: Pool | null;
   infoTabIdx: number;
   onChangeTab: (event: React.SyntheticEvent, newValue: number) => void;
-  stakesLoading: boolean;
-  eventStakes: EventStake[];
   pools: Pool[];
   refetchPools: () => void;
 }) {
+  const { data: eventStakes = [], isLoading: stakesLoading } = useEventStakesQuery(event.id, 3);
   const showDock = event.status === "open" || event.status === "hidden";
   const dockPad = showDock
     ? "calc(168px + env(safe-area-inset-bottom))"

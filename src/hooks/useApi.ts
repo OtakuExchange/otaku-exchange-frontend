@@ -26,10 +26,8 @@ import {
   fetchMyOrders,
   cancelOrder,
   fetchPortfolioTotal,
-  fetchLeaderboard,
   fetchMyStakes,
   fetchPortfolio,
-  fetchEventStakes,
   resolveEvent,
   fetchDailyStreak,
   claimDailyReward,
@@ -111,11 +109,8 @@ export function useApi() {
     fetchPortfolioTotal: () => fetchPortfolioTotal(getToken),
     createStake: (marketPoolId: UUID, amount: number) =>
       createStake(marketPoolId, amount, getToken),
-    fetchLeaderboard: (limit: number) => fetchLeaderboard(limit, getToken),
     fetchMyStakes: () => fetchMyStakes(getToken),
     fetchPortfolio: () => fetchPortfolio(getToken),
-    fetchEventStakes: (eventId: UUID, limit: number) =>
-      fetchEventStakes(eventId, limit, getToken),
     resolveEvent: (eventId: UUID, winningPoolId: UUID) =>
       resolveEvent(eventId, winningPoolId, getToken),
     fetchDailyStreak: () => fetchDailyStreak(getToken),

@@ -369,14 +369,10 @@ export interface EventStake {
 
 export async function fetchEventStakes(
   eventId: UUID,
-  limit: number,
-  getToken: GetToken,
+  limit: number
 ): Promise<EventStake[]> {
   return fetch(
     `${API_URL}/events/${eventId}/stakes?limit=${limit}&includeAdmins=false`,
-    {
-      headers: await authHeaders(getToken),
-    },
   ).then((r) => r.json());
 }
 

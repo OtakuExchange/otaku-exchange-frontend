@@ -10,4 +10,6 @@ export const queryKeys = {
     ["events", "subtopic", subtopicId] as const,
   marketsByEventId: (eventId: UUID) => ["markets", "eventId", eventId] as const,
   topicEventCounts: (topicId: UUID) => ["topic", "eventCounts", topicId] as const,
+  leaderboard: (limit: number) => ["leaderboard", "limit", limit] as const,
+  eventStakes: (eventId: UUID, limit: number) => ["event", "stakes", eventId, "limit", limit] as const,
 };

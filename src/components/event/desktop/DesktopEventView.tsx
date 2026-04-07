@@ -3,7 +3,6 @@ import Divider from "@mui/material/Divider";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { EventStake } from "../../../api";
 import type { Pool } from "../../../models/models";
 import { InfoSection } from "../InfoSection";
 import type { PoolStat } from "../types";
@@ -12,6 +11,7 @@ import { PoolRowsSectionDesktop } from "./PoolRowsSectionDesktop";
 import { TopStakesSectionDesktop } from "./TopStakesSectionDesktop";
 import type { Event } from "../../../models/models";
 import { TradeCardDesktop } from "../../trade-card/TradeCardDesktop";
+import { useEventStakesQuery } from "../../../hooks/queries/useEventStakesQuery";
 
 export function DesktopEventView({
   event,
@@ -23,8 +23,6 @@ export function DesktopEventView({
   selectedPool,
   infoTabIdx,
   onChangeTab,
-  stakesLoading,
-  eventStakes,
   pools,
   refetchPools,
 }: {
@@ -37,11 +35,11 @@ export function DesktopEventView({
   selectedPool: Pool | null;
   infoTabIdx: number;
   onChangeTab: (event: React.SyntheticEvent, newValue: number) => void;
-  stakesLoading: boolean;
-  eventStakes: EventStake[];
   pools: Pool[];
   refetchPools: () => void;
 }) {
+  const { data: eventStakes = [], isLoading: stakesLoading } = useEventStakesQuery(event.id, 3);
+  
   return (
     <Stack direction="row" alignItems="flex-start" sx={{ p: 3, gap: 3 }}>
       <Box sx={{ flexGrow: 1 }}>

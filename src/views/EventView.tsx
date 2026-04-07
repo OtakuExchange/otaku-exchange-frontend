@@ -1,6 +1,5 @@
 import Box from "@mui/material/Box";
 import { useMemo, useState, useEffect } from "react";
-import type { EventStake } from "../api";
 import { DesktopEventView } from "../components/event/desktop/DesktopEventView";
 import { MobileEventView } from "../components/event/mobile/MobileEventView";
 import type { PoolStat } from "../components/event/types";
@@ -21,7 +20,7 @@ export default function EventView({
   initialPools?: Pool[];
   initialPoolId?: string;
 }) {
-  const { fetchEventStakes, markEventSeen } = useApi();
+  const { markEventSeen } = useApi();
   const userId = useUserId();
   const queryClient = useQueryClient();
   const refreshTopics = useRefreshTopics();
@@ -36,8 +35,6 @@ export default function EventView({
     initialPoolId ?? initialPools?.[0]?.id ?? null,
   );
   const [infoTabIdx, setInfoTabIdx] = useState<number>(0);
-  const [eventStakes, setEventStakes] = useState<EventStake[]>([]);
-  const [stakesLoading, setStakesLoading] = useState(true);
 
   const effectiveSelectedPoolId = selectedPoolId ?? pools[0]?.id ?? null;
   const selectedPool = useMemo(() => {
@@ -71,11 +68,7 @@ export default function EventView({
       );
       refreshTopics();
     }).catch(console.error);
-    fetchEventStakes(event.id, 3)
-      .then(setEventStakes)
-      .catch(console.error)
-      .finally(() => setStakesLoading(false));
-  }, [event.id, fetchEventStakes, markEventSeen]);
+  }, [event.id, markEventSeen]);
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);
@@ -93,8 +86,6 @@ export default function EventView({
           selectedPool={selectedPool}
           infoTabIdx={infoTabIdx}
           onChangeTab={handleChangeTab}
-          stakesLoading={stakesLoading}
-          eventStakes={eventStakes}
           pools={pools}
           refetchPools={refetchPools}
         />
@@ -111,8 +102,6 @@ export default function EventView({
           selectedPool={selectedPool}
           infoTabIdx={infoTabIdx}
           onChangeTab={handleChangeTab}
-          stakesLoading={stakesLoading}
-          eventStakes={eventStakes}
           pools={pools}
           refetchPools={refetchPools}
         />

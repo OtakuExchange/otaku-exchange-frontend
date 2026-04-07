@@ -8,10 +8,10 @@ import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { Event, EventStatus, UUID } from "../../models/models";
+import { EVENT_STATUSES } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
 import { useTopics } from "../../contexts/TopicsContext";
 
-const STATUS_OPTIONS = ["open", "staking_closed", "hidden"];
 
 function statusColor(status: string): string {
   switch (status.toLowerCase()) {
@@ -149,7 +149,7 @@ export default function EventStatusView() {
                     />
                   </Box>
                   <Stack direction="row" spacing={1} sx={{ flexShrink: 0 }}>
-                    {STATUS_OPTIONS.map((s) => (
+                    {EVENT_STATUSES.map((s) => (
                       <Button
                         key={s}
                         size="small"

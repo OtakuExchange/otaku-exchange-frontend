@@ -9,6 +9,7 @@ import type {
   UUID,
   Entity,
   PayoutPreview,
+  TopicEventCounts,
 } from "./models/models";
 
 const API_URL = import.meta.env.VITE_API_URL;
@@ -664,5 +665,12 @@ export async function fetchEvent(
 ): Promise<Event> {
   return fetch(`${API_URL}/events/${eventId}`, {
     headers: await authHeaders(getToken),
+  }).then((r) => r.json());
+}
+
+export async function fetchTopicEventCounts(
+  topicId: UUID,
+): Promise<TopicEventCounts> {
+  return fetch(`${API_URL}/topics/${topicId}/subtopics/event-counts`, {
   }).then((r) => r.json());
 }

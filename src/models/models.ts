@@ -14,7 +14,6 @@ export interface Subtopic {
   topicId: UUID;
   name: string;
   createdAt: string;
-  eventCount?: number;
   isNew?: boolean;
 }
 
@@ -26,7 +25,14 @@ export interface Topic {
   subtopics: Subtopic[];
 }
 
-export type EventStatus = "open" | "hidden" | "staking_closed" | "resolved";
+export const EVENT_STATUSES = [
+  "open",
+  "hidden",
+  "staking_closed",
+  "resolved"
+] as const;
+
+export type EventStatus = typeof EVENT_STATUSES[number];
 
 export interface Event {
   id: UUID;
@@ -132,4 +138,15 @@ export interface Order {
 export interface PayoutPreview {
   hypotheticalStake: number;
   projectedPayout: number;
+}
+
+export interface TopicEventCounts {
+  topicId: UUID;
+  subtopics: SubtopicEventCounts[];
+}
+
+export interface SubtopicEventCounts {
+  subtopicId: UUID;
+  total: number;
+  byStatus: Record<EventStatus, number>;
 }

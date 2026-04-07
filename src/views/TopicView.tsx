@@ -12,6 +12,7 @@ import EventCard from "../components/EventCard";
 import SubtopicNav from "../components/SubtopicNav";
 import type { Event, Subtopic, UUID } from "../models/models";
 import { useTopicEventsQuery } from "../hooks/queries/useTopicsQuery";
+import { useTopicEventCountQuery } from "../hooks/queries/useTopicEventCountQuery";
 
 function LoadingState() {
   return (
@@ -153,6 +154,7 @@ export default function TopicView({
     Map<UUID, boolean>
   >(() => new Map());
   const [filterBookmarked, setFilterBookmarked] = useState(false);
+  const { data: topicEventCounts } = useTopicEventCountQuery(topicId);
 
   const selectedSubtopic =
     subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ?? null;
@@ -207,7 +209,7 @@ export default function TopicView({
     (events ?? []).filter((e) => {
       const status = e.status.toLowerCase();
       if (status === "hidden") return isAdmin;
-      return status !== "closed" && status !== "resolved";
+      return status !== "resolved";
     }),
   );
   const renderedEvents = filterBookmarked
@@ -218,6 +220,7 @@ export default function TopicView({
     <Stack direction={{ xs: "column", md: "row" }} sx={{ minHeight: "80vh" }}>
       {subtopics.length > 0 && (
         <SubtopicNav
+          topicEventCounts={topicEventCounts}
           subtopics={subtopics}
           selected={selectedSubtopic}
           onSelect={(id) => {

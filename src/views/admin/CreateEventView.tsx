@@ -8,12 +8,11 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { type Dayjs } from "dayjs";
-import type { Topic } from "../../models/models";
+import { EVENT_STATUSES, type Topic } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
 import { useTopics } from "../../contexts/TopicsContext";
 
 const FORMAT_OPTIONS = ["binary", "multi"];
-const STATUS_OPTIONS = ["open", "closed", "resolved", "hidden"];
 
 export default function CreateEventView() {
   const { createEvent } = useApi();
@@ -128,7 +127,7 @@ export default function CreateEventView() {
           onChange={(e) => setStatus(e.target.value)}
           disabled={loading}
         >
-          {STATUS_OPTIONS.map((s) => (
+          {EVENT_STATUSES.map((s) => (
             <MenuItem key={s} value={s}>
               {s}
             </MenuItem>

@@ -105,7 +105,6 @@ function EventCardTitle({
         textOverflow: "ellipsis",
         whiteSpace: "nowrap",
         display: "block",
-        mb: { xs: 0.5, md: 0.25 },
       }}
       title={name}
     >

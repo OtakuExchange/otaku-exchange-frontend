@@ -17,15 +17,18 @@ import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
 import { EventStatusTag } from "./EventStatusTag";
 import { multiplierColor } from "../utils/parimutuel";
+import { EventCloseTime } from "./event/EventCloseTime";
 
 type PoolItem = NonNullable<ReturnType<typeof usePoolsQuery>["data"]>[number];
 
 function EventCardHeader({
   event,
+  title,
   bookmarked,
   onBookmark,
 }: {
   event: Event;
+  title: string;
   bookmarked: boolean;
   onBookmark: () => void;
 }) {
@@ -36,8 +39,14 @@ function EventCardHeader({
       spacing={1}
       sx={{ mb: { xs: 0.75, md: 0.5 } }}
     >
-      <EventStatusTag status={event.status} closeTime={event.closeTime} />
-      <Box sx={{ flexGrow: 1 }} />
+      <EventStatusTag
+        status={event.status}
+        closeTime={event.closeTime}
+        showCloseTime={false}
+      />
+      <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+        <EventCardTitle name={title} />
+      </Box>
       {event.multiplier > 1 && (
         <Typography
           variant="caption"
@@ -265,10 +274,12 @@ function DesktopEventCardBody({
 }
 
 function DesktopEventCardFooter({
+  event,
   pools,
   bookmarked,
   onBookmark,
 }: {
+  event: Event;
   pools: PoolItem[] | undefined;
   bookmarked: boolean;
   onBookmark: () => void;
@@ -276,7 +287,7 @@ function DesktopEventCardFooter({
   return (
     <Box
       sx={{
-        display: { xs: "none", md: "flex" },
+        display: "flex",
         alignItems: "center",
         px: 2,
         height: 28,
@@ -285,24 +296,27 @@ function DesktopEventCardFooter({
         zIndex: 2,
       }}
     >
-      <Typography variant="caption" sx={{ color: "#7B8996" }}>
-        {(
-          (pools ?? []).reduce((sum, p) => sum + p.volume, 0) / 100
-        ).toLocaleString("en-US", { style: "currency", currency: "USD" })}{" "}
-        Vol.
-      </Typography>
+      <EventCloseTime closeTime={event.closeTime} />
       <Box sx={{ flexGrow: 1 }} />
-      <IconButton
-        size="small"
-        sx={{ p: 0, color: "#7B8996" }}
-        onClick={onBookmark}
-      >
-        {bookmarked ? (
-          <BookmarkIcon fontSize="small" />
-        ) : (
-          <BookmarkBorderIcon fontSize="small" />
-        )}
-      </IconButton>
+      <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+        <Typography variant="caption" sx={{ color: "#7B8996" }}>
+          {(
+            (pools ?? []).reduce((sum, p) => sum + p.volume, 0) / 100
+          ).toLocaleString("en-US", { style: "currency", currency: "USD" })}{" "}
+          Vol.
+        </Typography>
+        <IconButton
+          size="small"
+          sx={{ p: 0, color: "#7B8996", display: { xs: "none", md: "inline-flex" } }}
+          onClick={onBookmark}
+        >
+          {bookmarked ? (
+            <BookmarkIcon fontSize="small" />
+          ) : (
+            <BookmarkBorderIcon fontSize="small" />
+          )}
+        </IconButton>
+      </Box>
     </Box>
   );
 }
@@ -388,11 +402,9 @@ export default function EventCard({
           zIndex: 2,
         }}
       >
-        <Box sx={{ mb: 1 }}>
-          <EventCardTitle name={event.alias ?? event.name} />
-        </Box>
         <EventCardHeader
           event={event}
+          title={event.alias ?? event.name}
           bookmarked={bookmarked}
           onBookmark={handleBookmark}
         />
@@ -417,6 +429,7 @@ export default function EventCard({
 
       {/* Desktop footer (md+): volume + bookmark */}
       <DesktopEventCardFooter
+        event={event}
         pools={pools}
         bookmarked={bookmarked}
         onBookmark={handleBookmark}

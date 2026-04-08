@@ -131,6 +131,7 @@ export interface CreateEventPayload {
   status: string;
   resolutionRule: string;
   logoPath?: string;
+  alias?: string;
 }
 
 export async function createEvent(

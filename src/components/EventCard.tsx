@@ -389,7 +389,7 @@ export default function EventCard({
         }}
       >
         <Box sx={{ mb: 1 }}>
-          {event.alias && <EventCardTitle name={event.alias} />}
+          <EventCardTitle name={event.alias ?? event.name} />
         </Box>
         <EventCardHeader
           event={event}

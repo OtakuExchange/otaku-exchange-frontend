@@ -39,6 +39,7 @@ export interface Event {
   topicId: UUID;
   format: string;
   name: string;
+  alias?: string;
   description: string;
   closeTime: string;
   status: EventStatus;

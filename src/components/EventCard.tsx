@@ -34,7 +34,7 @@ function EventCardHeader({
       direction="row"
       alignItems="center"
       spacing={1}
-      sx={{ mb: { xs: 1, md: 0.5 } }}
+      sx={{ mb: { xs: 0.75, md: 0.5 } }}
     >
       <EventStatusTag status={event.status} closeTime={event.closeTime} />
       <Box sx={{ flexGrow: 1 }} />
@@ -72,9 +72,36 @@ function EventCardHeader({
           <BookmarkIcon fontSize="small" />
         ) : (
           <BookmarkBorderIcon fontSize="small" />
-        )}
-      </IconButton>
-    </Stack>
+          )}
+        </IconButton>
+      </Stack>
+  );
+}
+
+function EventCardTitle({
+  name,
+}: {
+  name: string;
+}) {
+  return (
+    <Typography
+      variant="caption"
+      sx={{
+        fontWeight: 700,
+        color: "#7B8996",
+        opacity: 0.7,
+        letterSpacing: "0.02em",
+        lineHeight: 1.1,
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+        whiteSpace: "nowrap",
+        display: "block",
+        mb: { xs: 0.5, md: 0.25 },
+      }}
+      title={name}
+    >
+      {name}
+    </Typography>
   );
 }
 
@@ -254,6 +281,8 @@ function DesktopEventCardFooter({
         px: 2,
         height: 28,
         mb: "8px",
+        position: "relative",
+        zIndex: 2,
       }}
     >
       <Typography variant="caption" sx={{ color: "#7B8996" }}>
@@ -324,7 +353,8 @@ export default function EventCard({
     <Card
       sx={{
         borderRadius: 3,
-        height: { xs: "auto", md: 210 },
+        height: "auto",
+        minHeight: { xs: "auto", md: 210 },
         display: "flex",
         flexDirection: "column",
         position: "relative",
@@ -349,8 +379,18 @@ export default function EventCard({
       }}
     >
       <CardContent
-        sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          flexGrow: 1,
+          pb: { xs: 2, md: 1.5 },
+          position: "relative",
+          zIndex: 2,
+        }}
       >
+        <Box sx={{ mb: 1 }}>
+          {event.alias && <EventCardTitle name={event.alias} />}
+        </Box>
         <EventCardHeader
           event={event}
           bookmarked={bookmarked}

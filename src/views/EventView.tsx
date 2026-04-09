@@ -81,6 +81,7 @@ export default function EventView({
           event={event}
           topicName={topicName}
           poolStats={poolStats}
+          totalVolume={totalVolume}
           effectiveSelectedPoolId={effectiveSelectedPoolId}
           onSelectPoolId={setSelectedPoolId}
           selectedPool={selectedPool}

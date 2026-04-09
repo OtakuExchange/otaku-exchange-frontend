@@ -158,7 +158,7 @@ function DesktopSubtopicNavItem({
         primary={subtopic.name}
         slotProps={{ primary: { variant: "body2", fontWeight: "bold" } }}
       />
-      {eventCount != null && (
+      {!!eventCount && (
         <Typography
           variant="body2"
           fontWeight={600}

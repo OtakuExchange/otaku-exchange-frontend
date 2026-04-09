@@ -87,17 +87,27 @@ function PoolsSkeleton() {
   );
 }
 
+const scrollableSx = {
+  maxHeight: 90,
+  overflowY: "auto",
+  scrollbarWidth: "none",
+  msOverflowStyle: "none",
+  "&::-webkit-scrollbar": { display: "none" },
+} as const;
+
 function MobileEventCardBody({
   pools,
   totalVolume,
+  isMulti,
   onSelectPool,
 }: {
   pools: PoolItem[];
   totalVolume: number;
+  isMulti: boolean;
   onSelectPool: (poolId: string) => void;
 }) {
   return (
-    <Stack spacing={1} sx={{ display: { xs: "flex", md: "none" } }}>
+    <Stack spacing={1} sx={{ display: { xs: "flex", md: "none" }, ...(isMulti && scrollableSx) }}>
       {pools.map((pool) => {
         const pct =
           totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
@@ -147,17 +157,19 @@ function MobileEventCardBody({
 function DesktopEventCardBody({
   pools,
   totalVolume,
+  isMulti,
   onOpenEvent,
   onSelectPool,
 }: {
   pools: PoolItem[];
   totalVolume: number;
+  isMulti: boolean;
   onOpenEvent: () => void;
   onSelectPool: (poolId: string) => void;
 }) {
   return (
     <Box sx={{ display: { xs: "none", md: "block" } }}>
-      <Stack sx={{ mb: 1 }} onClick={onOpenEvent}>
+      <Stack sx={{ mb: 1, ...(isMulti && scrollableSx) }} onClick={onOpenEvent}>
         {pools.map((pool, i) => {
           const pct =
             totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
@@ -203,36 +215,38 @@ function DesktopEventCardBody({
         })}
       </Stack>
 
-      <Stack
-        direction="row"
-        alignItems="center"
-        spacing={1}
-        sx={{ mt: "auto", height: 40, minHeight: 40 }}
-      >
-        {pools.map((pool) => {
-          const color = pool.entity?.color ?? "#1565c0";
-          return (
-            <Button
-              key={pool.id}
-              size="small"
-              variant="contained"
-              fullWidth
-              sx={{
-                height: 40,
-                minHeight: 40,
-                py: 0,
-                fontWeight: "bold",
-                bgcolor: color + "26",
-                color: entityTextColor(color),
-                "&:hover": { bgcolor: color + "40" },
-              }}
-              onClick={() => onSelectPool(pool.id)}
-            >
-              {pool.entity?.abbreviatedName ?? pool.label}
-            </Button>
-          );
-        })}
-      </Stack>
+      {!isMulti && (
+        <Stack
+          direction="row"
+          alignItems="center"
+          spacing={1}
+          sx={{ mt: "auto", height: 40, minHeight: 40 }}
+        >
+          {pools.map((pool) => {
+            const color = pool.entity?.color ?? "#1565c0";
+            return (
+              <Button
+                key={pool.id}
+                size="small"
+                variant="contained"
+                fullWidth
+                sx={{
+                  height: 40,
+                  minHeight: 40,
+                  py: 0,
+                  fontWeight: "bold",
+                  bgcolor: color + "26",
+                  color: entityTextColor(color),
+                  "&:hover": { bgcolor: color + "40" },
+                }}
+                onClick={() => onSelectPool(pool.id)}
+              >
+                {pool.entity?.abbreviatedName ?? pool.label}
+              </Button>
+            );
+          })}
+        </Stack>
+      )}
     </Box>
   );
 }
@@ -351,11 +365,31 @@ export default function EventCard({
       <CardContent
         sx={{ display: "flex", flexDirection: "column", flexGrow: 1 }}
       >
-        <EventCardHeader
-          event={event}
-          bookmarked={bookmarked}
-          onBookmark={handleBookmark}
-        />
+        {event.format === "multi" ? (
+          <Stack direction="row" spacing={1} alignItems="flex-start" sx={{ mb: 0.5 }}>
+            {event.logoPath && (
+              <Box
+                component="img"
+                src={event.logoPath}
+                onClick={openEvent}
+                sx={{ width: 36, height: 36, borderRadius: 0.5, flexShrink: 0, cursor: "pointer" }}
+              />
+            )}
+            <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+              <Typography
+                variant="body2"
+                fontWeight={800}
+                onClick={openEvent}
+                sx={{ cursor: "pointer", lineHeight: 1.3, mb: 0.25 }}
+              >
+                {event.name}
+              </Typography>
+              <EventCardHeader event={event} bookmarked={bookmarked} onBookmark={handleBookmark} />
+            </Box>
+          </Stack>
+        ) : (
+          <EventCardHeader event={event} bookmarked={bookmarked} onBookmark={handleBookmark} />
+        )}
         {isLoading ? (
           <PoolsSkeleton />
         ) : (
@@ -363,11 +397,13 @@ export default function EventCard({
             <MobileEventCardBody
               pools={poolsList}
               totalVolume={totalVolume}
+              isMulti={event.format === "multi"}
               onSelectPool={selectPool}
             />
             <DesktopEventCardBody
               pools={poolsList}
               totalVolume={totalVolume}
+              isMulti={event.format === "multi"}
               onOpenEvent={openEvent}
               onSelectPool={selectPool}
             />

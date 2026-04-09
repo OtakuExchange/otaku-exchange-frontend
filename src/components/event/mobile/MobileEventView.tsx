@@ -17,6 +17,7 @@ export function MobileEventView({
   event,
   topicName,
   poolStats,
+  totalVolume,
   effectiveSelectedPoolId,
   onSelectPoolId,
   selectedPool,
@@ -28,6 +29,7 @@ export function MobileEventView({
   event: Event;
   topicName: string | undefined;
   poolStats: PoolStat[];
+  totalVolume: number;
   effectiveSelectedPoolId: string | null;
   onSelectPoolId: (poolId: string) => void;
   selectedPool: Pool | null;
@@ -48,6 +50,7 @@ export function MobileEventView({
 
       <PoolRowsSectionMobile
         poolStats={poolStats}
+        totalVolume={totalVolume}
         selectedPoolId={effectiveSelectedPoolId}
         onSelectPool={onSelectPoolId}
       />

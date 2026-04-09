@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -222,8 +222,8 @@ function SeedMarketView() {
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded } = useUser();
-  const { data: userData } = useUserQuery();
-  const effectiveIsAdmin: boolean = useMemo(() => isSignedIn && (userData?.isAdmin ?? false), [isSignedIn, userData]);
+  const { data: userData, isLoading: isLoadingUser } = useUserQuery();
+  const effectiveIsAdmin = isSignedIn === true && (userData?.isAdmin ?? false);
 
   if (!isLoaded) {
     return (
@@ -238,7 +238,7 @@ function AdminGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/" replace />;
   }
 
-  if (effectiveIsAdmin === null) {
+  if (isLoadingUser) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
         <CircularProgress />

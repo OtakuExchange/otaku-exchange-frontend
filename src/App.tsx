@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
@@ -142,7 +142,7 @@ function App() {
   const { data: userData } = useUserQuery();
   const [topics, setTopics] = useState<Topic[]>([]);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
-  const effectiveIsAdmin: boolean = useMemo(() => isSignedIn && (userData?.isAdmin ?? false), [isSignedIn, userData]);
+  const effectiveIsAdmin = isSignedIn === true && (userData?.isAdmin ?? false);
   const { navTabs, activeTab } = useNavbarTopics({ topics, effectiveIsAdmin });
 
   useEffect(() => {

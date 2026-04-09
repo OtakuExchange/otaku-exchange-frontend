@@ -121,10 +121,7 @@ function InfoBanner() {
     >
       <Typography sx={{ fontSize: "13px", color: "#7B8996" }}>
         💡 <strong style={{ color: "#e8e8e8" }}>How payouts work:</strong>{" "}
-        FillyB himself has gifted 500 Fillybucks to each pool. The bigger your
-        steak is relative to all the other degens who guessed right, the more
-        you earn. If the only bet is you betting $1 and your team wins, you get
-        $500. If someone else bet $1 as well, you would get $250.
+        Your slice of the winning pool is the percentage of the total volume you will win if the FillyGod chooses your team. You should aim to bet according to how much faith you have in your team. The FillyGod himself will double your first bet on an event up to $500.
       </Typography>
       <IconButton
         size="small"

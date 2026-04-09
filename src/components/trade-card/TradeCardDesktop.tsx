@@ -11,6 +11,7 @@ import Typography from "@mui/material/Typography";
 import { useTradeModel } from "../../hooks/useTradeModel";
 import type { Pool } from "../../models/models";
 import { entityTextColor } from "../../utils/entityTextColor";
+import { formatUsdFromCents } from "../../utils/formatMoney";
 import { PayoutPreviewRow } from "./PayoutPreviewRow";
 import { FirstBetBonusBadge } from "./FirstBetBonusBadge";
 
@@ -28,6 +29,9 @@ export function TradeCardDesktop({
   isFirstStakeBonusEligible?: boolean;
 }) {
   const model = useTradeModel({ selectedPool, onBuySuccess });
+  const eligible = Boolean(isFirstStakeBonusEligible);
+  const bonusCents = eligible ? Math.min(model.amountCents, 50_000) : 0;
+  const totalStakeCents = model.amountCents + bonusCents;
 
   return (
     <Card
@@ -105,6 +109,18 @@ export function TradeCardDesktop({
             onChange={model.handleAmountChange}
             slotProps={{ htmlInput: { inputMode: "numeric" } }}
           />
+          {eligible && model.amountCents > 0 && (
+            <Typography
+              variant="caption"
+              sx={{ color: "#7B8996", fontWeight: 700, letterSpacing: "0.02em" }}
+            >
+              You pay {formatUsdFromCents(model.amountCents)} +{" "}
+              <Box component="span" sx={{ color: "#FFD700" }}>
+                {formatUsdFromCents(bonusCents)}
+              </Box>{" "}
+              bonus = {formatUsdFromCents(totalStakeCents)} bet
+            </Typography>
+          )}
           <Button
             variant="contained"
             fullWidth

@@ -1,30 +1,65 @@
 import Tooltip from "@mui/material/Tooltip";
+import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 
-export function FirstBetBonusBadge() {
+export type FirstBetBonusBadgeVariant = "inline" | "icon";
+
+const labelSx = {
+  fontWeight: 800,
+  letterSpacing: "0.08em",
+  lineHeight: 1,
+  fontSize: "11px",
+} as const;
+
+export function FirstBetBonusBadge({
+  variant = "inline",
+}: {
+  variant?: FirstBetBonusBadgeVariant;
+}) {
   return (
     <Tooltip
       title="First bet? We'll match it up to $500 for free."
       placement="left"
       arrow
     >
-      <Typography
-        variant="caption"
+      <Box
+        component="span"
         sx={{
-          color: "#16191d",
-          bgcolor: "#FFD700",
-          px: 0.75,
-          py: 0.25,
-          borderRadius: 999,
-          fontWeight: 800,
-          lineHeight: 1,
+          display: "inline-flex",
+          alignItems: "center",
+          flexShrink: 0,
           cursor: "default",
           userSelect: "none",
-          flexShrink: 0,
         }}
       >
-        ⚡ Bonus
-      </Typography>
+          <Box
+            component="span"
+            sx={{
+              width: 22,
+              height: 22,
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              color: "#FFD700",
+              lineHeight: 1,
+              fontSize: 15,
+              filter:
+                "drop-shadow(0 0 6px rgba(255, 215, 0, 0.55)) drop-shadow(0 0 2px rgba(255, 215, 0, 0.35))",
+              textShadow: "0 0 10px rgba(255, 215, 0, 0.35)",
+            }}
+          >
+            ⚡
+          </Box>
+          {variant === "inline" && (
+            <Typography
+              variant="caption"
+              sx={{ ...labelSx, color: "#FFD700", ml: 0.5 }}
+            >
+              BONUS
+            </Typography>
+          )}
+      </Box>
     </Tooltip>
   );
 }

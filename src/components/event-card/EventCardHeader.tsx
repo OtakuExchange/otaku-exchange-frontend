@@ -1,7 +1,6 @@
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Stack from "@mui/material/Stack";
-import Tooltip from "@mui/material/Tooltip";
 import Typography from "@mui/material/Typography";
 import { multiplierColor } from "../../utils/parimutuel";
 import { EventStatusTag } from "../EventStatusTag";
@@ -9,6 +8,7 @@ import type { Event } from "../../models/models";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { EventCardTitle } from "./EventCardTitle";
+import { FirstBetBonusBadge } from "../trade-card/FirstBetBonusBadge";
 
 export function EventCardHeaderSingle({
   event,
@@ -39,27 +39,7 @@ export function EventCardHeaderSingle({
 
       {event.isFirstStakeBonusEligible &&
         (event.status === "open" || event.status === "hidden") && (
-          <Tooltip
-            title="First bet? We'll match it up to $500 for free."
-            placement="left"
-            arrow
-          >
-            <Typography
-              variant="caption"
-              sx={{
-                color: "#16191d",
-                bgcolor: "#FFD700",
-                px: 0.75,
-                py: 0.25,
-                borderRadius: 999,
-                fontWeight: 800,
-                lineHeight: 1,
-                flexShrink: 0,
-              }}
-            >
-              ⚡
-            </Typography>
-          </Tooltip>
+          <FirstBetBonusBadge variant="icon"/>
         )}
 
       {event.multiplier > 1 && (

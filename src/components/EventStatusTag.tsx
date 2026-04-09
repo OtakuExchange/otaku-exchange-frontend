@@ -2,6 +2,7 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import type { EventStatus } from "../models/models";
 import { formatCloseTime } from "../utils/formatTime";
+import { EventCloseTime } from "./event/EventCloseTime";
 
 const labelSx = {
   fontWeight: 800,
@@ -26,9 +27,11 @@ const liveDotSx = {
 export function EventStatusTag({
   status,
   closeTime,
+  showCloseTime = true,
 }: {
   status: EventStatus;
   closeTime?: string | null;
+  showCloseTime?: boolean;
 }) {
   const s = (status ?? "").toLowerCase();
   const isLive = s === "staking_closed";
@@ -75,20 +78,7 @@ export function EventStatusTag({
           {isLive ? "LIVE" : isOpen ? "OPEN" : "HIDDEN"}
         </Typography>
       </Box>
-      {formattedClose && (
-        <Typography
-          variant="caption"
-          sx={{
-            lineHeight: 1,
-            fontSize: "11px",
-            color: "#7B8996",
-            fontWeight: 700,
-            letterSpacing: "0.02em",
-          }}
-        >
-          {formattedClose}
-        </Typography>
-      )}
+      {showCloseTime && formattedClose && <EventCloseTime closeTime={formattedClose} />}
     </Box>
   );
 }

@@ -16,7 +16,7 @@ export function EventCardFooter({
   event: Event;
   pools: PoolItem[] | undefined;
   bookmarked: boolean;
-  onBookmark: () => void;
+  onBookmark: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <Box

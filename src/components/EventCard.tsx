@@ -79,7 +79,7 @@ export default function EventCard({
           <EventCardHeaderMulti
             event={event}
             bookmarked={bookmarked}
-            handleBookmark={handleBookmark}
+            onBookmark={handleBookmark}
           />
         ) : (
           <EventCardHeaderSingle

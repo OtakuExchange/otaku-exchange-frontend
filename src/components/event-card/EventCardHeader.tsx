@@ -19,7 +19,7 @@ export function EventCardHeaderSingle({
   event: Event;
   title: string;
   bookmarked: boolean;
-  onBookmark: () => void;
+  onBookmark: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <Stack
@@ -68,10 +68,7 @@ export function EventCardHeaderSingle({
           color: "#7B8996",
           display: { xs: "inline-flex", md: "none" },
         }}
-        onClick={(e) => {
-          e.stopPropagation();
-          onBookmark();
-        }}
+        onClick={onBookmark}
       >
         {bookmarked ? (
           <BookmarkIcon fontSize="small" />
@@ -86,11 +83,11 @@ export function EventCardHeaderSingle({
 export function EventCardHeaderMulti({
   event,
   bookmarked,
-  handleBookmark,
+  onBookmark,
 }: {
   event: Event;
   bookmarked: boolean;
-  handleBookmark: () => void;
+  onBookmark: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <Stack direction="row" spacing={1} alignItems="flex-start" sx={{ mb: 0.5 }}>
@@ -118,7 +115,7 @@ export function EventCardHeaderMulti({
           event={event}
           title={event.alias ?? ""}
           bookmarked={bookmarked}
-          onBookmark={handleBookmark}
+          onBookmark={onBookmark}
         />
       </Box>
     </Stack>

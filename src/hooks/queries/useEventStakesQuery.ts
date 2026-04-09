@@ -3,8 +3,10 @@ import type { UUID } from "../../models/models";
 import { fetchEventStakes, type EventStake } from "../../api";
 import { queryKeys } from "../../queryKeys";
 
-export function useEventStakesQuery(eventId: UUID, limit: number): UseQueryResult<EventStake[], Error> {
-
+export function useEventStakesQuery(
+  eventId: UUID,
+  limit: number,
+): UseQueryResult<EventStake[], Error> {
   return useQuery({
     queryKey: queryKeys.eventStakes(eventId, limit),
     queryFn: () => fetchEventStakes(eventId, limit),

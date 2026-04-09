@@ -193,7 +193,10 @@ function NavbarActionsDesktop({
             label="Leaderboard"
             onClick={() => navigate("/leaderboard")}
           />
-          <NavbarButton label="Portfolio" onClick={() => navigate("/portfolio")} />
+          <NavbarButton
+            label="Portfolio"
+            onClick={() => navigate("/portfolio")}
+          />
           <DailyRewardButton variant="desktop" />
           <NavbarCashDisplayDesktop cash={cash} />
         </>
@@ -202,7 +205,11 @@ function NavbarActionsDesktop({
   );
 }
 
-function NavbarMobileHamburgerButton({ effectiveIsAdmin }: { effectiveIsAdmin: boolean }) {
+function NavbarMobileHamburgerButton({
+  effectiveIsAdmin,
+}: {
+  effectiveIsAdmin: boolean;
+}) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -223,11 +230,7 @@ function NavbarMobileHamburgerButton({ effectiveIsAdmin }: { effectiveIsAdmin: b
 
   return (
     <Box sx={{ display: { xs: "flex", md: "none" } }}>
-    <IconButton
-        size="small"
-        onClick={handleClick}
-        aria-label="Open menu"
-      >
+      <IconButton size="small" onClick={handleClick} aria-label="Open menu">
         <MenuIcon fontSize="small" />
       </IconButton>
       <Menu
@@ -250,7 +253,7 @@ function NavbarMobileHamburgerButton({ effectiveIsAdmin }: { effectiveIsAdmin: b
         ))}
       </Menu>
     </Box>
-  )
+  );
 }
 
 function NavbarInfoMobile({
@@ -284,7 +287,6 @@ export function Navbar({
   effectiveIsAdmin: boolean;
   cash: number | null;
 }) {
-  
   return (
     <>
       <NavbarBrand />
@@ -292,18 +294,15 @@ export function Navbar({
 
       {/* Desktop actions */}
       <Box sx={{ flexGrow: 1, minWidth: 0 }} />
-        <NavbarActionsDesktop
-          isSignedIn={isSignedIn}
-          effectiveIsAdmin={effectiveIsAdmin}
-          cash={cash}
-        />
+      <NavbarActionsDesktop
+        isSignedIn={isSignedIn}
+        effectiveIsAdmin={effectiveIsAdmin}
+        cash={cash}
+      />
 
       {/* Mobile actions */}
       <Box sx={{ display: "flex", gap: { xs: "10px", md: 0 } }}>
-        <NavbarInfoMobile
-          isSignedIn={isSignedIn}
-          cash={cash}
-        />
+        <NavbarInfoMobile isSignedIn={isSignedIn} cash={cash} />
         {isSignedIn ? <UserButton /> : <NavbarSignInButton />}
       </Box>
     </>

@@ -78,7 +78,9 @@ export function EventStatusTag({
           {isLive ? "LIVE" : isOpen ? "OPEN" : "HIDDEN"}
         </Typography>
       </Box>
-      {showCloseTime && formattedClose && <EventCloseTime closeTime={formattedClose} />}
+      {showCloseTime && formattedClose && (
+        <EventCloseTime closeTime={formattedClose} />
+      )}
     </Box>
   );
 }

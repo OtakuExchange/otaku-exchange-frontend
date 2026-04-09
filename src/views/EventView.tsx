@@ -62,12 +62,19 @@ export default function EventView({
   }, [pools, totalVolume]);
 
   useEffect(() => {
-    if (userId) markEventSeen(event.id).then(() => {
-      queryClient.setQueriesData<Event[]>({ queryKey: ["events"] }, (cached) =>
-        cached?.map((e) => e.id === event.id ? { ...e, isNew: false } : e)
-      );
-      refreshTopics();
-    }).catch(console.error);
+    if (userId)
+      markEventSeen(event.id)
+        .then(() => {
+          queryClient.setQueriesData<Event[]>(
+            { queryKey: ["events"] },
+            (cached) =>
+              cached?.map((e) =>
+                e.id === event.id ? { ...e, isNew: false } : e,
+              ),
+          );
+          refreshTopics();
+        })
+        .catch(console.error);
   }, [event.id, markEventSeen]);
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {

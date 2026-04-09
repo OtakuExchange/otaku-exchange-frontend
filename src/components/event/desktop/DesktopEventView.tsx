@@ -38,8 +38,9 @@ export function DesktopEventView({
   pools: Pool[];
   refetchPools: () => void;
 }) {
-  const { data: eventStakes = [], isLoading: stakesLoading } = useEventStakesQuery(event.id, 3);
-  
+  const { data: eventStakes = [], isLoading: stakesLoading } =
+    useEventStakesQuery(event.id, 3);
+
   return (
     <Stack direction="row" alignItems="flex-start" sx={{ p: 3, gap: 3 }}>
       <Box sx={{ flexGrow: 1 }}>

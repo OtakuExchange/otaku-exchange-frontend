@@ -36,7 +36,8 @@ export function MobileEventView({
   pools: Pool[];
   refetchPools: () => void;
 }) {
-  const { data: eventStakes = [], isLoading: stakesLoading } = useEventStakesQuery(event.id, 3);
+  const { data: eventStakes = [], isLoading: stakesLoading } =
+    useEventStakesQuery(event.id, 3);
   const showDock = event.status === "open" || event.status === "hidden";
   const dockPad = showDock
     ? "calc(168px + env(safe-area-inset-bottom))"

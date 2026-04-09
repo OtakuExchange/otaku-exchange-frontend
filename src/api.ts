@@ -72,7 +72,10 @@ export async function fetchPools(
   }).then((r) => r.json());
 }
 
-export async function markEventSeen(eventId: UUID, getToken: GetToken): Promise<void> {
+export async function markEventSeen(
+  eventId: UUID,
+  getToken: GetToken,
+): Promise<void> {
   const headers = await authHeaders(getToken);
   await fetch(`${API_URL}/events/${eventId}/seen`, {
     method: "POST",
@@ -370,7 +373,7 @@ export interface EventStake {
 
 export async function fetchEventStakes(
   eventId: UUID,
-  limit: number
+  limit: number,
 ): Promise<EventStake[]> {
   return fetch(
     `${API_URL}/events/${eventId}/stakes?limit=${limit}&includeAdmins=false`,
@@ -668,6 +671,7 @@ export async function fetchEvent(
 export async function fetchTopicEventCounts(
   topicId: UUID,
 ): Promise<TopicEventCounts> {
-  return fetch(`${API_URL}/topics/${topicId}/subtopics/event-counts`, {
-  }).then((r) => r.json());
+  return fetch(`${API_URL}/topics/${topicId}/subtopics/event-counts`, {}).then(
+    (r) => r.json(),
+  );
 }

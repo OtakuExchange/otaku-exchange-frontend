@@ -189,69 +189,69 @@ function App() {
 
   return (
     <RefreshTopicsContext.Provider value={refreshTopics}>
-    <RefreshCashContext.Provider value={refreshCash}>
-      <UserContext.Provider value={user?.id ?? null}>
-        <TopicsContext.Provider value={topics}>
-          <ThemeProvider theme={darkTheme}>
-            <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
-              <CssBaseline />
-              <TopNavLayout>
-                <Toolbar>
-                  <Navbar
-                    isSignedIn={isSignedIn ?? false}
-                    effectiveIsAdmin={effectiveIsAdmin}
-                    cash={cash}
-                  />
-                </Toolbar>
-                <TopicTabs activeTab={activeTab} navTabs={navTabs} />
-              </TopNavLayout>
-              <Toolbar />
-              <Box sx={{ height: 48 }} />
-              <InfoBanner />
-              <Routes>
-                {navTabs.map((tab) => (
+      <RefreshCashContext.Provider value={refreshCash}>
+        <UserContext.Provider value={user?.id ?? null}>
+          <TopicsContext.Provider value={topics}>
+            <ThemeProvider theme={darkTheme}>
+              <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+                <CssBaseline />
+                <TopNavLayout>
+                  <Toolbar>
+                    <Navbar
+                      isSignedIn={isSignedIn ?? false}
+                      effectiveIsAdmin={effectiveIsAdmin}
+                      cash={cash}
+                    />
+                  </Toolbar>
+                  <TopicTabs activeTab={activeTab} navTabs={navTabs} />
+                </TopNavLayout>
+                <Toolbar />
+                <Box sx={{ height: 48 }} />
+                <InfoBanner />
+                <Routes>
+                  {navTabs.map((tab) => (
+                    <Route
+                      key={tab.path}
+                      path={`${tab.path}/*`}
+                      element={
+                        <TopicView
+                          topicId={tab.id}
+                          topicLabel={tab.label}
+                          topicPath={tab.path}
+                          subtopics={tab.subtopics}
+                          isAdmin={isAdmin}
+                        />
+                      }
+                    />
+                  ))}
+                  {navTabs.length > 0 && (
+                    <Route
+                      path="/"
+                      element={<Navigate to={navTabs[0].path} replace />}
+                    />
+                  )}
+                  <Route path="/events/:eventId" element={<EventViewRoute />} />
+                  <Route path="/portfolio" element={<PortfolioView />} />
+                  <Route path="/leaderboard" element={<LeaderboardView />} />
+                  <Route path="/profile" element={<ProfilePage />} />
+                  <Route path="/users/:userId" element={<UserView />} />
+                  <Route path="/admin/*" element={<AdminView />} />
                   <Route
-                    key={tab.path}
-                    path={`${tab.path}/*`}
+                    path="*"
                     element={
-                      <TopicView
-                        topicId={tab.id}
-                        topicLabel={tab.label}
-                        topicPath={tab.path}
-                        subtopics={tab.subtopics}
-                        isAdmin={isAdmin}
-                      />
+                      navTabs.length > 0 ? (
+                        <Navigate to={navTabs[0].path} replace />
+                      ) : (
+                        <Box />
+                      )
                     }
                   />
-                ))}
-                {navTabs.length > 0 && (
-                  <Route
-                    path="/"
-                    element={<Navigate to={navTabs[0].path} replace />}
-                  />
-                )}
-                <Route path="/events/:eventId" element={<EventViewRoute />} />
-                <Route path="/portfolio" element={<PortfolioView />} />
-                <Route path="/leaderboard" element={<LeaderboardView />} />
-                <Route path="/profile" element={<ProfilePage />} />
-                <Route path="/users/:userId" element={<UserView />} />
-                <Route path="/admin/*" element={<AdminView />} />
-                <Route
-                  path="*"
-                  element={
-                    navTabs.length > 0 ? (
-                      <Navigate to={navTabs[0].path} replace />
-                    ) : (
-                      <Box />
-                    )
-                  }
-                />
-              </Routes>
-            </Box>
-          </ThemeProvider>
-        </TopicsContext.Provider>
-      </UserContext.Provider>
-    </RefreshCashContext.Provider>
+                </Routes>
+              </Box>
+            </ThemeProvider>
+          </TopicsContext.Provider>
+        </UserContext.Provider>
+      </RefreshCashContext.Provider>
     </RefreshTopicsContext.Provider>
   );
 }

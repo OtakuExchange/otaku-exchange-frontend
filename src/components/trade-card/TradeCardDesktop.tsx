@@ -41,15 +41,29 @@ export function TradeCardDesktop({
           sx={{ mb: 2 }}
         >
           {selectedPool ? (
-            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ minWidth: 0 }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              spacing={1.5}
+              sx={{ minWidth: 0 }}
+            >
               {selectedPool.entity?.logoPath && (
                 <Box
                   component="img"
                   src={selectedPool.entity.logoPath}
-                  sx={{ width: 48, height: 48, borderRadius: 0.5, flexShrink: 0 }}
+                  sx={{
+                    width: 48,
+                    height: 48,
+                    borderRadius: 0.5,
+                    flexShrink: 0,
+                  }}
                 />
               )}
-              <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 0 }}>
+              <Typography
+                variant="body2"
+                fontWeight="bold"
+                sx={{ minWidth: 0 }}
+              >
                 {selectedPool.entity?.name ?? selectedPool.label}
               </Typography>
             </Stack>

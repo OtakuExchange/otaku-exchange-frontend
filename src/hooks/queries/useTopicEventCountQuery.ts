@@ -4,7 +4,6 @@ import { fetchTopicEventCounts } from "../../api";
 import { queryKeys } from "../../queryKeys";
 
 export function useTopicEventCountQuery(topicId: UUID) {
-
   return useQuery({
     queryKey: queryKeys.topicEventCounts(topicId),
     queryFn: () => fetchTopicEventCounts(topicId),

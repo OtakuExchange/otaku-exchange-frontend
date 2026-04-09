@@ -11,7 +11,10 @@ import { queryKeys } from "../queryKeys";
 import { EventCardLayout } from "./event-card/EventCardLayout";
 import { DesktopEventCardBody } from "./event-card/DesktopEventCardBody";
 import { EventCardFooter } from "./event-card/EventCardFooter";
-import { EventCardHeaderMulti, EventCardHeaderSingle } from "./event-card/EventCardHeader";
+import {
+  EventCardHeaderMulti,
+  EventCardHeaderSingle,
+} from "./event-card/EventCardHeader";
 import { MobileEventCardBody } from "./event-card/MobileEventCardBody";
 
 function PoolsSkeleton() {

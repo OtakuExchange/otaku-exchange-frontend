@@ -29,17 +29,14 @@ export const EVENT_STATUSES = [
   "open",
   "hidden",
   "staking_closed",
-  "resolved"
+  "resolved",
 ] as const;
 
-export type EventStatus = typeof EVENT_STATUSES[number];
+export type EventStatus = (typeof EVENT_STATUSES)[number];
 
-export const EVENT_FORMATS = [
-  "single",
-  "multi",
-] as const;
+export const EVENT_FORMATS = ["single", "multi"] as const;
 
-export type EventFormat = typeof EVENT_FORMATS[number];
+export type EventFormat = (typeof EVENT_FORMATS)[number];
 
 export interface Event {
   id: UUID;

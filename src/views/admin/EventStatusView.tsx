@@ -12,7 +12,6 @@ import { EVENT_STATUSES } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
 import { useTopics } from "../../contexts/TopicsContext";
 
-
 function statusColor(status: string): string {
   switch (status.toLowerCase()) {
     case "open":

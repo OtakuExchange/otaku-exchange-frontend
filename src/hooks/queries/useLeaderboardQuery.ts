@@ -3,7 +3,9 @@ import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { queryKeys } from "../../queryKeys";
 import { fetchLeaderboard, type LeaderboardEntry } from "../../api";
 
-export function useLeaderboardQuery(limit: number): UseQueryResult<LeaderboardEntry[], Error> {
+export function useLeaderboardQuery(
+  limit: number,
+): UseQueryResult<LeaderboardEntry[], Error> {
   const { getToken } = useAuth();
 
   return useQuery({

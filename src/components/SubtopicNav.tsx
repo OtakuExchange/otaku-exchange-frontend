@@ -208,7 +208,9 @@ function DesktopSubtopicNav({
           <DesktopSubtopicNavItem
             key={subtopic.id}
             subtopic={subtopic}
-            subtopicEventCounts={topicEventCounts?.subtopics.find((s) => s.subtopicId === subtopic.id)}
+            subtopicEventCounts={topicEventCounts?.subtopics.find(
+              (s) => s.subtopicId === subtopic.id,
+            )}
             selected={selected}
             onSelect={onSelect}
           />

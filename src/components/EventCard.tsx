@@ -18,12 +18,13 @@ import { queryKeys } from "../queryKeys";
 import { EventStatusTag } from "./EventStatusTag";
 import { multiplierColor } from "../utils/parimutuel";
 import { EventCloseTime } from "./event/EventCloseTime";
+import Tooltip from "@mui/material/Tooltip";
 
 type PoolItem = NonNullable<ReturnType<typeof usePoolsQuery>["data"]>[number];
 
 function EventCardHeader({
   event,
-  title,
+  title = "",
   bookmarked,
   onBookmark,
 }: {
@@ -48,22 +49,28 @@ function EventCardHeader({
         <EventCardTitle name={title} />
       </Box>
 
-      {event.hasFirstStakeBonus && (
-        <Typography
-          variant="caption"
-          sx={{
-            color: "#16191d",
-            bgcolor: "#FFD700",
-            px: 0.75,
-            py: 0.25,
-            borderRadius: 999,
-            fontWeight: 800,
-            lineHeight: 1,
-            flexShrink: 0,
-          }}
-        >
-          ⚡ Bonus
-        </Typography>
+      {event.isFirstStakeBonusEligible && (
+        <Tooltip
+              title="First bet? We'll match it up to $500 for free."
+              placement="left"
+              arrow
+            >
+          <Typography
+            variant="caption"
+            sx={{
+              color: "#16191d",
+              bgcolor: "#FFD700",
+              px: 0.75,
+              py: 0.25,
+              borderRadius: 999,
+              fontWeight: 800,
+              lineHeight: 1,
+              flexShrink: 0,
+            }}
+          >
+            ⚡
+          </Typography>
+        </Tooltip>
       )}
 
       {event.multiplier > 1 && (
@@ -442,7 +449,7 @@ export default function EventCard({
               </Typography>
               <EventCardHeader
                 event={event}
-                title={event.name}
+                title={event.alias ?? ""}
                 bookmarked={bookmarked}
                 onBookmark={handleBookmark}
               />
@@ -451,7 +458,7 @@ export default function EventCard({
         ) : (
           <EventCardHeader
             event={event}
-            title={event.name}
+            title={event.alias?? ""}
             bookmarked={bookmarked}
             onBookmark={handleBookmark}
           />

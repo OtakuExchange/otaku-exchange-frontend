@@ -19,13 +19,13 @@ export function TradeCardDesktop({
   selectedPool,
   onPoolChange,
   onBuySuccess,
-  hasFirstStakeBonus,
+  isFirstStakeBonusEligible,
 }: {
   pools: Pool[];
   selectedPool: Pool | null;
   onPoolChange: (pool: Pool) => void;
   onBuySuccess?: () => void;
-  hasFirstStakeBonus?: boolean;
+  isFirstStakeBonusEligible?: boolean;
 }) {
   const model = useTradeModel({ selectedPool, onBuySuccess });
 
@@ -56,7 +56,7 @@ export function TradeCardDesktop({
           ) : (
             <Box />
           )}
-          {hasFirstStakeBonus && <FirstBetBonusBadge />}
+          {isFirstStakeBonusEligible && <FirstBetBonusBadge />}
         </Stack>
 
         <Stack direction="row" spacing={1} sx={{ mb: 2 }}>

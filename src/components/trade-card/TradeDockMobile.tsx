@@ -18,13 +18,13 @@ export function TradeDockMobile({
   selectedPool,
   onPoolChange,
   onBuySuccess,
-  hasFirstStakeBonus,
+  isFirstStakeBonusEligible,
 }: {
   pools: Pool[];
   selectedPool: Pool | null;
   onPoolChange: (pool: Pool) => void;
   onBuySuccess?: () => void;
-  hasFirstStakeBonus?: boolean;
+  isFirstStakeBonusEligible?: boolean;
 }) {
   const model = useTradeModel({ selectedPool, onBuySuccess });
   const poolLabel = selectedPool
@@ -114,7 +114,7 @@ export function TradeDockMobile({
                 }}
               />
             )}
-            {hasFirstStakeBonus && <FirstBetBonusBadge />}
+            {isFirstStakeBonusEligible && <FirstBetBonusBadge />}
           </Stack>
 
           <Stack direction="row" spacing={1} alignItems="center">

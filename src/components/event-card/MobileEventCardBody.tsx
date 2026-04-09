@@ -22,7 +22,7 @@ export function MobileEventCardBody({
   pools: PoolItem[];
   totalVolume: number;
   isMulti: boolean;
-  onSelectPool: (poolId: string) => void;
+  onSelectPool: (e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>, poolId: string) => void;
 }) {
   return (
     <Stack
@@ -49,7 +49,7 @@ export function MobileEventCardBody({
               "&:hover": { bgcolor: color + "40" },
               textTransform: "none",
             }}
-            onClick={() => onSelectPool(pool.id)}
+            onClick={(e) => onSelectPool(e, pool.id)}
           >
             <Stack direction="row" alignItems="center" spacing={1}>
               {pool.entity?.logoPath ? (

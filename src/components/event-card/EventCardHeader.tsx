@@ -85,12 +85,10 @@ export function EventCardHeaderSingle({
 
 export function EventCardHeaderMulti({
   event,
-  openEvent,
   bookmarked,
   handleBookmark,
 }: {
   event: Event;
-  openEvent: () => void;
   bookmarked: boolean;
   handleBookmark: () => void;
 }) {
@@ -100,13 +98,11 @@ export function EventCardHeaderMulti({
         <Box
           component="img"
           src={event.logoPath}
-          onClick={openEvent}
           sx={{
             width: 36,
             height: 36,
             borderRadius: 0.5,
             flexShrink: 0,
-            cursor: "pointer",
           }}
         />
       )}
@@ -114,8 +110,7 @@ export function EventCardHeaderMulti({
         <Typography
           variant="body2"
           fontWeight={800}
-          onClick={openEvent}
-          sx={{ cursor: "pointer", lineHeight: 1.3, mb: 0.25 }}
+          sx={{ lineHeight: 1.3, mb: 0.25 }}
         >
           {event.name}
         </Typography>

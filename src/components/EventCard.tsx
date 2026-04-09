@@ -65,18 +65,18 @@ export default function EventCard({
     navigate(`/events/${event.id}`);
   }
 
-  function selectPool(poolId: string) {
+  function selectPool(e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>, poolId: string) {
+    e.stopPropagation();
     primeEventRouteCache();
     navigate(`/events/${event.id}`, { state: { selectedPoolId: poolId } });
   }
 
   return (
-    <EventCardLayout isNew={event.isNew}>
+    <EventCardLayout isNew={event.isNew} onClick={openEvent}>
       <EventCardLayout.Content>
         {event.format === "multi" ? (
           <EventCardHeaderMulti
             event={event}
-            openEvent={openEvent}
             bookmarked={bookmarked}
             handleBookmark={handleBookmark}
           />
@@ -95,7 +95,6 @@ export default function EventCard({
             pools={poolsList}
             totalVolume={totalVolume}
             isMulti={event.format === "multi"}
-            onOpenEvent={openEvent}
             onSelectPool={selectPool}
           />
         ) : (

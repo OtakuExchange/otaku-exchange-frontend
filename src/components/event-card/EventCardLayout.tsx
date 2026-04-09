@@ -4,6 +4,7 @@ import { type ReactNode, type ReactElement, Children, isValidElement } from "rea
 
 type EventCardLayoutProps = {
     isNew: boolean;
+    onClick: () => void;
     children: ReactNode;
   };
   
@@ -12,7 +13,7 @@ Content: (props: { children: ReactNode }) => ReactElement;
 Footer: (props: { children: ReactNode }) => ReactElement;
 };
   
-export const EventCardLayout = (({ isNew, children }: EventCardLayoutProps) => {
+export const EventCardLayout = (({ isNew, onClick, children }: EventCardLayoutProps) => {
     let content: ReactNode = null;
     let footer: ReactNode = null;
   
@@ -25,7 +26,9 @@ export const EventCardLayout = (({ isNew, children }: EventCardLayoutProps) => {
   
     return (
       <Card
+        onClick={onClick}
         sx={{
+          cursor: "pointer",
           borderRadius: 3,
           height: "auto",
           minHeight: { xs: "auto", md: 210 },

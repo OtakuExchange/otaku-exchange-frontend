@@ -17,18 +17,16 @@ export function DesktopEventCardBody({
   pools,
   totalVolume,
   isMulti,
-  onOpenEvent,
   onSelectPool,
 }: {
   pools: PoolItem[];
   totalVolume: number;
   isMulti: boolean;
-  onOpenEvent: () => void;
-  onSelectPool: (poolId: string) => void;
+  onSelectPool: (e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>, poolId: string) => void;
 }) {
   return (
     <Box sx={{ display: { xs: "none", md: "block" } }}>
-      <Stack sx={{ mb: 1, ...(isMulti && scrollableSx) }} onClick={onOpenEvent}>
+      <Stack sx={{ mb: 1, ...(isMulti && scrollableSx) }}>
         {pools.map((pool, i) => {
           const pct =
             totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
@@ -44,6 +42,7 @@ export function DesktopEventCardBody({
                 mb: i === 0 ? "4px" : 0,
                 cursor: "pointer",
               }}
+              onClick={(e) => onSelectPool(e, pool.id)}
             >
               {pool.entity ? (
                 <Box
@@ -98,7 +97,7 @@ export function DesktopEventCardBody({
                   color: entityTextColor(color),
                   "&:hover": { bgcolor: color + "40" },
                 }}
-                onClick={() => onSelectPool(pool.id)}
+                onClick={(e) => onSelectPool(e, pool.id)}
               >
                 {pool.entity?.abbreviatedName ?? pool.label}
               </Button>

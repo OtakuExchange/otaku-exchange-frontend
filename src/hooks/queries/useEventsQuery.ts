@@ -1,15 +1,15 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
 import type { UUID } from "../../models/models";
-import { fetchEvents } from "../../api/api";
 import { queryKeys } from "../queryKeys";
+import { fetchEventsByTopic } from "../../api/topic.api";
 
 export function useEventsQuery(topicId: UUID) {
   const { getToken } = useAuth();
 
   return useQuery({
     queryKey: queryKeys.eventsByTopic(topicId),
-    queryFn: () => fetchEvents(topicId, getToken),
+    queryFn: () => fetchEventsByTopic(topicId, getToken),
 
     // caching knobs
     staleTime: 60_000, // 1 min: switching tabs won't refetch immediately

@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchCurrentUser, type CurrentUser } from "../../api/api";
 import { queryKeys } from "../queryKeys";
+import { fetchCurrentUser, type CurrentUser } from "../../api/user.api";
 
 const LOADING_USER_QUERY_RESULT: CurrentUser = {
   id: "00000000-0000-0000-0000-000000000000",

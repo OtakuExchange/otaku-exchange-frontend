@@ -5,14 +5,14 @@ import { type CreateEventPayload, createEvent, bookmarkEvent, unbookmarkEvent, d
 import { fetchMarkets, fetchPools, deleteMarket, createMarketPool } from "../api/market.api";
 import { fetchDailyStreak } from "../api/reward.api";
 import { createSubtopic, deleteSubtopic } from "../api/subtopic.api";
-import { fetchTopics, fetchEvents, createTopic, deleteTopic } from "../api/topic.api";
+import { fetchTopics, fetchEventsByTopic, createTopic, deleteTopic } from "../api/topic.api";
 
 export function useApi() {
   const { getToken } = useAuth();
 
   return {
     fetchTopics: () => fetchTopics(getToken),
-    fetchEvents: (topicId: UUID) => fetchEvents(topicId, getToken),
+    fetchEvents: (topicId: UUID) => fetchEventsByTopic(topicId, getToken),
     fetchMarkets: (eventId: UUID) => fetchMarkets(eventId, getToken),
     fetchPools: (eventId: UUID) => fetchPools(eventId, getToken),
     createTopic: (topic: string, description: string, hidden: boolean) =>

@@ -1,7 +1,7 @@
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import type { UUID } from "../../models/models";
-import { fetchEventStakes, type EventStake } from "../../api/api";
 import { queryKeys } from "../queryKeys";
+import { fetchEventStakes, type EventStake } from "../../api/event.api";
 
 export function useEventStakesQuery(
   eventId: UUID,

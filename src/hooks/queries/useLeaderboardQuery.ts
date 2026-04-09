@@ -1,7 +1,8 @@
 import { useAuth } from "@clerk/react";
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
 import { queryKeys } from "../queryKeys";
-import { fetchLeaderboard, type LeaderboardEntry } from "../../api/api";
+import { fetchLeaderboard } from "../../api/rank.api";
+import type { LeaderboardEntry } from "../../models/models";
 
 export function useLeaderboardQuery(
   limit: number,

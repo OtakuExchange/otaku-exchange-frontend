@@ -1,8 +1,8 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchPools } from "../../api/api";
 import type { UUID } from "../../models/models";
 import { queryKeys } from "../queryKeys";
+import { fetchPools } from "../../api/market.api";
 
 export type PoolItem = NonNullable<
   ReturnType<typeof usePoolsQuery>["data"]

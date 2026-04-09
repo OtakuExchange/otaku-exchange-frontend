@@ -33,7 +33,7 @@ export async function deleteTopic(
   }).then(() => undefined);
 }
 
-export async function fetchEvents(
+export async function fetchEventsByTopic(
   topicId: UUID,
   getToken: GetToken,
 ): Promise<Event[]> {

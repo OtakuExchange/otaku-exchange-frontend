@@ -45,15 +45,6 @@ export async function fetchEventsBySubtopic(
   }).then((r) => r.json());
 }
 
-export async function fetchTrades(
-  marketId: UUID,
-  getToken: GetToken,
-): Promise<Trade[]> {
-  return fetch(`${API_URL}/markets/${marketId}/trades`, {
-    headers: await authHeaders(getToken),
-  }).then((r) => r.json());
-}
-
 export async function fetchMarkets(
   eventId: UUID,
   getToken: GetToken,
@@ -102,29 +93,6 @@ export async function fetchCurrentUser(
   );
 }
 
-export interface SeedMarketPayload {
-  midpoint?: number;
-  levels?: number;
-  quantities?: number[];
-  useLastPrice?: boolean;
-}
-
-export async function seedMarket(
-  marketId: UUID,
-  payload: SeedMarketPayload,
-  getToken: GetToken,
-): Promise<string> {
-  const res = await fetch(`${API_URL}/admin/markets/${marketId}/seed`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await authHeaders(getToken)),
-    },
-    body: JSON.stringify(payload),
-  });
-  return res.text();
-}
-
 export interface CreateEventPayload {
   topicId: UUID;
   format: string;
@@ -149,68 +117,6 @@ export async function createEvent(
     },
     body: JSON.stringify(payload),
   }).then((r) => r.json());
-}
-
-export async function createMarket(
-  eventId: UUID,
-  label: string,
-  status: string,
-  getToken: GetToken,
-): Promise<Market> {
-  return fetch(`${API_URL}/markets`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await authHeaders(getToken)),
-    },
-    body: JSON.stringify({ eventId, label, status }),
-  }).then((r) => r.json());
-}
-
-export async function postComment(
-  eventId: UUID,
-  content: string,
-  getToken: GetToken,
-): Promise<Comment> {
-  return fetch(`${API_URL}/events/${eventId}/comments`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await authHeaders(getToken)),
-    },
-    body: JSON.stringify({ content }),
-  }).then((r) => r.json());
-}
-
-export async function fetchComments(
-  eventId: UUID,
-  getToken: GetToken,
-): Promise<Comment[]> {
-  return fetch(`${API_URL}/events/${eventId}/comments`, {
-    headers: await authHeaders(getToken),
-  }).then((r) => r.json());
-}
-
-export async function likeComment(
-  eventId: UUID,
-  commentId: UUID,
-  getToken: GetToken,
-): Promise<void> {
-  return fetch(`${API_URL}/events/${eventId}/comments/${commentId}/like`, {
-    method: "POST",
-    headers: await authHeaders(getToken),
-  }).then(() => undefined);
-}
-
-export async function unlikeComment(
-  eventId: UUID,
-  commentId: UUID,
-  getToken: GetToken,
-): Promise<void> {
-  return fetch(`${API_URL}/events/${eventId}/comments/${commentId}/like`, {
-    method: "DELETE",
-    headers: await authHeaders(getToken),
-  }).then(() => undefined);
 }
 
 export async function bookmarkEvent(
@@ -258,86 +164,6 @@ export async function deleteMarket(
   getToken: GetToken,
 ): Promise<void> {
   return fetch(`${API_URL}/markets/${marketId}`, {
-    method: "DELETE",
-    headers: await authHeaders(getToken),
-  }).then(() => undefined);
-}
-
-export async function createOrder(
-  marketId: UUID,
-  side: "YES" | "NO",
-  price: number,
-  quantity: number,
-  lockedAmount: number,
-  orderType: "LIMIT" | "MARKET",
-  getToken: GetToken,
-): Promise<void> {
-  const res = await fetch(`${API_URL}/orders`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await authHeaders(getToken)),
-    },
-    body: JSON.stringify({
-      marketId,
-      side,
-      price,
-      quantity,
-      lockedAmount,
-      orderType,
-    }),
-  });
-  if (!res.ok) throw new Error(`${res.status}`);
-}
-
-export async function createNotionalOrder(
-  marketId: UUID,
-  side: "YES" | "NO",
-  notionalAmount: number,
-  getToken: GetToken,
-): Promise<void> {
-  const res = await fetch(`${API_URL}/orders`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await authHeaders(getToken)),
-    },
-    body: JSON.stringify({
-      marketId,
-      side,
-      price: 99,
-      quantity: 0,
-      notionalAmount,
-      lockedAmount: notionalAmount,
-      orderType: "NOTIONAL",
-    }),
-  });
-  if (!res.ok) throw new Error(`${res.status}`);
-}
-
-export async function fetchMyOrders(
-  status: string,
-  orderType: string,
-  getToken: GetToken,
-): Promise<Order[]> {
-  return fetch(`${API_URL}/orders/me?status=${status}&orderType=${orderType}`, {
-    headers: await authHeaders(getToken),
-  }).then((r) => r.json());
-}
-
-export async function fetchPortfolioTotal(getToken: GetToken): Promise<number> {
-  return fetch(`${API_URL}/positions/me/total`, {
-    headers: await authHeaders(getToken),
-  })
-    .then((r) => r.json())
-    .then((d) => d.total);
-}
-
-export async function cancelOrder(
-  orderId: UUID,
-  getToken: GetToken,
-): Promise<void> {
-  return fetch(`${API_URL}/orders/${orderId}`, {
     method: "DELETE",
     headers: await authHeaders(getToken),
   }).then(() => undefined);
@@ -427,12 +253,6 @@ export async function fetchUserPortfolio(
   getToken: GetToken,
 ): Promise<PortfolioResponse> {
   return fetch(`${API_URL}/portfolio/${userId}`, {
-    headers: await authHeaders(getToken),
-  }).then((r) => r.json());
-}
-
-export async function fetchMyStakes(getToken: GetToken): Promise<Stake[]> {
-  return fetch(`${API_URL}/stakes/me`, {
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
@@ -608,55 +428,6 @@ export async function linkEventToSubtopic(
     { method: "POST", headers: await authHeaders(getToken) },
   );
   if (!res.ok) throw new Error(await res.text());
-}
-
-export async function unlinkEventFromSubtopic(
-  eventId: UUID,
-  subtopicId: UUID,
-  getToken: GetToken,
-): Promise<void> {
-  const res = await fetch(
-    `${API_URL}/events/${eventId}/subtopics/${subtopicId}`,
-    { method: "DELETE", headers: await authHeaders(getToken) },
-  );
-  if (!res.ok) throw new Error(await res.text());
-}
-
-export async function updateEntity(
-  entityId: UUID,
-  payload: {
-    name: string;
-    abbreviatedName?: string;
-    logoPath: string;
-    color?: string;
-    pandaScoreId?: number;
-  },
-  getToken: GetToken,
-): Promise<Entity> {
-  const res = await fetch(`${API_URL}/entities/${entityId}`, {
-    method: "PUT",
-    headers: {
-      "Content-Type": "application/json",
-      ...(await authHeaders(getToken)),
-    },
-    body: JSON.stringify(payload),
-  });
-  if (!res.ok) throw new Error(await res.text());
-  return res.json();
-}
-
-export async function fetchPayoutPreview(
-  eventId: UUID,
-  poolId: UUID,
-  amount: number,
-  getToken: GetToken,
-): Promise<PayoutPreview> {
-  return fetch(
-    `${API_URL}/events/${eventId}/pools/${poolId}/preview?amount=${amount}`,
-    {
-      headers: await authHeaders(getToken),
-    },
-  ).then((r) => r.json());
 }
 
 export async function fetchEvent(

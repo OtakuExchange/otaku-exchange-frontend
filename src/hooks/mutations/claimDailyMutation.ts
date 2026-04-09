@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { claimDailyReward } from "../../api";
 import { useAuth } from "@clerk/react";
-import { queryKeys } from "../../queryKeys";
+import { queryKeys } from "../queryKeys";
 
 export function useClaimDailyMutation() {
   const { getToken } = useAuth();

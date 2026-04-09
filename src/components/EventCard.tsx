@@ -7,7 +7,7 @@ import type { Event } from "../models/models";
 import { useApi } from "../hooks/useApi";
 import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
 import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "../queryKeys";
+import { queryKeys } from "../hooks/queryKeys";
 import { EventCardLayout } from "./event-card/EventCardLayout";
 import { DesktopEventCardBody } from "./event-card/DesktopEventCardBody";
 import { EventCardFooter } from "./event-card/EventCardFooter";

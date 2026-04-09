@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import type { UUID } from "../../models/models";
 import { fetchTopicEventCounts } from "../../api";
-import { queryKeys } from "../../queryKeys";
+import { queryKeys } from "../queryKeys";
 
 export function useTopicEventCountQuery(topicId: UUID) {
   return useQuery({

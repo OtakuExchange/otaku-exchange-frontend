@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/react";
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { queryKeys } from "../../queryKeys";
+import { queryKeys } from "../queryKeys";
 import { fetchLeaderboard, type LeaderboardEntry } from "../../api";
 
 export function useLeaderboardQuery(

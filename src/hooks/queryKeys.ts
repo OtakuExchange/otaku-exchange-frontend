@@ -1,4 +1,4 @@
-import type { UUID } from "./models/models";
+import type { UUID } from "../models/models";
 
 export const queryKeys = {
   user: ["user"] as const,

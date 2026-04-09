@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
 import { fetchPortfolio } from "../../api";
-import { queryKeys } from "../../queryKeys";
+import { queryKeys } from "../queryKeys";
 
 export function usePortfolioQuery() {
   const { getToken } = useAuth();

@@ -2,7 +2,7 @@ import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
 import type { UUID } from "../../models/models";
 import { fetchEvents } from "../../api";
-import { queryKeys } from "../../queryKeys";
+import { queryKeys } from "../queryKeys";
 
 export function useEventsQuery(topicId: UUID) {
   const { getToken } = useAuth();

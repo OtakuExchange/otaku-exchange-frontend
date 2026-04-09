@@ -20,6 +20,7 @@ export default function CreateEventView() {
   const [topicId, setTopicId] = useState("");
   const [format, setFormat] = useState("binary");
   const [name, setName] = useState("");
+  const [alias, setAlias] = useState("");
   const [description, setDescription] = useState("");
   const [closeTime, setCloseTime] = useState<Dayjs | null>(null);
   const [status, setStatus] = useState("open");
@@ -38,6 +39,7 @@ export default function CreateEventView() {
         topicId: topicId as Topic["id"],
         format,
         name,
+        alias,
         description,
         closeTime: closeTime!.toISOString(),
         status,
@@ -96,6 +98,12 @@ export default function CreateEventView() {
           label="Name"
           value={name}
           onChange={(e) => setName(e.target.value)}
+          disabled={loading}
+        />
+        <TextField
+          label="Alias"
+          value={alias}
+          onChange={(e) => setAlias(e.target.value)}
           disabled={loading}
         />
         <TextField

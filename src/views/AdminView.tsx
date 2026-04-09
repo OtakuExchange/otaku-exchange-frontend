@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -223,7 +223,7 @@ function SeedMarketView() {
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded } = useUser();
   const { data: userData } = useUserQuery();
-  const effectiveIsAdmin = isSignedIn && userData?.isAdmin;
+  const effectiveIsAdmin: boolean = useMemo(() => isSignedIn && (userData?.isAdmin ?? false), [isSignedIn, userData]);
 
   if (!isLoaded) {
     return (

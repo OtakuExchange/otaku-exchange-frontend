@@ -28,7 +28,6 @@ import {
   fetchPortfolio,
   resolveEvent,
   fetchDailyStreak,
-  claimDailyReward,
   fetchEntities,
   createEntity,
   createMarketPool,

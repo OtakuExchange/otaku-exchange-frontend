@@ -182,7 +182,7 @@ function NavbarActionsDesktop({
   const { data: userData } = useUserQuery();
   const userBalance = useMemo(() => userData?.balance ? userData.balance - userData.lockedBalance : null, [userData]);
 
-  const effectiveIsAdmin = isSignedIn && userData?.isAdmin;
+  const effectiveIsAdmin: boolean = useMemo(() => isSignedIn && (userData?.isAdmin ?? false), [isSignedIn, userData]);
   return (
     <Box sx={{ display: { xs: "none", md: "flex" } }}>
       {effectiveIsAdmin && (
@@ -211,7 +211,7 @@ function NavbarMobileHamburgerButton({ isSignedIn }: { isSignedIn: boolean }) {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
   const { data: userData } = useUserQuery();
-  const effectiveIsAdmin = isSignedIn && userData?.isAdmin;
+  const effectiveIsAdmin: boolean = useMemo(() => isSignedIn && (userData?.isAdmin ?? false), [isSignedIn, userData]);
 
   const items: Array<{ label: string; path: string }> = [
     { label: "Leaderboard", path: "/leaderboard" },
@@ -260,9 +260,10 @@ function NavbarInfoMobile({
 }: {
   isSignedIn: boolean;
 }) {
-  if (!isSignedIn) return null;
   const { data: userData } = useUserQuery();
   const userBalance = useMemo(() => userData?.balance ? userData.balance - userData.lockedBalance : null, [userData]);
+
+  if (!isSignedIn) return null;
 
   return (
     <Stack

@@ -174,7 +174,11 @@ export default function TopicView({
   const bookmarkedIds = useMemo(() => {
     const next = new Set(serverBookmarkedIds);
     for (const [id, bookmarked] of bookmarkOverrides) {
-      bookmarked ? next.add(id) : next.delete(id);
+      if (bookmarked) {
+        next.add(id);
+      } else {
+        next.delete(id);
+      }
     }
     return next;
   }, [serverBookmarkedIds, bookmarkOverrides]);

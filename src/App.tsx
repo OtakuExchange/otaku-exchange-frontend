@@ -141,9 +141,8 @@ function App() {
   const { fetchTopics } = useApi();
   const { data: userData } = useUserQuery();
   const [topics, setTopics] = useState<Topic[]>([]);
-  const userBalance = useMemo(() => userData?.balance ? userData.balance - userData.lockedBalance : null, [userData]);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
-  const effectiveIsAdmin = isSignedIn && userData?.isAdmin;
+  const effectiveIsAdmin: boolean = useMemo(() => isSignedIn && (userData?.isAdmin ?? false), [isSignedIn, userData]);
   const { navTabs, activeTab } = useNavbarTopics({ topics, effectiveIsAdmin });
 
   useEffect(() => {

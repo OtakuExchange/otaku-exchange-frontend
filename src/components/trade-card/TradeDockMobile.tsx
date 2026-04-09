@@ -43,7 +43,7 @@ export function TradeDockMobile({
   useEffect(() => {
     if (stakeCents == null) return;
     model.setAmountCents(stakeCents);
-  }, [stakeCents]);
+  }, [stakeCents, model]);
   const poolLabel = selectedPool
     ? (selectedPool.entity?.abbreviatedName ??
       selectedPool.entity?.name ??

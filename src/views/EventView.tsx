@@ -106,7 +106,7 @@ export default function EventView({
           refreshTopics();
         })
         .catch(console.error);
-  }, [event.id, markEventSeen]);
+  }, [event.id, markEventSeen, queryClient, refreshTopics, userId]);
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);

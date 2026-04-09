@@ -1,4 +1,3 @@
-import { useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, useEffect } from "react";
 import type { Pool, PayoutPreview } from "../models/models";
 import { formatUsdFromCents } from "../utils/formatMoney";

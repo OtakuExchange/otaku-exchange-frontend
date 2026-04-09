@@ -46,7 +46,7 @@ export function TradeCardDesktop({
   useEffect(() => {
     if (stakeCents == null) return;
     model.setAmountCents(stakeCents);
-  }, [stakeCents]);
+  }, [stakeCents, model]);
 
   function updateStake(next: number) {
     model.setAmountCents(next);

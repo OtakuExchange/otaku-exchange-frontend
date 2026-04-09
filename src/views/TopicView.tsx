@@ -166,18 +166,18 @@ export default function TopicView({
     error,
   } = useTopicEventsQuery(topicId, selectedSubtopic);
 
-  const serverBookmarkedIds = useMemo(
-    () => new Set((events ?? []).filter((e) => e.bookmarked).map((e) => e.id)),
+  const serverBookmarkedIds: Set<UUID> = useMemo(
+    () => new Set((events ?? []).filter((e: Event) => e.bookmarked).map((e: Event) => e.id as UUID)),
     [events],
   );
 
-  const bookmarkedIds = useMemo(() => {
+  const bookmarkedIds: Set<UUID> = useMemo(() => {
     const next = new Set(serverBookmarkedIds);
     for (const [id, bookmarked] of bookmarkOverrides) {
       if (bookmarked) {
-        next.add(id);
+        next.add(id as UUID);
       } else {
-        next.delete(id);
+        next.delete(id as UUID);
       }
     }
     return next;
@@ -211,14 +211,14 @@ export default function TopicView({
     });
 
   const visibleEvents = sortEvents(
-    (events ?? []).filter((e) => {
+    (events ?? []).filter((e: Event) => {
       const status = e.status.toLowerCase();
       if (status === "hidden") return isAdmin;
       return status !== "resolved";
     }),
   );
   const renderedEvents = filterBookmarked
-    ? visibleEvents.filter((e) => bookmarkedIds.has(e.id))
+    ? visibleEvents.filter((e: Event) => bookmarkedIds.has(e.id as UUID))
     : visibleEvents;
 
   return (
@@ -229,7 +229,7 @@ export default function TopicView({
           subtopics={subtopics}
           selected={selectedSubtopic}
           onSelect={(id) => {
-            const sub = subtopics.find((s) => s.id === id);
+            const sub = subtopics.find((s: Subtopic) => s.id === id);
             if (sub) navigate(`${topicPath}/${toSlug(sub.name)}`);
           }}
         />

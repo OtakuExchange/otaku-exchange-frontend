@@ -41,11 +41,11 @@ export default function EventView({
   const effectiveSelectedPoolId = selectedPoolId ?? pools[0]?.id ?? null;
   const selectedPool = useMemo(() => {
     if (!effectiveSelectedPoolId) return null;
-    return pools.find((p) => p.id === effectiveSelectedPoolId) ?? null;
+    return pools.find((p: Pool) => p.id === effectiveSelectedPoolId) ?? null;
   }, [pools, effectiveSelectedPoolId]);
 
   const totalVolume = useMemo(
-    () => pools.reduce((sum, p) => sum + p.volume, 0),
+    () => pools.reduce((sum: number, p: Pool) => sum + p.volume, 0),
     [pools],
   );
 
@@ -64,7 +64,7 @@ export default function EventView({
   }, [totalVolume, selectedPool, effectiveStakeCents]);
 
   const poolStats = useMemo<PoolStat[]>(() => {
-    return pools.map((pool) => {
+    return pools.map((pool: Pool) => {
       const color = pool.entity?.color ?? "#1565c0";
       const label = pool.entity?.name ?? pool.label;
       const effectivePoolVolume =

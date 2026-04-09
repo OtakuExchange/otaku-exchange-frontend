@@ -135,90 +135,90 @@ function AdminSidebar() {
   );
 }
 
-function SeedMarketView() {
-  const { seedMarket } = useApi();
-  const [marketId, setMarketId] = useState("");
-  const [midpoint, setMidpoint] = useState("50");
-  const [useLastPrice, setUseLastPrice] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{
-    success: boolean;
-    message: string;
-  } | null>(null);
+// function SeedMarketView() {
+//   const { seedMarket } = useApi();
+//   const [marketId, setMarketId] = useState("");
+//   const [midpoint, setMidpoint] = useState("50");
+//   const [useLastPrice, setUseLastPrice] = useState(false);
+//   const [loading, setLoading] = useState(false);
+//   const [result, setResult] = useState<{
+//     success: boolean;
+//     message: string;
+//   } | null>(null);
 
-  const handleSeed = async () => {
-    if (!marketId.trim()) return;
-    setLoading(true);
-    setResult(null);
-    try {
-      const message = await seedMarket(marketId.trim() as UUID, {
-        midpoint: parseInt(midpoint),
-        useLastPrice,
-      });
-      setResult({ success: true, message });
-    } catch {
-      setResult({ success: false, message: "Failed to seed market" });
-    } finally {
-      setLoading(false);
-    }
-  };
+//   const handleSeed = async () => {
+//     if (!marketId.trim()) return;
+//     setLoading(true);
+//     setResult(null);
+//     try {
+//       const message = await seedMarket(marketId.trim() as UUID, {
+//         midpoint: parseInt(midpoint),
+//         useLastPrice,
+//       });
+//       setResult({ success: true, message });
+//     } catch {
+//       setResult({ success: false, message: "Failed to seed market" });
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
 
-  return (
-    <Box sx={{ maxWidth: 480 }}>
-      <Typography variant="h6" gutterBottom>
-        Seed Market
-      </Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Places YES and NO limit orders around a midpoint price to provide
-        initial liquidity.
-      </Typography>
-      <TextField
-        label="Market ID"
-        value={marketId}
-        onChange={(e) => setMarketId(e.target.value)}
-        fullWidth
-        size="small"
-        sx={{ mb: 2 }}
-        placeholder="e.g. 3b9d8102-06ce-4f64-a772-27425901f57e"
-      />
-      <TextField
-        label="Midpoint (cents, 1–99)"
-        value={midpoint}
-        onChange={(e) => setMidpoint(e.target.value)}
-        fullWidth
-        size="small"
-        sx={{ mb: 2 }}
-        helperText="Center YES price. Default 50 = neutral. Set higher if YES is more likely."
-        disabled={useLastPrice}
-      />
-      <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
-        <Button
-          variant={useLastPrice ? "contained" : "outlined"}
-          size="small"
-          onClick={() => setUseLastPrice((v) => !v)}
-        >
-          {useLastPrice ? "Using last traded price" : "Use last traded price"}
-        </Button>
-        <Typography variant="caption" color="text.secondary">
-          Recommended for reseeds on active markets
-        </Typography>
-      </Box>
-      <Button
-        variant="contained"
-        onClick={handleSeed}
-        disabled={loading || !marketId.trim()}
-        startIcon={loading ? <CircularProgress size={16} /> : <GrassIcon />}
-      >
-        {loading ? "Seeding..." : "Seed Market"}
-      </Button>
-      {result && (
-        <Alert severity={result.success ? "success" : "error"} sx={{ mt: 2 }}>
-          {result.message}
-        </Alert>
-      )}
-    </Box>
-  );
-}
+//   return (
+//     <Box sx={{ maxWidth: 480 }}>
+//       <Typography variant="h6" gutterBottom>
+//         Seed Market
+//       </Typography>
+//       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+//         Places YES and NO limit orders around a midpoint price to provide
+//         initial liquidity.
+//       </Typography>
+//       <TextField
+//         label="Market ID"
+//         value={marketId}
+//         onChange={(e) => setMarketId(e.target.value)}
+//         fullWidth
+//         size="small"
+//         sx={{ mb: 2 }}
+//         placeholder="e.g. 3b9d8102-06ce-4f64-a772-27425901f57e"
+//       />
+//       <TextField
+//         label="Midpoint (cents, 1–99)"
+//         value={midpoint}
+//         onChange={(e) => setMidpoint(e.target.value)}
+//         fullWidth
+//         size="small"
+//         sx={{ mb: 2 }}
+//         helperText="Center YES price. Default 50 = neutral. Set higher if YES is more likely."
+//         disabled={useLastPrice}
+//       />
+//       <Box sx={{ display: "flex", alignItems: "center", gap: 1, mb: 3 }}>
+//         <Button
+//           variant={useLastPrice ? "contained" : "outlined"}
+//           size="small"
+//           onClick={() => setUseLastPrice((v) => !v)}
+//         >
+//           {useLastPrice ? "Using last traded price" : "Use last traded price"}
+//         </Button>
+//         <Typography variant="caption" color="text.secondary">
+//           Recommended for reseeds on active markets
+//         </Typography>
+//       </Box>
+//       <Button
+//         variant="contained"
+//         onClick={handleSeed}
+//         disabled={loading || !marketId.trim()}
+//         startIcon={loading ? <CircularProgress size={16} /> : <GrassIcon />}
+//       >
+//         {loading ? "Seeding..." : "Seed Market"}
+//       </Button>
+//       {result && (
+//         <Alert severity={result.success ? "success" : "error"} sx={{ mt: 2 }}>
+//           {result.message}
+//         </Alert>
+//       )}
+//     </Box>
+//   );
+// }
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded } = useUser();
@@ -271,7 +271,7 @@ export default function AdminView() {
             <Route path="create/entity" element={<CreateEntityView />} />
             <Route path="delete" element={<DeleteView />} />
             <Route path="event-status" element={<EventStatusView />} />
-            <Route path="seed/market" element={<SeedMarketView />} />
+            {/* <Route path="seed/market" element={<SeedMarketView />} /> */}
             <Route
               path="*"
               element={<Navigate to="/admin/create/topic" replace />}

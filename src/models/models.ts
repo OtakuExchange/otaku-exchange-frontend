@@ -171,3 +171,11 @@ export interface PortfolioItem {
   createdAt: string;
   eventMultiplier: number;
 }
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: UUID;
+  username: string;
+  avatarUrl: string | null;
+  balance: number;
+}

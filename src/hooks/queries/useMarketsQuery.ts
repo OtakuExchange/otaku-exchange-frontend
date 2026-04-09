@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
-import { fetchMarkets } from "../../api";
+import { fetchMarkets } from "../../api/api";
 import type { UUID } from "../../models/models";
 import { queryKeys } from "../queryKeys";
 

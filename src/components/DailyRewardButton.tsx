@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip from "@mui/material/Tooltip";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import type { StreakStatus } from "../api";
+import type { StreakStatus } from "../api/api";
 import { useApi } from "../hooks/useApi";
 import { useClaimDailyMutation } from "../hooks/mutations/claimDailyMutation";
 

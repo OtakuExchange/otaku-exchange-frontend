@@ -157,3 +157,17 @@ export interface SubtopicEventCounts {
   total: number;
   byStatus: Record<EventStatus, number>;
 }
+
+export interface PortfolioItem {
+  id: UUID;
+  eventId: UUID;
+  label: string;
+  entity: Entity | null;
+  isWinner: boolean;
+  amount: number;
+  volume: number;
+  userStake: number | null;
+  eventStatus: string;
+  createdAt: string;
+  eventMultiplier: number;
+}

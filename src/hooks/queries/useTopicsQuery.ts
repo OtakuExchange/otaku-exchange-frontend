@@ -1,7 +1,7 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
 import type { UUID } from "../../models/models";
-import { fetchEventsBySubtopic, fetchEvents } from "../../api";
+import { fetchEventsBySubtopic, fetchEvents } from "../../api/api";
 import { queryKeys } from "../queryKeys";
 
 export function useTopicEventsQuery(topicId: UUID, subtopicId: UUID | null) {

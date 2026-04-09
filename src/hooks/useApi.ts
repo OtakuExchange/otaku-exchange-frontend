@@ -1,29 +1,11 @@
 import { useAuth } from "@clerk/react";
-import {
-  fetchTopics,
-  fetchEvents,
-  fetchMarkets,
-  fetchPools,
-  bookmarkEvent,
-  unbookmarkEvent,
-  createTopic,
-  createEvent,
-  deleteTopic,
-  deleteEvent,
-  deleteMarket,
-  resolveEvent,
-  fetchDailyStreak,
-  fetchEntities,
-  createEntity,
-  createMarketPool,
-  updateEventStatus,
-  createSubtopic,
-  deleteSubtopic,
-  linkEventToSubtopic,
-  markEventSeen,
-} from "../api";
-import type { CreateEventPayload } from "../api";
 import type { UUID } from "../models/models";
+import { fetchEntities, createEntity } from "../api/entity.api";
+import { type CreateEventPayload, createEvent, bookmarkEvent, unbookmarkEvent, deleteEvent, resolveEvent, updateEventStatus, linkEventToSubtopic, markEventSeen } from "../api/event.api";
+import { fetchMarkets, fetchPools, deleteMarket, createMarketPool } from "../api/market.api";
+import { fetchDailyStreak } from "../api/reward.api";
+import { createSubtopic, deleteSubtopic } from "../api/subtopic.api";
+import { fetchTopics, fetchEvents, createTopic, deleteTopic } from "../api/topic.api";
 
 export function useApi() {
   const { getToken } = useAuth();

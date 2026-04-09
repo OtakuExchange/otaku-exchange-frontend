@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createStake } from "../../api";
+import { createStake } from "../../api/api";
 import type { UUID } from "../../models/models";
 import { useAuth } from "@clerk/react";
 import { queryKeys } from "../queryKeys";

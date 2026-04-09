@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { claimDailyReward } from "../../api";
+import { claimDailyReward } from "../../api/api";
 import { useAuth } from "@clerk/react";
 import { queryKeys } from "../queryKeys";
 

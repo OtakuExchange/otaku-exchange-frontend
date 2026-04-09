@@ -6,7 +6,7 @@ import type { PoolStat } from "../components/event/types";
 import { useTopics } from "../contexts/TopicsContext";
 import { useRefreshTopics } from "../contexts/RefreshTopicsContext";
 import { useUserId } from "../contexts/UserContext";
-import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
+import { usePoolsQuery } from "../api/market/market.queries";
 import { useApi } from "../hooks/useApi";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Event, Pool } from "../models/models";

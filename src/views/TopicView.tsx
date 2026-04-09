@@ -11,8 +11,10 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import EventCard from "../components/EventCard";
 import SubtopicNav from "../components/SubtopicNav";
 import type { Event, Subtopic, UUID } from "../models/models";
-import { useTopicEventsQuery } from "../hooks/queries/useTopicsQuery";
-import { useTopicEventCountQuery } from "../hooks/queries/useTopicEventCountQuery";
+import {
+  useTopicEventCountQuery,
+  useTopicEventsQuery,
+} from "../api/topic/topic.queries";
 
 function LoadingState() {
   return (

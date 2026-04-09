@@ -179,3 +179,22 @@ export interface LeaderboardEntry {
   avatarUrl: string | null;
   balance: number;
 }
+
+export interface EventStake {
+  id: UUID;
+  userId: UUID;
+  username: string;
+  avatarUrl: string | null;
+  marketPoolId: UUID;
+  poolLabel: string;
+  amount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StreakStatus {
+  streak: number;
+  rewardCents: number;
+  canClaim: boolean;
+  comebackBonusCents: number;
+}

@@ -2,8 +2,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { PoolItem } from "../../hooks/queries/usePoolsQuery";
 import { entityTextColor } from "../../utils/entityTextColor";
+import type { Pool } from "../../models/models";
 
 const scrollableSx = {
   maxHeight: 90,
@@ -19,7 +19,7 @@ export function MobileEventCardBody({
   isMulti,
   onSelectPool,
 }: {
-  pools: PoolItem[];
+  pools: Pool[];
   totalVolume: number;
   isMulti: boolean;
   onSelectPool: (e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>, poolId: string) => void;

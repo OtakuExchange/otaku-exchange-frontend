@@ -1,13 +1,10 @@
 import { useState } from "react";
-import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Collapse from "@mui/material/Collapse";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
@@ -16,17 +13,15 @@ import ExpandMore from "@mui/icons-material/ExpandMore";
 import GrassIcon from "@mui/icons-material/Grass";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/react";
-import { useApi } from "../hooks/useApi";
 import CreateTopicView from "./admin/CreateTopicView";
 import CreateEventView from "./admin/CreateEventView";
 import CreateMarketView from "./admin/CreateMarketView";
 import DeleteView from "./admin/DeleteView";
-import type { UUID } from "../models/models";
 import ResolveEventView from "./admin/ResolveEventView";
 import CreateEntityView from "./admin/CreateEntityView";
 import EventStatusView from "./admin/EventStatusView";
 import SubtopicAdminView from "./admin/SubtopicAdminView";
-import { useUserQuery } from "../hooks/queries/useUserQuery";
+import { useUserQuery } from "../api/user/user.queries";
 
 function AdminSidebar() {
   const navigate = useNavigate();

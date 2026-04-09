@@ -1,5 +1,5 @@
-import type { UUID, Market, Pool } from "../models/models";
-import { type GetToken, API_URL, authHeaders } from "./api";
+import type { UUID, Market, Pool } from "../../models/models";
+import { type GetToken, API_URL, authHeaders } from "../api";
 
 export async function fetchMarkets(
   eventId: UUID,
@@ -45,3 +45,4 @@ export async function fetchPools(
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
+

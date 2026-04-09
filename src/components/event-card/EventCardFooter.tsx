@@ -1,9 +1,8 @@
 import Box from "@mui/material/Box";
 import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-import type { PoolItem } from "../../hooks/queries/usePoolsQuery";
 import { EventCloseTime } from "../event/EventCloseTime";
-import type { Event } from "../../models/models";
+import type { Event, Pool } from "../../models/models";
 import BookmarkIcon from "@mui/icons-material/Bookmark";
 import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 
@@ -14,7 +13,7 @@ export function EventCardFooter({
   onBookmark,
 }: {
   event: Event;
-  pools: PoolItem[] | undefined;
+  pools: Pool[] | undefined;
   bookmarked: boolean;
   onBookmark: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) {

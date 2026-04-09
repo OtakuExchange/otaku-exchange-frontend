@@ -27,14 +27,14 @@ import { UserContext } from "./contexts/UserContext";
 import { RefreshTopicsContext } from "./contexts/RefreshTopicsContext";
 import AdminView from "./views/AdminView";
 import UserView from "./views/UserView";
-import { usePoolsQuery } from "./hooks/queries/usePoolsQuery";
+import { usePoolsQuery } from "./api/market/market.queries";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useEventQuery } from "./hooks/queries/useEventQuery";
+import { useEventQuery } from "./api/events/events.queries";
 import { useNavbarTopics } from "./components/navbar/useNavbarTopics";
 import { TopNavLayout } from "./components/navbar/TopNavLayout";
 import { Navbar } from "./components/navbar/Navbar";
 import { TopicTabs } from "./components/navbar/TopicTabs";
-import { useUserQuery } from "./hooks/queries/useUserQuery";
+import { useUserQuery } from "./api/user/user.queries";
 
 const darkTheme = createTheme({
   palette: {

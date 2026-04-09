@@ -1,5 +1,5 @@
-import type { Entity, Event, UUID } from "../models/models";
-import { type GetToken, API_URL, authHeaders } from "./api";
+import type { Entity, Event, EventStake, UUID } from "../../models/models";
+import { type GetToken, API_URL, authHeaders } from "../api";
 
 // EVENTS
 export async function fetchEvent(
@@ -125,19 +125,6 @@ export async function unbookmarkEvent(
 }
 
 // STAKES
-
-export interface EventStake {
-  id: UUID;
-  userId: UUID;
-  username: string;
-  avatarUrl: string | null;
-  marketPoolId: UUID;
-  poolLabel: string;
-  amount: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export async function fetchEventStakes(
   eventId: UUID,
   limit: number,

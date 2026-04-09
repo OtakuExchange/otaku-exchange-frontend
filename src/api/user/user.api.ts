@@ -1,5 +1,5 @@
-import type { UUID } from "../models/models";
-import { API_URL, authHeaders, type GetToken } from "./api";
+import type { UUID } from "../../models/models";
+import { API_URL, authHeaders, type GetToken } from "../api";
 
 export interface CurrentUser {
   id: UUID;
@@ -19,3 +19,4 @@ export async function fetchCurrentUser(
     r.ok ? r.json() : null,
   );
 }
+

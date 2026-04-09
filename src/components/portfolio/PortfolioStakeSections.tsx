@@ -4,7 +4,7 @@ import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
-import type { PortfolioItem } from "../../api/api";
+import type { PortfolioItem } from "../../models/models";
 import { PortfolioStakeRow } from "./PortfolioStakeRow";
 
 export function PortfolioStakeSections({

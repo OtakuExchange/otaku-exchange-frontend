@@ -1,6 +1,6 @@
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { usePortfolioQuery } from "../hooks/queries/usePortfolioQuery";
+import { usePortfolioQuery } from "../api/portfolio/portfolio.queries";
 import { PortfolioStakeSections } from "../components/portfolio/PortfolioStakeSections";
 
 export default function PortfolioView() {

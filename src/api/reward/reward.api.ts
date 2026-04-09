@@ -1,15 +1,7 @@
-import { API_URL, authHeaders, type GetToken } from "./api";
+import { API_URL, authHeaders, type GetToken } from "../api";
+import type { StreakStatus } from "../../models/models";
 
-export interface StreakStatus {
-  streak: number;
-  rewardCents: number;
-  canClaim: boolean;
-  comebackBonusCents: number;
-}
-
-export async function fetchDailyStreak(
-  getToken: GetToken,
-): Promise<StreakStatus> {
+export async function fetchDailyStreak(getToken: GetToken): Promise<StreakStatus> {
   return fetch(`${API_URL}/rewards/daily`, {
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
@@ -25,3 +17,4 @@ export async function claimDailyReward(
   if (!res.ok) throw new Error(await res.text());
   return res.json();
 }
+

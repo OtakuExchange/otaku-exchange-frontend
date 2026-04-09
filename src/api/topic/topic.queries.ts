@@ -1,9 +1,9 @@
 import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
 import type { UUID } from "../../models/models";
+import { fetchEventsBySubtopic } from "../subtopic/subtopic.api";
 import { queryKeys } from "../queryKeys";
-import { fetchEventsBySubtopic } from "../../api/subtopic.api";
-import { fetchEventsByTopic } from "../../api/topic.api";
+import { fetchEventsByTopic, fetchTopicEventCounts } from "./topic.api";
 
 export function useTopicEventsQuery(topicId: UUID, subtopicId: UUID | null) {
   const { getToken } = useAuth();
@@ -17,8 +17,17 @@ export function useTopicEventsQuery(topicId: UUID, subtopicId: UUID | null) {
         ? fetchEventsBySubtopic(subtopicId, getToken)
         : fetchEventsByTopic(topicId, getToken),
 
-    // caching knobs
-    staleTime: 60_000, // 1 min: switching tabs won't refetch immediately
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useTopicEventCountQuery(topicId: UUID) {
+  return useQuery({
+    queryKey: queryKeys.topicEventCounts(topicId),
+    queryFn: () => fetchTopicEventCounts(topicId),
+    staleTime: 60_000,
     gcTime: 10 * 60_000,
     refetchOnWindowFocus: false,
   });

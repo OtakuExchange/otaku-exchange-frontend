@@ -11,7 +11,7 @@ import { PoolRowsSectionDesktop } from "./PoolRowsSectionDesktop";
 import { TopStakesSectionDesktop } from "./TopStakesSectionDesktop";
 import type { Event } from "../../../models/models";
 import { TradeCardDesktop } from "../../trade-card/TradeCardDesktop";
-import { useEventStakesQuery } from "../../../hooks/queries/useEventStakesQuery";
+import { useEventStakesQuery } from "../../../api/events/events.queries";
 
 export function DesktopEventView({
   event,

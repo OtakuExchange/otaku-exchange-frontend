@@ -1,5 +1,5 @@
-import type { Topic, UUID, TopicEventCounts, Event } from "../models/models";
-import { API_URL, authHeaders, type GetToken } from "./api";
+import type { Topic, UUID, TopicEventCounts, Event } from "../../models/models";
+import { API_URL, authHeaders, type GetToken } from "../api";
 
 export async function fetchTopics(getToken: GetToken): Promise<Topic[]> {
   return fetch(`${API_URL}/topics`, {

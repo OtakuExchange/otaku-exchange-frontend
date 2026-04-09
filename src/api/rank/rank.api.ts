@@ -1,5 +1,5 @@
-import type { LeaderboardEntry } from "../models/models";
-import { API_URL, authHeaders, type GetToken } from "./api";
+import type { LeaderboardEntry } from "../../models/models";
+import { API_URL, authHeaders, type GetToken } from "../api";
 
 export async function fetchLeaderboard(
   limit: number,
@@ -9,3 +9,4 @@ export async function fetchLeaderboard(
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
+

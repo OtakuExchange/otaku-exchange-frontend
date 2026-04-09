@@ -2,7 +2,7 @@ import { useAuth } from "@clerk/react";
 import { useQuery } from "@tanstack/react-query";
 import type { UUID } from "../../models/models";
 import { queryKeys } from "../queryKeys";
-import { fetchPools } from "../../api/market.api";
+import { fetchMarkets, fetchPools } from "./market.api";
 
 export type PoolItem = NonNullable<
   ReturnType<typeof usePoolsQuery>["data"]
@@ -20,3 +20,17 @@ export function usePoolsQuery(eventId: UUID) {
     refetchOnWindowFocus: true,
   });
 }
+
+export function useMarketsQuery(eventId: UUID) {
+  const { getToken } = useAuth();
+
+  return useQuery({
+    queryKey: queryKeys.marketsByEventId(eventId),
+    queryFn: () => fetchMarkets(eventId, getToken),
+
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+}
+

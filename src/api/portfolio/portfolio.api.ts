@@ -1,5 +1,5 @@
-import type { PortfolioItem, UUID } from "../models/models";
-import { type GetToken, API_URL, authHeaders } from "./api";
+import type { PortfolioItem, UUID } from "../../models/models";
+import { type GetToken, API_URL, authHeaders } from "../api";
 
 export interface PortfolioResponse {
   userId: UUID;
@@ -26,3 +26,4 @@ export async function fetchUserPortfolio(
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
+

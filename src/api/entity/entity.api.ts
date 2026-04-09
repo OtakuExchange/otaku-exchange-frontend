@@ -1,5 +1,5 @@
-import type { Entity } from "../models/models";
-import { type GetToken, API_URL, authHeaders } from "./api";
+import type { Entity } from "../../models/models";
+import { type GetToken, API_URL, authHeaders } from "../api";
 
 export async function fetchEntities(getToken: GetToken): Promise<Entity[]> {
   return fetch(`${API_URL}/entities`, {
@@ -25,3 +25,4 @@ export async function createEntity(
     body: JSON.stringify(payload),
   }).then((r) => r.json());
 }
+

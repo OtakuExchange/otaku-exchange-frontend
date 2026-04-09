@@ -1,5 +1,5 @@
-import type { Event, Subtopic, UUID } from "../models/models";
-import { API_URL, authHeaders, type GetToken } from "./api";
+import type { Event, Subtopic, UUID } from "../../models/models";
+import { API_URL, authHeaders, type GetToken } from "../api";
 
 export async function fetchEventsBySubtopic(
   subtopicId: UUID,
@@ -37,3 +37,4 @@ export async function deleteSubtopic(
   });
   if (!res.ok) throw new Error(await res.text());
 }
+

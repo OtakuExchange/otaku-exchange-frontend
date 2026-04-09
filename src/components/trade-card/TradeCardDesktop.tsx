@@ -12,17 +12,20 @@ import { useTradeModel } from "../../hooks/useTradeModel";
 import type { Pool } from "../../models/models";
 import { entityTextColor } from "../../utils/entityTextColor";
 import { PayoutPreviewRow } from "./PayoutPreviewRow";
+import { FirstBetBonusBadge } from "./FirstBetBonusBadge";
 
 export function TradeCardDesktop({
   pools,
   selectedPool,
   onPoolChange,
   onBuySuccess,
+  hasFirstStakeBonus,
 }: {
   pools: Pool[];
   selectedPool: Pool | null;
   onPoolChange: (pool: Pool) => void;
   onBuySuccess?: () => void;
+  hasFirstStakeBonus?: boolean;
 }) {
   const model = useTradeModel({ selectedPool, onBuySuccess });
 
@@ -31,25 +34,31 @@ export function TradeCardDesktop({
       sx={{ width: { xs: "100%", sm: "25%" }, flexShrink: 0, borderRadius: 3 }}
     >
       <CardContent>
-        {selectedPool && (
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1.5}
-            sx={{ mb: 2 }}
-          >
-            {selectedPool.entity?.logoPath && (
-              <Box
-                component="img"
-                src={selectedPool.entity.logoPath}
-                sx={{ width: 48, height: 48, borderRadius: 0.5, flexShrink: 0 }}
-              />
-            )}
-            <Typography variant="body2" fontWeight="bold">
-              {selectedPool.entity?.name ?? selectedPool.label}
-            </Typography>
-          </Stack>
-        )}
+        <Stack
+          direction="row"
+          alignItems="flex-start"
+          justifyContent="space-between"
+          sx={{ mb: 2 }}
+        >
+          {selectedPool ? (
+            <Stack direction="row" alignItems="center" spacing={1.5} sx={{ minWidth: 0 }}>
+              {selectedPool.entity?.logoPath && (
+                <Box
+                  component="img"
+                  src={selectedPool.entity.logoPath}
+                  sx={{ width: 48, height: 48, borderRadius: 0.5, flexShrink: 0 }}
+                />
+              )}
+              <Typography variant="body2" fontWeight="bold" sx={{ minWidth: 0 }}>
+                {selectedPool.entity?.name ?? selectedPool.label}
+              </Typography>
+            </Stack>
+          ) : (
+            <Box />
+          )}
+          {hasFirstStakeBonus && <FirstBetBonusBadge />}
+        </Stack>
+
         <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
           {pools.map((pool) => {
             const color = pool.entity?.color ?? "#1565c0";
@@ -72,6 +81,7 @@ export function TradeCardDesktop({
             );
           })}
         </Stack>
+
         <Stack spacing={1}>
           <TextField
             size="small"
@@ -106,6 +116,7 @@ export function TradeCardDesktop({
           )}
         </Stack>
       </CardContent>
+
       <Snackbar
         open={model.toastOpen}
         autoHideDuration={3000}

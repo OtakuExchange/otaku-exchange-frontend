@@ -47,6 +47,25 @@ function EventCardHeader({
       <Box sx={{ flexGrow: 1, minWidth: 0 }}>
         <EventCardTitle name={title} />
       </Box>
+
+      {event.hasFirstStakeBonus && (
+        <Typography
+          variant="caption"
+          sx={{
+            color: "#16191d",
+            bgcolor: "#FFD700",
+            px: 0.75,
+            py: 0.25,
+            borderRadius: 999,
+            fontWeight: 800,
+            lineHeight: 1,
+            flexShrink: 0,
+          }}
+        >
+          ⚡ Bonus
+        </Typography>
+      )}
+
       {event.multiplier > 1 && (
         <Typography
           variant="caption"
@@ -58,6 +77,7 @@ function EventCardHeader({
             borderRadius: 999,
             fontWeight: 800,
             lineHeight: 1,
+            flexShrink: 0,
           }}
         >
           {event.multiplier}x
@@ -81,17 +101,13 @@ function EventCardHeader({
           <BookmarkIcon fontSize="small" />
         ) : (
           <BookmarkBorderIcon fontSize="small" />
-          )}
-        </IconButton>
-      </Stack>
+        )}
+      </IconButton>
+    </Stack>
   );
 }
 
-function EventCardTitle({
-  name,
-}: {
-  name: string;
-}) {
+function EventCardTitle({ name }: { name: string }) {
   return (
     <Typography
       variant="caption"
@@ -144,8 +160,7 @@ function MobileEventCardBody({
   return (
     <Stack spacing={1} sx={{ display: { xs: "flex", md: "none" }, ...(isMulti && scrollableSx) }}>
       {pools.map((pool) => {
-        const pct =
-          totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
+        const pct = totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
         const color = pool.entity?.color ?? "#1565c0";
         return (
           <Button
@@ -206,8 +221,7 @@ function DesktopEventCardBody({
     <Box sx={{ display: { xs: "none", md: "block" } }}>
       <Stack sx={{ mb: 1, ...(isMulti && scrollableSx) }} onClick={onOpenEvent}>
         {pools.map((pool, i) => {
-          const pct =
-            totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
+          const pct = totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
           return (
             <Stack
               key={pool.id}
@@ -225,12 +239,7 @@ function DesktopEventCardBody({
                 <Box
                   component="img"
                   src={pool.entity.logoPath}
-                  sx={{
-                    width: 24,
-                    height: 24,
-                    flexShrink: 0,
-                    borderRadius: 0.5,
-                  }}
+                  sx={{ width: 24, height: 24, flexShrink: 0, borderRadius: 0.5 }}
                 />
               ) : (
                 <Box sx={{ width: 24, height: 24, flexShrink: 0 }} />
@@ -238,11 +247,7 @@ function DesktopEventCardBody({
               <Typography variant="body2" sx={{ flexGrow: 1, fontWeight: 600 }}>
                 {pool.entity?.name ?? pool.label}
               </Typography>
-              <Typography
-                variant="body2"
-                fontWeight={700}
-                sx={{ color: "#7B8996" }}
-              >
+              <Typography variant="body2" fontWeight={700} sx={{ color: "#7B8996" }}>
                 {pct}%
               </Typography>
             </Stack>
@@ -391,7 +396,8 @@ export default function EventCard({
             position: "absolute",
             inset: 0,
             borderRadius: "inherit",
-            background: "linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%)",
+            background:
+              "linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.06) 50%, transparent 70%)",
             backgroundSize: "200% 100%",
             animation: "shimmer 2.5s infinite",
             pointerEvents: "none",
@@ -434,11 +440,21 @@ export default function EventCard({
               >
                 {event.name}
               </Typography>
-              <EventCardHeader event={event} title={event.name} bookmarked={bookmarked} onBookmark={handleBookmark} />
+              <EventCardHeader
+                event={event}
+                title={event.name}
+                bookmarked={bookmarked}
+                onBookmark={handleBookmark}
+              />
             </Box>
           </Stack>
         ) : (
-          <EventCardHeader event={event} title={event.name} bookmarked={bookmarked} onBookmark={handleBookmark} />
+          <EventCardHeader
+            event={event}
+            title={event.name}
+            bookmarked={bookmarked}
+            onBookmark={handleBookmark}
+          />
         )}
         {isLoading ? (
           <PoolsSkeleton />
@@ -461,7 +477,7 @@ export default function EventCard({
         )}
       </CardContent>
 
-      {/* Desktop footer (md+): volume + bookmark */}
+      {/* Desktop footer (md+): close time + volume + bookmark */}
       <DesktopEventCardFooter
         event={event}
         pools={pools}

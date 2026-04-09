@@ -6,7 +6,6 @@ import type { PoolStat } from "../types";
 
 export function PoolRowsSectionMobile({
   poolStats,
-  totalVolume,
   onSelectPool,
 }: {
   poolStats: PoolStat[];

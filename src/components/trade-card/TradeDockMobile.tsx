@@ -11,17 +11,20 @@ import { useTradeModel } from "../../hooks/useTradeModel";
 import type { Pool } from "../../models/models";
 import { entityTextColor } from "../../utils/entityTextColor";
 import { PayoutPreviewRow } from "./PayoutPreviewRow";
+import { FirstBetBonusBadge } from "./FirstBetBonusBadge";
 
 export function TradeDockMobile({
   pools,
   selectedPool,
   onPoolChange,
   onBuySuccess,
+  hasFirstStakeBonus,
 }: {
   pools: Pool[];
   selectedPool: Pool | null;
   onPoolChange: (pool: Pool) => void;
   onBuySuccess?: () => void;
+  hasFirstStakeBonus?: boolean;
 }) {
   const model = useTradeModel({ selectedPool, onBuySuccess });
   const poolLabel = selectedPool
@@ -111,6 +114,7 @@ export function TradeDockMobile({
                 }}
               />
             )}
+            {hasFirstStakeBonus && <FirstBetBonusBadge />}
           </Stack>
 
           <Stack direction="row" spacing={1} alignItems="center">

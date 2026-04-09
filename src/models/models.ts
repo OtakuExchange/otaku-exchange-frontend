@@ -51,6 +51,7 @@ export interface Event {
   tradeVolume: number;
   multiplier: number;
   isNew: boolean;
+  hasFirstStakeBonus: boolean;
 }
 
 export interface Entity {

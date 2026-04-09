@@ -145,7 +145,7 @@ export function TradeCardDesktop({
             <Slider
               value={controlledStakeCents}
               min={0}
-              max={model.userBalance ?? 99999999}
+              max={model.userBalance ?? (selectedPool?.volume ?? 0) * 20}
               step={100} // $1 steps
               disabled={!selectedPool}
               onChange={(_e, v) => {

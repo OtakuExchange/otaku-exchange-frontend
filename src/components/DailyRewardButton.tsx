@@ -5,15 +5,15 @@ import Tooltip from "@mui/material/Tooltip";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
 import type { StreakStatus } from "../api";
 import { useApi } from "../hooks/useApi";
-import { useRefreshCash } from "../contexts/RefreshCashContext";
+import { useClaimDailyMutation } from "../hooks/mutations/claimDailyMutation";
 
 export default function DailyRewardButton({
   variant = "desktop",
 }: {
   variant?: "desktop" | "mobile";
 }) {
-  const { fetchDailyStreak, claimDailyReward } = useApi();
-  const refreshCash = useRefreshCash();
+  const { fetchDailyStreak } = useApi();
+  const { claimDailyReward } = useClaimDailyMutation();
   const [status, setStatus] = useState<StreakStatus | null>(null);
   const [claiming, setClaiming] = useState(false);
   const [justClaimed, setJustClaimed] = useState(false);
@@ -28,7 +28,6 @@ export default function DailyRewardButton({
       const result = await claimDailyReward();
       setStatus(result);
       setJustClaimed(true);
-      refreshCash();
     } catch (e) {
       console.error(e);
     } finally {

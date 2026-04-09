@@ -1,4 +1,5 @@
 export type UUID = `${string}-${string}-${string}-${string}-${string}`;
+export const FIRST_BET_BONUS_STAKE_CENTS = 50_000;
 
 export type OrderSide = "YES" | "NO";
 export type OrderStatus =

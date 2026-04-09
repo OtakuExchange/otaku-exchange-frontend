@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { UserButton, SignInButton, SignUpButton } from "@clerk/react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -10,6 +10,7 @@ import Typography from "@mui/material/Typography";
 import DailyRewardButton from "../DailyRewardButton";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
+import { useUserQuery } from "../../hooks/queries/useUserQuery";
 
 function cashText(cash: number | null): string {
   return cash == null ? "--" : `$${(cash / 100).toFixed(2)}`;
@@ -174,14 +175,14 @@ function NavbarButton({
 
 function NavbarActionsDesktop({
   isSignedIn,
-  effectiveIsAdmin,
-  cash,
 }: {
   isSignedIn: boolean;
-  effectiveIsAdmin: boolean;
-  cash: number | null;
 }) {
   const navigate = useNavigate();
+  const { data: userData } = useUserQuery();
+  const userBalance = useMemo(() => userData?.balance ? userData.balance - userData.lockedBalance : null, [userData]);
+
+  const effectiveIsAdmin = isSignedIn && userData?.isAdmin;
   return (
     <Box sx={{ display: { xs: "none", md: "flex" } }}>
       {effectiveIsAdmin && (
@@ -198,21 +199,19 @@ function NavbarActionsDesktop({
             onClick={() => navigate("/portfolio")}
           />
           <DailyRewardButton variant="desktop" />
-          <NavbarCashDisplayDesktop cash={cash} />
+          <NavbarCashDisplayDesktop cash={userBalance} />
         </>
       )}
     </Box>
   );
 }
 
-function NavbarMobileHamburgerButton({
-  effectiveIsAdmin,
-}: {
-  effectiveIsAdmin: boolean;
-}) {
+function NavbarMobileHamburgerButton({ isSignedIn }: { isSignedIn: boolean }) {
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+  const { data: userData } = useUserQuery();
+  const effectiveIsAdmin = isSignedIn && userData?.isAdmin;
 
   const items: Array<{ label: string; path: string }> = [
     { label: "Leaderboard", path: "/leaderboard" },
@@ -258,12 +257,12 @@ function NavbarMobileHamburgerButton({
 
 function NavbarInfoMobile({
   isSignedIn,
-  cash,
 }: {
   isSignedIn: boolean;
-  cash: number | null;
 }) {
   if (!isSignedIn) return null;
+  const { data: userData } = useUserQuery();
+  const userBalance = useMemo(() => userData?.balance ? userData.balance - userData.lockedBalance : null, [userData]);
 
   return (
     <Stack
@@ -273,36 +272,24 @@ function NavbarInfoMobile({
       sx={{ display: { xs: "flex", md: "none" } }}
     >
       <DailyRewardButton variant="mobile" />
-      <NavbarCashDisplayMobile cash={cash} />
+      <NavbarCashDisplayMobile cash={userBalance} />
     </Stack>
   );
 }
 
-export function Navbar({
-  isSignedIn,
-  effectiveIsAdmin,
-  cash,
-}: {
-  isSignedIn: boolean;
-  effectiveIsAdmin: boolean;
-  cash: number | null;
-}) {
+export function Navbar({ isSignedIn }: { isSignedIn: boolean }) {  
   return (
     <>
       <NavbarBrand />
-      <NavbarMobileHamburgerButton effectiveIsAdmin={effectiveIsAdmin} />
+      <NavbarMobileHamburgerButton isSignedIn={isSignedIn} />
 
       {/* Desktop actions */}
       <Box sx={{ flexGrow: 1, minWidth: 0 }} />
-      <NavbarActionsDesktop
-        isSignedIn={isSignedIn}
-        effectiveIsAdmin={effectiveIsAdmin}
-        cash={cash}
-      />
+      <NavbarActionsDesktop isSignedIn={isSignedIn} />
 
       {/* Mobile actions */}
       <Box sx={{ display: "flex", gap: { xs: "10px", md: 0 } }}>
-        <NavbarInfoMobile isSignedIn={isSignedIn} cash={cash} />
+        <NavbarInfoMobile isSignedIn={isSignedIn} />
         {isSignedIn ? <UserButton /> : <NavbarSignInButton />}
       </Box>
     </>

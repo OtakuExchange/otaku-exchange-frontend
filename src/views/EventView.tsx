@@ -10,6 +10,7 @@ import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
 import { useApi } from "../hooks/useApi";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Event, Pool } from "../models/models";
+import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
 
 export default function EventView({
   event,
@@ -53,7 +54,7 @@ export default function EventView({
       event.isFirstStakeBonusEligible &&
       (event.status === "open" || event.status === "hidden");
     if (!eligible) return hypotheticalStakeCents;
-    const bonus = Math.min(hypotheticalStakeCents, 50_000);
+    const bonus = Math.min(hypotheticalStakeCents, FIRST_BET_BONUS_STAKE_CENTS);
     return hypotheticalStakeCents + bonus;
   }, [event.isFirstStakeBonusEligible, event.status, hypotheticalStakeCents]);
 

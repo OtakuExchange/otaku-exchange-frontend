@@ -6,7 +6,6 @@ import {
   fetchMarkets,
   fetchPools,
   fetchTrades,
-  createStake,
   fetchComments,
   postComment,
   likeComment,
@@ -21,7 +20,6 @@ import {
   deleteTopic,
   deleteEvent,
   deleteMarket,
-  fetchCurrentUser,
   seedMarket,
   fetchMyOrders,
   cancelOrder,
@@ -57,7 +55,6 @@ export function useApi() {
       fetchEventsBySubtopic(subtopicId, getToken),
     fetchMarkets: (eventId: UUID) => fetchMarkets(eventId, getToken),
     fetchPools: (eventId: UUID) => fetchPools(eventId, getToken),
-    fetchCurrentUser: () => fetchCurrentUser(getToken),
     fetchTrades: (marketId: UUID) => fetchTrades(marketId, getToken),
     createTopic: (topic: string, description: string, hidden: boolean) =>
       createTopic(topic, description, hidden, getToken),
@@ -107,14 +104,11 @@ export function useApi() {
       fetchPayoutPreview(eventId, poolId, amount, getToken),
     cancelOrder: (orderId: UUID) => cancelOrder(orderId, getToken),
     fetchPortfolioTotal: () => fetchPortfolioTotal(getToken),
-    createStake: (marketPoolId: UUID, amount: number) =>
-      createStake(marketPoolId, amount, getToken),
     fetchMyStakes: () => fetchMyStakes(getToken),
     fetchPortfolio: () => fetchPortfolio(getToken),
     resolveEvent: (eventId: UUID, winningPoolId: UUID) =>
       resolveEvent(eventId, winningPoolId, getToken),
     fetchDailyStreak: () => fetchDailyStreak(getToken),
-    claimDailyReward: () => claimDailyReward(getToken),
     fetchEntities: () => fetchEntities(getToken),
     createEntity: (payload: {
       name: string;

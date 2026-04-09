@@ -26,6 +26,7 @@ import ResolveEventView from "./admin/ResolveEventView";
 import CreateEntityView from "./admin/CreateEntityView";
 import EventStatusView from "./admin/EventStatusView";
 import SubtopicAdminView from "./admin/SubtopicAdminView";
+import { useUserQuery } from "../hooks/queries/useUserQuery";
 
 function AdminSidebar() {
   const navigate = useNavigate();
@@ -221,28 +222,8 @@ function SeedMarketView() {
 
 function AdminGuard({ children }: { children: React.ReactNode }) {
   const { isSignedIn, isLoaded } = useUser();
-  const { fetchCurrentUser } = useApi();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
-
-  useEffect(() => {
-    console.log(
-      "[AdminGuard] isLoaded:",
-      isLoaded,
-      "| isSignedIn:",
-      isSignedIn,
-    );
-    if (!isLoaded || !isSignedIn) return;
-    fetchCurrentUser()
-      .then((user) => {
-        console.log("[AdminGuard] /users/me response:", user);
-        console.log("[AdminGuard] isAdmin:", user?.isAdmin);
-        setIsAdmin(user?.isAdmin ?? false);
-      })
-      .catch((err) => {
-        console.error("[AdminGuard] fetchCurrentUser error:", err);
-        setIsAdmin(false);
-      });
-  }, [isLoaded, isSignedIn, fetchCurrentUser]);
+  const { data: userData } = useUserQuery();
+  const effectiveIsAdmin = isSignedIn && userData?.isAdmin;
 
   if (!isLoaded) {
     return (
@@ -257,7 +238,7 @@ function AdminGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/" replace />;
   }
 
-  if (isAdmin === null) {
+  if (effectiveIsAdmin === null) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
         <CircularProgress />
@@ -265,7 +246,7 @@ function AdminGuard({ children }: { children: React.ReactNode }) {
     );
   }
 
-  if (!isAdmin) {
+  if (!effectiveIsAdmin) {
     console.log("[AdminGuard] Access denied — redirecting to /");
     return <Navigate to="/" replace />;
   }

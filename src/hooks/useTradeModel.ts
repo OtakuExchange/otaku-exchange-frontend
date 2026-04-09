@@ -1,10 +1,11 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useState, useMemo, useEffect } from "react";
-import { useRefreshCash } from "../contexts/RefreshCashContext";
 import type { Pool, PayoutPreview } from "../models/models";
 import { formatUsdFromCents } from "../utils/formatMoney";
 import { calcLegacyPayout } from "../utils/parimutuel";
-import { useApi } from "./useApi";
+import { useUserQuery } from "./queries/useUserQuery";
+import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
+import { useCreateStakeMutation } from "./mutations/createStakeMutation";
 
 export function useTradeModel({
   selectedPool,
@@ -17,10 +18,9 @@ export function useTradeModel({
   onBuySuccess?: () => void;
   isFirstStakeBonusEligible?: boolean;
 }) {
-  const { createStake, fetchCurrentUser } = useApi();
-  const refreshCash = useRefreshCash();
-  const queryClient = useQueryClient();
-
+  const { data: user } = useUserQuery();
+  const { createStake } = useCreateStakeMutation();
+  
   const [rawAmount, setRawAmount] = useState("");
   const [buying, setBuying] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
@@ -32,13 +32,9 @@ export function useTradeModel({
   } | null>(null);
 
   useEffect(() => {
-    fetchCurrentUser()
-      .then((currentUser) => {
-        if (!currentUser) return;
-        setUserBalance(currentUser.balance - currentUser.lockedBalance);
-      })
-      .catch(console.error);
-  }, [fetchCurrentUser]);
+    if (!user) return;
+    setUserBalance(user.balance - user.lockedBalance);
+  }, [user]);
 
   const amountCents = useMemo(() => {
     if (!rawAmount) return 0;
@@ -48,7 +44,7 @@ export function useTradeModel({
 
   const bonusCents = useMemo(() => {
     const eligible = Boolean(isFirstStakeBonusEligible);
-    return eligible ? Math.min(amountCents, 50_000) : 0;
+    return eligible ? Math.min(amountCents, FIRST_BET_BONUS_STAKE_CENTS) : 0;
   }, [amountCents, isFirstStakeBonusEligible]);
 
   const effectiveStakeCents = amountCents + bonusCents;
@@ -87,15 +83,13 @@ export function useTradeModel({
 
     setBuying(true);
     try {
-      await createStake(selectedPool.id, stakeCents);
+      await createStake({ marketPoolId: selectedPool.id, amount: stakeCents });
       const label = selectedPool.entity?.name ?? selectedPool.label;
       setToast({
         message: `Bought ${formatUsdFromCents(stakeCents)} stake in ${label}`,
         severity: "success",
       });
       setToastOpen(true);
-      refreshCash();
-      queryClient.invalidateQueries({ queryKey: ["portfolio", "me"] });
       onBuySuccess?.();
       setRawAmount("");
     } catch (e) {

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
@@ -24,7 +24,6 @@ import TopicView from "./views/TopicView";
 import type { Topic, UUID } from "./models/models";
 import { TopicsContext } from "./contexts/TopicsContext";
 import { UserContext } from "./contexts/UserContext";
-import { RefreshCashContext } from "./contexts/RefreshCashContext";
 import { RefreshTopicsContext } from "./contexts/RefreshTopicsContext";
 import AdminView from "./views/AdminView";
 import UserView from "./views/UserView";
@@ -35,6 +34,7 @@ import { useNavbarTopics } from "./components/navbar/useNavbarTopics";
 import { TopNavLayout } from "./components/navbar/TopNavLayout";
 import { Navbar } from "./components/navbar/Navbar";
 import { TopicTabs } from "./components/navbar/TopicTabs";
+import { useUserQuery } from "./hooks/queries/useUserQuery";
 
 const darkTheme = createTheme({
   palette: {
@@ -138,12 +138,12 @@ function InfoBanner() {
 function App() {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
-  const { fetchTopics, fetchCurrentUser } = useApi();
+  const { fetchTopics } = useApi();
+  const { data: userData } = useUserQuery();
   const [topics, setTopics] = useState<Topic[]>([]);
-  const [cash, setCash] = useState<number | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const userBalance = useMemo(() => userData?.balance ? userData.balance - userData.lockedBalance : null, [userData]);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
-  const effectiveIsAdmin = isSignedIn ? isAdmin : false;
+  const effectiveIsAdmin = isSignedIn && userData?.isAdmin;
   const { navTabs, activeTab } = useNavbarTopics({ topics, effectiveIsAdmin });
 
   useEffect(() => {
@@ -161,32 +161,8 @@ function App() {
     fetchTopics().then(setTopics).catch(console.error);
   }
 
-  function refreshCash() {
-    fetchCurrentUser()
-      .then((currentUser) => {
-        if (!currentUser) return;
-        setCash(currentUser.balance - currentUser.lockedBalance);
-        setIsAdmin(currentUser.isAdmin);
-      })
-      .catch(console.error);
-  }
-
-  useEffect(() => {
-    if (!isSignedIn) {
-      return;
-    }
-    fetchCurrentUser()
-      .then((currentUser) => {
-        if (!currentUser) return;
-        setCash(currentUser.balance - currentUser.lockedBalance);
-        setIsAdmin(currentUser.isAdmin);
-      })
-      .catch(console.error);
-  }, [isSignedIn, fetchCurrentUser]);
-
   return (
     <RefreshTopicsContext.Provider value={refreshTopics}>
-      <RefreshCashContext.Provider value={refreshCash}>
         <UserContext.Provider value={user?.id ?? null}>
           <TopicsContext.Provider value={topics}>
             <ThemeProvider theme={darkTheme}>
@@ -194,11 +170,7 @@ function App() {
                 <CssBaseline />
                 <TopNavLayout>
                   <Toolbar>
-                    <Navbar
-                      isSignedIn={isSignedIn ?? false}
-                      effectiveIsAdmin={effectiveIsAdmin}
-                      cash={cash}
-                    />
+                    <Navbar isSignedIn={isSignedIn ?? false} />
                   </Toolbar>
                   <TopicTabs activeTab={activeTab} navTabs={navTabs} />
                 </TopNavLayout>
@@ -216,7 +188,7 @@ function App() {
                           topicLabel={tab.label}
                           topicPath={tab.path}
                           subtopics={tab.subtopics}
-                          isAdmin={isAdmin}
+                          isAdmin={effectiveIsAdmin}
                         />
                       }
                     />
@@ -248,7 +220,6 @@ function App() {
             </ThemeProvider>
           </TopicsContext.Provider>
         </UserContext.Provider>
-      </RefreshCashContext.Provider>
     </RefreshTopicsContext.Provider>
   );
 }

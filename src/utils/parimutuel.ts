@@ -18,10 +18,21 @@ export function calcLegacyPayout(
   userStake: number,
   poolVolume: number,
   totalVolume: number,
+  multiplier: number = 1,
 ): number {
-  if (poolVolume <= 0) return 0;
-  const shareOfPool = userStake / poolVolume;
-  return shareOfPool * totalVolume;
+  if (poolVolume <= 0) return 0
+  const basePayout = (userStake / poolVolume) * totalVolume;
+  const profit = basePayout - userStake;
+  return userStake + (profit * multiplier)
+}
+
+export function calcLegacyBasePayout(
+  userStake: number,
+  poolVolume: number,
+  totalVolume: number,
+): number {
+  if (poolVolume <= 0) return 0
+  return (userStake / poolVolume) * totalVolume;
 }
 
 export function multiplierColor(multiplier: number): string {

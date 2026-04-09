@@ -88,6 +88,7 @@ export function MobileEventView({
 
       {showDock && (
         <TradeDockMobile
+          eventMultiplier={event.multiplier}
           pools={pools}
           selectedPool={selectedPool}
           onPoolChange={(p) => onSelectPoolId(p.id)}

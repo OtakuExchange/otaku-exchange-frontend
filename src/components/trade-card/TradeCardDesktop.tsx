@@ -13,10 +13,11 @@ import Typography from "@mui/material/Typography";
 import { useTradeModel } from "../../hooks/useTradeModel";
 import type { Pool } from "../../models/models";
 import { entityTextColor } from "../../utils/entityTextColor";
-import { PayoutPreviewRow } from "./PayoutPreviewRow";
-import { FirstBetBonusBadge, FirstBetBonusInfo } from "./FirstBetBonusBadge";
+import { PayoutPreviewRow, PayoutPreviewInfo } from "./PayoutPreviewRow";
+import { FirstBetBonusBadge } from "./FirstBetBonusBadge";
 
 export function TradeCardDesktop({
+  eventMultiplier,
   pools,
   selectedPool,
   onPoolChange,
@@ -25,6 +26,7 @@ export function TradeCardDesktop({
   stakeCents,
   onStakeCentsChange,
 }: {
+  eventMultiplier: number;
   pools: Pool[];
   selectedPool: Pool | null;
   onPoolChange: (pool: Pool) => void;
@@ -35,6 +37,7 @@ export function TradeCardDesktop({
 }) {
   const totalVolume = pools.reduce((sum, p) => sum + p.volume, 0);
   const model = useTradeModel({
+    eventMultiplier,
     selectedPool,
     totalVolume,
     onBuySuccess,
@@ -158,7 +161,7 @@ export function TradeCardDesktop({
           </Stack>
 
           {model.bonusCents > 0 && model.amountCents > 0 && (
-            <FirstBetBonusInfo
+            <PayoutPreviewInfo
               amountCents={model.amountCents}
               bonusCents={model.bonusCents}
               totalStakeCents={model.effectiveStakeCents}
@@ -183,8 +186,10 @@ export function TradeCardDesktop({
           </Button>
           {selectedPool && model.amountCents > 0 && (
             <PayoutPreviewRow
+              eventMultiplier={eventMultiplier}
+              bonusCents={model.bonusCents}
+              baseProfitCents={model.baseProfitCents}
               payoutPreview={model.payoutPreview}
-              loading={model.previewLoading}
             />
           )}
         </Stack>

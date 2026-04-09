@@ -1,17 +1,19 @@
 import { useState, useMemo, useEffect } from "react";
-import type { Pool, PayoutPreview } from "../models/models";
+import type { Pool } from "../models/models";
 import { formatUsdFromCents } from "../utils/formatMoney";
-import { calcLegacyPayout } from "../utils/parimutuel";
+import { calcLegacyBasePayout, calcLegacyPayout } from "../utils/parimutuel";
 import { useUserQuery } from "./queries/useUserQuery";
 import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
 import { useCreateStakeMutation } from "./mutations/createStakeMutation";
 
 export function useTradeModel({
+  eventMultiplier,
   selectedPool,
   totalVolume,
   onBuySuccess,
   isFirstStakeBonusEligible,
 }: {
+  eventMultiplier: number;
   selectedPool: Pool | null;
   totalVolume: number;
   onBuySuccess?: () => void;
@@ -19,12 +21,11 @@ export function useTradeModel({
 }) {
   const { data: user } = useUserQuery();
   const { createStake } = useCreateStakeMutation();
-  
   const [rawAmount, setRawAmount] = useState("");
   const [buying, setBuying] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
   const [userBalance, setUserBalance] = useState<number | null>(null);
-  
+
   const [toast, setToast] = useState<{
     message: string;
     severity: "success" | "error";
@@ -48,20 +49,33 @@ export function useTradeModel({
 
   const effectiveStakeCents = amountCents + bonusCents;
 
-  const payoutPreview = useMemo<PayoutPreview | null>(() => {
-    if (!selectedPool || effectiveStakeCents <= 0 || totalVolume <= 0) return null;
+  const { payoutPreview, baseProfitCents } = useMemo(() => {
+    if (!selectedPool || effectiveStakeCents <= 0 || totalVolume <= 0) {
+      return { payoutPreview: null, baseProfitCents: null };
+    }
+
     const nextPoolVolume = selectedPool.volume + effectiveStakeCents;
     const nextTotalVolume = totalVolume + effectiveStakeCents;
+
+    const baseProfitCents = calcLegacyBasePayout(
+      effectiveStakeCents,
+      nextPoolVolume,
+      nextTotalVolume,
+    ) - effectiveStakeCents;
+
     const projectedPayout = calcLegacyPayout(
       effectiveStakeCents,
       nextPoolVolume,
       nextTotalVolume,
+      eventMultiplier,
     );
-    return {
+    const payoutPreview = {
       hypotheticalStake: effectiveStakeCents,
       projectedPayout,
     };
-  }, [selectedPool, effectiveStakeCents, totalVolume]);
+
+    return { payoutPreview, baseProfitCents };
+  }, [selectedPool, effectiveStakeCents, totalVolume, eventMultiplier]);
 
   function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = e.target.value.replace(/\D/g, "");
@@ -106,7 +120,7 @@ export function useTradeModel({
     displayAmount,
     buying,
     payoutPreview,
-    previewLoading: false,
+    baseProfitCents,
     bonusCents,
     effectiveStakeCents,
     toastOpen,

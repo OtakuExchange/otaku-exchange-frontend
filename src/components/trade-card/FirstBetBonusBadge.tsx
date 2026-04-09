@@ -1,7 +1,6 @@
 import Tooltip from "@mui/material/Tooltip";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-import { formatUsdFromCents } from "../../utils/formatMoney";
 
 export type FirstBetBonusBadgeVariant = "inline" | "icon";
 
@@ -62,28 +61,5 @@ export function FirstBetBonusBadge({
         )}
       </Box>
     </Tooltip>
-  );
-}
-
-export function FirstBetBonusInfo({
-  amountCents,
-  bonusCents,
-  totalStakeCents,
-}: {
-  amountCents: number;
-  bonusCents: number;
-  totalStakeCents: number;
-}) {
-  return (
-    <Typography
-      variant="caption"
-      sx={{ color: "#7B8996", fontWeight: 700, letterSpacing: "0.02em" }}
-    >
-      You pay {formatUsdFromCents(amountCents)} +{" "}
-      <Box component="span" sx={{ color: "#FFD700" }}>
-        {formatUsdFromCents(bonusCents)}
-      </Box>{" "}
-      bonus = {formatUsdFromCents(totalStakeCents)} bet
-    </Typography>
   );
 }

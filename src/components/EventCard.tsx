@@ -42,7 +42,8 @@ export default function EventCard({
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"), { noSsr: true });
 
-  function handleBookmark() {
+  function handleBookmark(e: React.MouseEvent<HTMLButtonElement>) {
+    e.stopPropagation();
     onBookmarkChange?.(event.id, !bookmarked);
     const action = bookmarked
       ? unbookmarkEvent(event.id)

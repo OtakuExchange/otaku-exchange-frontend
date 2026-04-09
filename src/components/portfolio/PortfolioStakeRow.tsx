@@ -2,7 +2,7 @@ import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { PortfolioItem } from "../../api";
-import { calcLegacyPayout, calcPayout } from "../../utils/parimutuel";
+import { calcLegacyPayout, calcPayout, multiplierColor } from "../../utils/parimutuel";
 import { formatCentsCompact } from "../../utils/formatMoney";
 import { StakePercentBar } from "./StakePercentBar";
 import { OutcomeAmountChip } from "./OutcomeAmountChip";
@@ -20,6 +20,28 @@ type RowModel = {
   opponent0?: PortfolioItem;
   extraOpp: number;
 };
+
+function EventMultiplierPill({ multiplier }: { multiplier: number }) {
+  if (multiplier <= 1) return null;
+  return (
+    <Box
+      component="span"
+      sx={{
+        color: "#16191d",
+        bgcolor: multiplierColor(multiplier),
+        px: 0.6,
+        py: 0.2,
+        borderRadius: 999,
+        fontWeight: 800,
+        lineHeight: 1,
+        fontSize: "11px",
+        flexShrink: 0,
+      }}
+    >
+      {multiplier}x
+    </Box>
+  );
+}
 
 function TeamBadge({
   logoPath,
@@ -93,11 +115,11 @@ function computeRowModel({
   const BACK_TO_LEGACY = new Date("2024-04-08");
 
   const isLegacy =
-    new Date(pool.createdAt) < LEGACY_CUTOFF &&
+    new Date(pool.createdAt) < LEGACY_CUTOFF ||
     new Date(pool.createdAt) >= BACK_TO_LEGACY;
 
   const payout = isLegacy
-    ? calcLegacyPayout(userStake, pool.volume, totalVolume)
+    ? calcLegacyPayout(userStake, pool.volume, totalVolume, pool.eventMultiplier)
     : calcPayout(userStake, pool.volume, totalVolume, pool.eventMultiplier);
 
   const isResolved = pool.eventStatus.toLowerCase() === "resolved";
@@ -198,10 +220,13 @@ function MobileStakeRow({
           <Box sx={{ flexGrow: 1 }} />
         )}
 
-        <OutcomeAmountChip
-          variant={model.chip.variant}
-          amountCents={model.chip.amount}
-        />
+        <Stack direction="row" spacing={0.75} alignItems="center">
+          <EventMultiplierPill multiplier={pool.eventMultiplier} />
+          <OutcomeAmountChip
+            variant={model.chip.variant}
+            amountCents={model.chip.amount}
+          />
+        </Stack>
       </Stack>
 
       <StakePercentBar
@@ -319,12 +344,18 @@ function DesktopStakeRow({
 
       <Stack direction="row" sx={{ ml: "auto", flexShrink: 0 }}>
         <Box sx={{ width: 80, textAlign: "center" }}>
-          <Typography
-            variant="caption"
-            sx={{ color: "#7B8996", display: "block" }}
+          <Stack
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+            spacing={0.5}
+            sx={{ color: "#7B8996" }}
           >
-            Stake
-          </Typography>
+            <Typography variant="caption" sx={{ color: "#7B8996" }}>
+              Stake
+            </Typography>
+            <EventMultiplierPill multiplier={pool.eventMultiplier} />
+          </Stack>
           <Typography variant="body2" fontWeight={600}>
             {(model.userStake / 100).toLocaleString("en-US", {
               style: "currency",

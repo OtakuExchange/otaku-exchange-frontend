@@ -89,6 +89,7 @@ export function DesktopEventView({
 
       {(event.status === "open" || event.status === "hidden") && (
         <TradeCardDesktop
+          eventMultiplier={event.multiplier}
           pools={pools}
           selectedPool={selectedPool}
           onPoolChange={(p) => onSelectPoolId(p.id)}

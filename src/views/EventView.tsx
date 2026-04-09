@@ -31,6 +31,7 @@ export default function EventView({
     () => poolsData ?? initialPools ?? [],
     [poolsData, initialPools],
   );
+  const [hypotheticalStakeCents, setHypotheticalStakeCents] = useState(0);
   const [selectedPoolId, setSelectedPoolId] = useState<string | null>(
     initialPoolId ?? initialPools?.[0]?.id ?? null,
   );
@@ -47,19 +48,48 @@ export default function EventView({
     [pools],
   );
 
+  const effectiveStakeCents = useMemo(() => {
+    const eligible =
+      event.isFirstStakeBonusEligible &&
+      (event.status === "open" || event.status === "hidden");
+    if (!eligible) return hypotheticalStakeCents;
+    const bonus = Math.min(hypotheticalStakeCents, 50_000);
+    return hypotheticalStakeCents + bonus;
+  }, [event.isFirstStakeBonusEligible, event.status, hypotheticalStakeCents]);
+
+  const displayTotalVolume = useMemo(() => {
+    if (!selectedPool || effectiveStakeCents <= 0) return totalVolume;
+    return totalVolume + effectiveStakeCents;
+  }, [totalVolume, selectedPool, effectiveStakeCents]);
+
   const poolStats = useMemo<PoolStat[]>(() => {
     return pools.map((pool) => {
       const color = pool.entity?.color ?? "#1565c0";
       const label = pool.entity?.name ?? pool.label;
+      const effectivePoolVolume =
+        selectedPool && effectiveStakeCents > 0 && pool.id === selectedPool.id
+          ? pool.volume + effectiveStakeCents
+          : pool.volume;
       const pct =
-        totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
+        displayTotalVolume > 0
+          ? Math.round((effectivePoolVolume / displayTotalVolume) * 100)
+          : 0;
       const volumeUsd = (pool.volume / 100).toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
       });
-      return { pool, color, label, pct, volumeUsd };
+      return {
+        pool:
+          effectivePoolVolume === pool.volume
+            ? pool
+            : { ...pool, volume: effectivePoolVolume },
+        color,
+        label,
+        pct,
+        volumeUsd,
+      };
     });
-  }, [pools, totalVolume]);
+  }, [pools, selectedPool, effectiveStakeCents, displayTotalVolume]);
 
   useEffect(() => {
     if (userId)
@@ -95,6 +125,8 @@ export default function EventView({
           onChangeTab={handleChangeTab}
           pools={pools}
           refetchPools={refetchPools}
+          stakeCents={hypotheticalStakeCents}
+          onStakeCentsChange={setHypotheticalStakeCents}
         />
       </Box>
 
@@ -103,7 +135,7 @@ export default function EventView({
           event={event}
           topicName={topicName}
           poolStats={poolStats}
-          totalVolume={totalVolume}
+          totalVolume={displayTotalVolume}
           effectiveSelectedPoolId={effectiveSelectedPoolId}
           onSelectPoolId={setSelectedPoolId}
           selectedPool={selectedPool}
@@ -111,6 +143,8 @@ export default function EventView({
           onChangeTab={handleChangeTab}
           pools={pools}
           refetchPools={refetchPools}
+          stakeCents={hypotheticalStakeCents}
+          onStakeCentsChange={setHypotheticalStakeCents}
         />
       </Box>
     </>

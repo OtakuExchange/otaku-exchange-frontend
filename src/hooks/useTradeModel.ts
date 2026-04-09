@@ -3,30 +3,42 @@ import { useState, useMemo, useEffect } from "react";
 import { useRefreshCash } from "../contexts/RefreshCashContext";
 import type { Pool, PayoutPreview } from "../models/models";
 import { formatUsdFromCents } from "../utils/formatMoney";
+import { calcLegacyPayout } from "../utils/parimutuel";
 import { useApi } from "./useApi";
 
 export function useTradeModel({
   selectedPool,
+  totalVolume,
   onBuySuccess,
+  isFirstStakeBonusEligible,
 }: {
   selectedPool: Pool | null;
+  totalVolume: number;
   onBuySuccess?: () => void;
+  isFirstStakeBonusEligible?: boolean;
 }) {
-  const { createStake, fetchPayoutPreview } = useApi();
+  const { createStake, fetchCurrentUser } = useApi();
   const refreshCash = useRefreshCash();
   const queryClient = useQueryClient();
 
   const [rawAmount, setRawAmount] = useState("");
   const [buying, setBuying] = useState(false);
-  const [payoutPreview, setPayoutPreview] = useState<PayoutPreview | null>(
-    null,
-  );
-  const [previewLoading, setPreviewLoading] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);
+  const [userBalance, setUserBalance] = useState<number | null>(null);
+  
   const [toast, setToast] = useState<{
     message: string;
     severity: "success" | "error";
   } | null>(null);
+
+  useEffect(() => {
+    fetchCurrentUser()
+      .then((currentUser) => {
+        if (!currentUser) return;
+        setUserBalance(currentUser.balance - currentUser.lockedBalance);
+      })
+      .catch(console.error);
+  }, [fetchCurrentUser]);
 
   const amountCents = useMemo(() => {
     if (!rawAmount) return 0;
@@ -34,47 +46,36 @@ export function useTradeModel({
     return Number.isFinite(n) ? n : 0;
   }, [rawAmount]);
 
-  useEffect(() => {
-    const eventId = selectedPool?.eventId;
-    const poolId = selectedPool?.id;
-    if (!eventId || !poolId || amountCents <= 0) {
-      setPayoutPreview(null);
-      setPreviewLoading(false);
-      return;
-    }
+  const bonusCents = useMemo(() => {
+    const eligible = Boolean(isFirstStakeBonusEligible);
+    return eligible ? Math.min(amountCents, 50_000) : 0;
+  }, [amountCents, isFirstStakeBonusEligible]);
 
-    let cancelled = false;
-    setPreviewLoading(true);
-    const timer = setTimeout(() => {
-      fetchPayoutPreview(eventId, poolId, amountCents)
-        .then((preview) => {
-          if (cancelled) return;
-          setPayoutPreview(preview);
-        })
-        .catch(() => {
-          if (cancelled) return;
-          setPayoutPreview(null);
-        })
-        .finally(() => {
-          if (cancelled) return;
-          setPreviewLoading(false);
-        });
-    }, 250);
+  const effectiveStakeCents = amountCents + bonusCents;
 
-    return () => {
-      cancelled = true;
-      clearTimeout(timer);
+  const payoutPreview = useMemo<PayoutPreview | null>(() => {
+    if (!selectedPool || effectiveStakeCents <= 0 || totalVolume <= 0) return null;
+    const nextPoolVolume = selectedPool.volume + effectiveStakeCents;
+    const nextTotalVolume = totalVolume + effectiveStakeCents;
+    const projectedPayout = calcLegacyPayout(
+      effectiveStakeCents,
+      nextPoolVolume,
+      nextTotalVolume,
+    );
+    return {
+      hypotheticalStake: effectiveStakeCents,
+      projectedPayout,
     };
-  }, [
-    selectedPool?.eventId,
-    selectedPool?.id,
-    amountCents,
-    fetchPayoutPreview,
-  ]);
+  }, [selectedPool, effectiveStakeCents, totalVolume]);
 
   function handleAmountChange(e: React.ChangeEvent<HTMLInputElement>) {
     const digits = e.target.value.replace(/\D/g, "");
     setRawAmount(digits);
+  }
+
+  function setAmountCents(next: number) {
+    const safe = Number.isFinite(next) ? Math.max(0, Math.floor(next)) : 0;
+    setRawAmount(safe > 0 ? String(safe) : "");
   }
 
   const displayAmount = amountCents > 0 ? formatUsdFromCents(amountCents) : "";
@@ -112,11 +113,15 @@ export function useTradeModel({
     displayAmount,
     buying,
     payoutPreview,
-    previewLoading,
+    previewLoading: false,
+    bonusCents,
+    effectiveStakeCents,
     toastOpen,
     toast,
+    userBalance,
     setToastOpen,
     handleAmountChange,
+    setAmountCents,
     handleBuy,
   };
 }

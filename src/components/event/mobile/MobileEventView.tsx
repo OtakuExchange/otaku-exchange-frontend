@@ -24,6 +24,8 @@ export function MobileEventView({
   onChangeTab,
   pools,
   refetchPools,
+  stakeCents,
+  onStakeCentsChange,
 }: {
   event: Event;
   topicName: string | undefined;
@@ -35,6 +37,8 @@ export function MobileEventView({
   onChangeTab: (event: React.SyntheticEvent, newValue: number) => void;
   pools: Pool[];
   refetchPools: () => void;
+  stakeCents: number;
+  onStakeCentsChange: (cents: number) => void;
 }) {
   const { data: eventStakes = [], isLoading: stakesLoading } =
     useEventStakesQuery(event.id, 3);
@@ -87,8 +91,13 @@ export function MobileEventView({
           pools={pools}
           selectedPool={selectedPool}
           onPoolChange={(p) => onSelectPoolId(p.id)}
-          onBuySuccess={() => refetchPools()}
+          onBuySuccess={() => {
+            refetchPools();
+            onStakeCentsChange(0);
+          }}
           isFirstStakeBonusEligible={event.isFirstStakeBonusEligible}
+          stakeCents={stakeCents}
+          onStakeCentsChange={onStakeCentsChange}
         />
       )}
     </Box>

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -6,14 +7,14 @@ import CardContent from "@mui/material/CardContent";
 import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
 import Stack from "@mui/material/Stack";
+import Slider from "@mui/material/Slider";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { useTradeModel } from "../../hooks/useTradeModel";
 import type { Pool } from "../../models/models";
 import { entityTextColor } from "../../utils/entityTextColor";
-import { formatUsdFromCents } from "../../utils/formatMoney";
 import { PayoutPreviewRow } from "./PayoutPreviewRow";
-import { FirstBetBonusBadge } from "./FirstBetBonusBadge";
+import { FirstBetBonusBadge, FirstBetBonusInfo } from "./FirstBetBonusBadge";
 
 export function TradeCardDesktop({
   pools,
@@ -21,17 +22,36 @@ export function TradeCardDesktop({
   onPoolChange,
   onBuySuccess,
   isFirstStakeBonusEligible,
+  stakeCents,
+  onStakeCentsChange,
 }: {
   pools: Pool[];
   selectedPool: Pool | null;
   onPoolChange: (pool: Pool) => void;
   onBuySuccess?: () => void;
   isFirstStakeBonusEligible?: boolean;
+  stakeCents?: number;
+  onStakeCentsChange?: (cents: number) => void;
 }) {
-  const model = useTradeModel({ selectedPool, onBuySuccess });
-  const eligible = Boolean(isFirstStakeBonusEligible);
-  const bonusCents = eligible ? Math.min(model.amountCents, 50_000) : 0;
-  const totalStakeCents = model.amountCents + bonusCents;
+  const totalVolume = pools.reduce((sum, p) => sum + p.volume, 0);
+  const model = useTradeModel({
+    selectedPool,
+    totalVolume,
+    onBuySuccess,
+    isFirstStakeBonusEligible,
+  });
+
+  const controlledStakeCents = stakeCents ?? model.amountCents;
+
+  useEffect(() => {
+    if (stakeCents == null) return;
+    model.setAmountCents(stakeCents);
+  }, [stakeCents]);
+
+  function updateStake(next: number) {
+    model.setAmountCents(next);
+    onStakeCentsChange?.(next);
+  }
 
   return (
     <Card
@@ -106,20 +126,43 @@ export function TradeCardDesktop({
             fullWidth
             placeholder="$0.00"
             value={model.displayAmount}
-            onChange={model.handleAmountChange}
+            onChange={(e) => {
+              const digits = e.target.value.replace(/\D/g, "");
+              const n = digits ? parseInt(digits, 10) : 0;
+              updateStake(Number.isFinite(n) ? n : 0);
+            }}
             slotProps={{ htmlInput: { inputMode: "numeric" } }}
           />
-          {eligible && model.amountCents > 0 && (
-            <Typography
-              variant="caption"
-              sx={{ color: "#7B8996", fontWeight: 700, letterSpacing: "0.02em" }}
-            >
-              You pay {formatUsdFromCents(model.amountCents)} +{" "}
-              <Box component="span" sx={{ color: "#FFD700" }}>
-                {formatUsdFromCents(bonusCents)}
-              </Box>{" "}
-              bonus = {formatUsdFromCents(totalStakeCents)} bet
-            </Typography>
+          <Stack spacing={0.75}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between">
+              <Typography variant="caption" sx={{ color: "#7B8996", fontWeight: 700 }}>
+                Stake
+              </Typography>
+              <Typography variant="body2" sx={{ fontWeight: 800 }}>
+                {model.displayAmount || "$0.00"}
+              </Typography>
+            </Stack>
+            <Slider
+              value={controlledStakeCents}
+              min={0}
+              max={model.userBalance ?? 99999999}
+              step={100} // $1 steps
+              disabled={!selectedPool}
+              onChange={(_e, v) => {
+                const next = Array.isArray(v) ? v[0] : v;
+                updateStake(next);
+              }}
+              valueLabelDisplay="auto"
+              valueLabelFormat={(v) => `$${(v / 100).toFixed(0)}`}
+            />
+          </Stack>
+
+          {model.bonusCents > 0 && model.amountCents > 0 && (
+            <FirstBetBonusInfo
+              amountCents={model.amountCents}
+              bonusCents={model.bonusCents}
+              totalStakeCents={model.effectiveStakeCents}
+            />
           )}
           <Button
             variant="contained"

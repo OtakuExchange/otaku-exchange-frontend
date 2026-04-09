@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -10,9 +11,8 @@ import Typography from "@mui/material/Typography";
 import { useTradeModel } from "../../hooks/useTradeModel";
 import type { Pool } from "../../models/models";
 import { entityTextColor } from "../../utils/entityTextColor";
-import { formatUsdFromCents } from "../../utils/formatMoney";
 import { PayoutPreviewRow } from "./PayoutPreviewRow";
-import { FirstBetBonusBadge } from "./FirstBetBonusBadge";
+import { FirstBetBonusBadge, FirstBetBonusInfo } from "./FirstBetBonusBadge";
 
 export function TradeDockMobile({
   pools,
@@ -20,22 +20,35 @@ export function TradeDockMobile({
   onPoolChange,
   onBuySuccess,
   isFirstStakeBonusEligible,
+  stakeCents,
+  onStakeCentsChange,
 }: {
   pools: Pool[];
   selectedPool: Pool | null;
   onPoolChange: (pool: Pool) => void;
   onBuySuccess?: () => void;
   isFirstStakeBonusEligible?: boolean;
+  stakeCents?: number;
+  onStakeCentsChange?: (cents: number) => void;
 }) {
-  const model = useTradeModel({ selectedPool, onBuySuccess });
+  const totalVolume = pools.reduce((sum, p) => sum + p.volume, 0);
+  const model = useTradeModel({
+    selectedPool,
+    totalVolume,
+    onBuySuccess,
+    isFirstStakeBonusEligible,
+  });
+  const controlledStakeCents = stakeCents ?? model.amountCents;
+
+  useEffect(() => {
+    if (stakeCents == null) return;
+    model.setAmountCents(stakeCents);
+  }, [stakeCents]);
   const poolLabel = selectedPool
     ? (selectedPool.entity?.abbreviatedName ??
       selectedPool.entity?.name ??
       selectedPool.label)
     : "Select a pool";
-  const eligible = Boolean(isFirstStakeBonusEligible);
-  const bonusCents = eligible ? Math.min(model.amountCents, 50_000) : 0;
-  const totalStakeCents = model.amountCents + bonusCents;
 
   return (
     <Box
@@ -126,8 +139,14 @@ export function TradeDockMobile({
               size="small"
               fullWidth
               placeholder="$0.00"
-              value={model.displayAmount}
-              onChange={model.handleAmountChange}
+              value={stakeCents != null ? (controlledStakeCents > 0 ? `$${(controlledStakeCents / 100).toFixed(2)}` : "") : model.displayAmount}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, "");
+                const n = digits ? parseInt(digits, 10) : 0;
+                const next = Number.isFinite(n) ? n : 0;
+                model.setAmountCents(next);
+                onStakeCentsChange?.(next);
+              }}
               slotProps={{ htmlInput: { inputMode: "numeric" } }}
             />
             <Button
@@ -149,18 +168,13 @@ export function TradeDockMobile({
             </Button>
           </Stack>
 
-          {eligible && model.amountCents > 0 && (
+          {model.bonusCents > 0 && model.amountCents > 0 && (
             <Stack direction="row" alignItems="center" sx={{ px: 0.25 }}>
-              <Typography
-                variant="caption"
-                sx={{ color: "#7B8996", fontWeight: 700, letterSpacing: "0.02em" }}
-              >
-                You pay {formatUsdFromCents(model.amountCents)} +{" "}
-                <Box component="span" sx={{ color: "#FFD700" }}>
-                  {formatUsdFromCents(bonusCents)}
-                </Box>{" "}
-                bonus = {formatUsdFromCents(totalStakeCents)} bet
-              </Typography>
+              <FirstBetBonusInfo
+                amountCents={model.amountCents}
+                bonusCents={model.bonusCents}
+                totalStakeCents={model.effectiveStakeCents}
+              />
             </Stack>
           )}
 

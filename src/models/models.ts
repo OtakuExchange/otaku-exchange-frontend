@@ -34,10 +34,17 @@ export const EVENT_STATUSES = [
 
 export type EventStatus = typeof EVENT_STATUSES[number];
 
+export const EVENT_FORMATS = [
+  "single",
+  "multi",
+] as const;
+
+export type EventFormat = typeof EVENT_FORMATS[number];
+
 export interface Event {
   id: UUID;
   topicId: UUID;
-  format: string;
+  format: EventFormat;
   name: string;
   alias?: string;
   description: string;

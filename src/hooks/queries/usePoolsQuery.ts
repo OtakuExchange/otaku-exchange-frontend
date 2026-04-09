@@ -4,6 +4,8 @@ import { fetchPools } from "../../api";
 import type { UUID } from "../../models/models";
 import { queryKeys } from "../../queryKeys";
 
+export type PoolItem = NonNullable<ReturnType<typeof usePoolsQuery>["data"]>[number];
+
 export function usePoolsQuery(eventId: UUID) {
   const { getToken } = useAuth();
 

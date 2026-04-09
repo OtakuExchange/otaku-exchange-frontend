@@ -88,6 +88,7 @@ export function DesktopEventView({
           selectedPool={selectedPool}
           onPoolChange={(p) => onSelectPoolId(p.id)}
           onBuySuccess={() => refetchPools()}
+          isFirstStakeBonusEligible={event.isFirstStakeBonusEligible}
         />
       )}
     </Stack>

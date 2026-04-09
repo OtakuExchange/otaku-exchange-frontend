@@ -90,10 +90,15 @@ function computeRowModel({
   const userStake = pool.userStake ?? 0;
 
   const LEGACY_CUTOFF = new Date("2026-04-01");
-  const payout =
-    new Date(pool.createdAt) < LEGACY_CUTOFF
-      ? calcLegacyPayout(userStake, pool.volume, totalVolume)
-      : calcPayout(userStake, pool.volume, totalVolume, pool.eventMultiplier);
+  const BACK_TO_LEGACY = new Date("2024-04-08");
+
+  const isLegacy =
+    new Date(pool.createdAt) < LEGACY_CUTOFF &&
+    new Date(pool.createdAt) >= BACK_TO_LEGACY;
+
+  const payout = isLegacy
+    ? calcLegacyPayout(userStake, pool.volume, totalVolume)
+    : calcPayout(userStake, pool.volume, totalVolume, pool.eventMultiplier);
 
   const isResolved = pool.eventStatus.toLowerCase() === "resolved";
   const chip = (() => {

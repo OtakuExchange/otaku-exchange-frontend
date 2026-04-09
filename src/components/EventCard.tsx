@@ -49,7 +49,7 @@ function EventCardHeader({
         <EventCardTitle name={title} />
       </Box>
 
-      {event.isFirstStakeBonusEligible && (
+      {event.isFirstStakeBonusEligible && (event.status === "open" || event.status === "hidden") && (
         <Tooltip
               title="First bet? We'll match it up to $500 for free."
               placement="left"

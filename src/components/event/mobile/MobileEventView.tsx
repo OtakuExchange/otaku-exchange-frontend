@@ -87,6 +87,7 @@ export function MobileEventView({
           selectedPool={selectedPool}
           onPoolChange={(p) => onSelectPoolId(p.id)}
           onBuySuccess={() => refetchPools()}
+          isFirstStakeBonusEligible={event.isFirstStakeBonusEligible}
         />
       )}
     </Box>

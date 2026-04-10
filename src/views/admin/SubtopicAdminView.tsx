@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Autocomplete from "@mui/material/Autocomplete";
 import Box from "@mui/material/Box";
@@ -17,15 +17,23 @@ import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import LinkIcon from "@mui/icons-material/Link";
 import { useApi } from "../../hooks/useApi";
 import type { Subtopic, Event, UUID } from "../../models/models";
-import { useTopicsQuery } from "../../api/topic/topic.queries";
+import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "../../api/queryKeys";
 
 export default function SubtopicAdminView() {
   const api = useApi();
+  const queryClient = useQueryClient();
 
-  const { data: topics = [] } = useTopicsQuery();
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
+  const topicIds = useMemo(() => topics.map((t) => t.id as UUID), [topics]);
+  const {
+    data: eventsByTopicData,
+    isLoading: eventsLoading,
+    isError: eventsIsError,
+  } = useMultiTopicEventsQuery(topicIds);
+
+  const [loadError] = useState<string | null>(null);
 
   // create form
   const [createTopicId, setCreateTopicId] = useState<UUID | "">("");
@@ -45,36 +53,6 @@ export default function SubtopicAdminView() {
     msg: string;
   } | null>(null);
 
-  const load = useCallback(async () => {
-    setLoading(true);
-    setLoadError(null);
-    try {
-      const allEvents: Event[] = [];
-      await Promise.all(
-        topics.map(async (t) => {
-          try {
-            const evts = await api.fetchEvents(t.id);
-            allEvents.push(...evts);
-          } catch (e) {
-            const message =
-              e instanceof Error ? e.message : "Failed to load events";
-            setLoadError(message);
-          }
-        }),
-      );
-      setEvents(allEvents);
-    } catch (e) {
-      const message = e instanceof Error ? e.message : "Failed to load";
-      setLoadError(message);
-    } finally {
-      setLoading(false);
-    }
-  }, [api]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
-
   async function handleCreate() {
     if (!createTopicId || !createName.trim()) return;
     setCreating(true);
@@ -83,7 +61,7 @@ export default function SubtopicAdminView() {
       await api.createSubtopic(createTopicId as UUID, createName.trim());
       setCreateResult({ ok: true, msg: "Subtopic created." });
       setCreateName("");
-      await load();
+      await queryClient.invalidateQueries({ queryKey: queryKeys.topics });
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Failed to create subtopic.";
@@ -97,7 +75,7 @@ export default function SubtopicAdminView() {
     if (!confirm(`Delete subtopic "${subtopic.name}"?`)) return;
     try {
       await api.deleteSubtopic(subtopic.id);
-      await load();
+      await queryClient.invalidateQueries({ queryKey: queryKeys.topics });
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to delete";
       alert(message);
@@ -127,20 +105,25 @@ export default function SubtopicAdminView() {
   const selectedSubtopic = topics
     .flatMap((t) => t.subtopics)
     .find((s) => s.id === linkSubtopicId);
-  const filteredEvents = selectedSubtopic
-    ? events.filter(
+
+  const events = useMemo(() => eventsByTopicData.flat(), [eventsByTopicData]);
+
+  const filteredEvents = useMemo(() => {
+    return selectedSubtopic
+      ? events.filter(
         (e) =>
           e.topicId === selectedSubtopic.topicId &&
           (e.status.toLowerCase() === "open" ||
             e.status.toLowerCase() === "hidden"),
       )
-    : events.filter(
+      : events.filter(
         (e) =>
           e.status.toLowerCase() === "open" ||
           e.status.toLowerCase() === "hidden",
       );
+  }, [events, selectedSubtopic]);
 
-  if (loading) {
+  if (topicsLoading || eventsLoading) {
     return (
       <Box sx={{ display: "flex", justifyContent: "center", mt: 6 }}>
         <CircularProgress />
@@ -148,8 +131,12 @@ export default function SubtopicAdminView() {
     );
   }
 
-  if (loadError) {
-    return <Alert severity="error">{loadError}</Alert>;
+  if (eventsIsError || loadError) {
+    return (
+      <Alert severity="error">
+        {loadError ?? "Failed to load events"}
+      </Alert>
+    );
   }
 
   return (

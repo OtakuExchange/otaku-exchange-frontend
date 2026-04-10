@@ -4,33 +4,24 @@ import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import type { Event, Market, Topic } from "../../models/models";
+import type { Event, Market, Topic, UUID } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
-import { useTopicsQuery } from "../../api/topic/topic.queries";
+import { useTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import { useTopicMutation } from "../../api/topic/topic.mutations";
 
 export default function DeleteView() {
-  const { fetchEvents, fetchMarkets, deleteTopic, deleteEvent, deleteMarket } =
+  const { fetchMarkets, deleteEvent, deleteMarket } =
     useApi();
+  const { deleteTopic } = useTopicMutation();
   const { data: topics = [] } = useTopicsQuery();
-  const [topicId, setTopicId] = useState("");
-  const [events, setEvents] = useState<Event[]>([]);
+  const [topicId, setTopicId] = useState<UUID | "">("");
+  const { data: events = [] } = useTopicEventsQuery(topicId, null);
   const [eventId, setEventId] = useState("");
   const [markets, setMarkets] = useState<Market[]>([]);
   const [marketId, setMarketId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!topicId) {
-      setEvents([]);
-      setEventId("");
-      return;
-    }
-    fetchEvents(topicId as Topic["id"])
-      .then(setEvents)
-      .catch(console.error);
-  }, [topicId, fetchEvents]);
 
   useEffect(() => {
     if (!eventId) {
@@ -50,7 +41,7 @@ export default function DeleteView() {
       : topicId
         ? "Delete Topic"
         : "Delete";
-  const canSubmit = !loading && !!topicId;
+  const canSubmit = !loading && topicId !== null;
 
   async function handleDelete() {
     setLoading(true);
@@ -67,9 +58,9 @@ export default function DeleteView() {
         setSuccess("Event deleted successfully.");
         setEventId("");
         setMarketId("");
-        setEvents((prev) => prev.filter((e) => e.id !== eventId));
-      } else {
-        await deleteTopic(topicId as Topic["id"]);
+        // setEvents((prev) => prev.filter((e) => e.id !== eventId));
+      } else if(topicId !== null) {
+        await deleteTopic(topicId as UUID);
         setSuccess("Topic deleted successfully.");
         setTopicId("");
         setEventId("");
@@ -92,7 +83,7 @@ export default function DeleteView() {
         label="Topic"
         value={topicId}
         onChange={(e) => {
-          setTopicId(e.target.value);
+          setTopicId(e.target.value as UUID);
           setEventId("");
           setMarketId("");
         }}

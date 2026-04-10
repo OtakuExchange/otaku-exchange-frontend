@@ -159,14 +159,22 @@ export default function TopicView({
   const [filterBookmarked, setFilterBookmarked] = useState(false);
   const { data: topicEventCounts } = useTopicEventCountQuery(topicId);
 
-  const selectedSubtopic =
-    subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ?? null;
+  const selectedSubtopicId =
+    subtopicSlug != null
+      ? subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ?? null
+      : null;
+
+  // Important: when switching topics, the URL briefly becomes `/${topic}` before we
+  // redirect to the first subtopic. If we treat that as "no subtopic" and query
+  // topic-wide events, cached data can flash (flicker). Default to first subtopic
+  // immediately whenever subtopics exist.
+  const effectiveSubtopicId = selectedSubtopicId ?? (subtopics[0]?.id ?? null);
 
   const {
     data: events,
     isLoading,
     error,
-  } = useTopicEventsQuery(topicId, selectedSubtopic);
+  } = useTopicEventsQuery(topicId, effectiveSubtopicId);
 
   const serverBookmarkedIds: Set<UUID> = useMemo(
     () => new Set((events ?? []).filter((e: Event) => e.bookmarked).map((e: Event) => e.id as UUID)),
@@ -186,10 +194,10 @@ export default function TopicView({
   }, [serverBookmarkedIds, bookmarkOverrides]);
 
   useEffect(() => {
-    if (subtopics.length > 0 && !subtopicSlug) {
+    if (subtopics.length > 0 && (!subtopicSlug || selectedSubtopicId == null)) {
       navigate(`${topicPath}/${toSlug(subtopics[0].name)}`, { replace: true });
     }
-  }, [topicId, subtopics, navigate, topicPath, subtopicSlug]);
+  }, [topicId, subtopics, navigate, topicPath, subtopicSlug, selectedSubtopicId]);
 
   function handleBookmarkChange(id: UUID, bookmarked: boolean) {
     setBookmarkOverrides((prev) => {
@@ -229,7 +237,7 @@ export default function TopicView({
         <SubtopicNav
           topicEventCounts={topicEventCounts}
           subtopics={subtopics}
-          selected={selectedSubtopic}
+          selected={effectiveSubtopicId}
           onSelect={(id) => {
             const sub = subtopics.find((s: Subtopic) => s.id === id);
             if (sub) navigate(`${topicPath}/${toSlug(sub.name)}`);

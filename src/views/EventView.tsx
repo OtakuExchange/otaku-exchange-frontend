@@ -3,14 +3,13 @@ import { useMemo, useState, useEffect } from "react";
 import { DesktopEventView } from "../components/event/desktop/DesktopEventView";
 import { MobileEventView } from "../components/event/mobile/MobileEventView";
 import type { PoolStat } from "../components/event/types";
-import { useTopics } from "../contexts/TopicsContext";
-import { useRefreshTopics } from "../contexts/RefreshTopicsContext";
 import { useUserId } from "../contexts/UserContext";
 import { usePoolsQuery } from "../api/market/market.queries";
 import { useApi } from "../hooks/useApi";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Event, Pool } from "../models/models";
 import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
+import { useTopicsQuery } from "../api/topic/topic.queries";
 
 export default function EventView({
   event,
@@ -24,10 +23,9 @@ export default function EventView({
   const { markEventSeen } = useApi();
   const userId = useUserId();
   const queryClient = useQueryClient();
-  const refreshTopics = useRefreshTopics();
-  const topics = useTopics();
-  const topicName = topics.find((t) => t.id === event.topicId)?.topic;
+  const { data: topics = [] } = useTopicsQuery();
   const { data: poolsData, refetch: refetchPools } = usePoolsQuery(event.id);
+  const topicName = useMemo(() => topics.find((t) => t.id === event.topicId)?.topic, [topics, event.topicId]);
   const pools = useMemo(
     () => poolsData ?? initialPools ?? [],
     [poolsData, initialPools],
@@ -103,10 +101,10 @@ export default function EventView({
                 e.id === event.id ? { ...e, isNew: false } : e,
               ),
           );
-          refreshTopics();
+          // refreshTopics();
         })
         .catch(console.error);
-  }, [event.id, markEventSeen, queryClient, refreshTopics, userId]);
+  }, [event.id, markEventSeen, queryClient, userId]);
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);

@@ -7,13 +7,13 @@ import Divider from "@mui/material/Divider";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import type { Event, Pool, UUID } from "../../models/models";
+import type { Event, Pool, Topic, UUID } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
-import { useTopics } from "../../contexts/TopicsContext";
+import { useTopicsQuery } from "../../api/topic/topic.queries";
 
 export default function ResolveEventView() {
   const { fetchEvents, fetchPools, resolveEvent } = useApi();
-  const topics = useTopics();
+  const { data: topics = [] } = useTopicsQuery();
 
   const [events, setEvents] = useState<Event[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
@@ -30,9 +30,9 @@ export default function ResolveEventView() {
   useEffect(() => {
     if (topics.length === 0) return;
     setLoadingEvents(true);
-    Promise.all(topics.map((t) => fetchEvents(t.id)))
+    Promise.all(topics.map((t: Topic) => fetchEvents(t.id)))
       .then((results) => {
-        const all = results.flat().filter((e) => e.status !== "resolved");
+        const all = results.flat().filter((e: Event) => e.status !== "resolved");
         setEvents(all);
       })
       .catch(console.error)

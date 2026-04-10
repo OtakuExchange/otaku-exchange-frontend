@@ -10,13 +10,13 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { type Dayjs } from "dayjs";
 import { EVENT_STATUSES, type Topic } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
-import { useTopics } from "../../contexts/TopicsContext";
+import { useTopicsQuery } from "../../api/topic/topic.queries";
 
 const FORMAT_OPTIONS = ["binary", "multi"];
 
 export default function CreateEventView() {
   const { createEvent } = useApi();
-  const topics = useTopics();
+  const { data: topics = [] } = useTopicsQuery();
   const [topicId, setTopicId] = useState("");
   const [format, setFormat] = useState("binary");
   const [name, setName] = useState("");
@@ -75,7 +75,7 @@ export default function CreateEventView() {
           onChange={(e) => setTopicId(e.target.value)}
           disabled={loading}
         >
-          {topics.map((t) => (
+          {topics.map((t: Topic) => (
             <MenuItem key={t.id} value={t.id}>
               {t.topic}
             </MenuItem>

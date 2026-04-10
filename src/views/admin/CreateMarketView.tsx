@@ -7,13 +7,13 @@ import Divider from "@mui/material/Divider";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import type { Entity, UUID } from "../../models/models";
+import type { Entity, Topic, UUID } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
-import { useTopics } from "../../contexts/TopicsContext";
+import { useTopicsQuery } from "../../api/topic/topic.queries";
 
 export default function CreateMarketView() {
   const { fetchEvents, fetchEntities, createMarketPool } = useApi();
-  const topics = useTopics();
+  const { data: topics = [] } = useTopicsQuery();
 
   const [topicId, setTopicId] = useState<UUID | "">("");
   const [events, setEvents] = useState<
@@ -118,7 +118,7 @@ export default function CreateMarketView() {
         onChange={(e) => setTopicId(e.target.value as UUID)}
         disabled={loading}
       >
-        {topics.map((t) => (
+        {topics.map((t: Topic) => (
           <MenuItem key={t.id} value={t.id}>
             {t.topic}
           </MenuItem>

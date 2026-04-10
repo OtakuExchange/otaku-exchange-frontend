@@ -6,12 +6,12 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { Event, Market, Topic } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
-import { useTopics } from "../../contexts/TopicsContext";
+import { useTopicsQuery } from "../../api/topic/topic.queries";
 
 export default function DeleteView() {
   const { fetchEvents, fetchMarkets, deleteTopic, deleteEvent, deleteMarket } =
     useApi();
-  const topics = useTopics();
+  const { data: topics = [] } = useTopicsQuery();
   const [topicId, setTopicId] = useState("");
   const [events, setEvents] = useState<Event[]>([]);
   const [eventId, setEventId] = useState("");
@@ -98,7 +98,7 @@ export default function DeleteView() {
         }}
         disabled={loading}
       >
-        {topics.map((t) => (
+        {topics.map((t: Topic) => (
           <MenuItem key={t.id} value={t.id}>
             {t.topic}
           </MenuItem>
@@ -117,7 +117,7 @@ export default function DeleteView() {
         <MenuItem value="">
           <em>None</em>
         </MenuItem>
-        {events.map((ev) => (
+        {events.map((ev: Event) => (
           <MenuItem key={ev.id} value={ev.id}>
             {ev.name}
           </MenuItem>
@@ -133,7 +133,7 @@ export default function DeleteView() {
         <MenuItem value="">
           <em>None</em>
         </MenuItem>
-        {markets.map((m) => (
+        {markets.map((m: Market) => (
           <MenuItem key={m.id} value={m.id}>
             {m.label}
           </MenuItem>

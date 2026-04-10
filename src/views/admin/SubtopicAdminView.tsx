@@ -16,12 +16,13 @@ import Typography from "@mui/material/Typography";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import LinkIcon from "@mui/icons-material/Link";
 import { useApi } from "../../hooks/useApi";
-import type { Topic, Subtopic, Event, UUID } from "../../models/models";
+import type { Subtopic, Event, UUID } from "../../models/models";
+import { useTopicsQuery } from "../../api/topic/topic.queries";
 
 export default function SubtopicAdminView() {
   const api = useApi();
 
-  const [topics, setTopics] = useState<Topic[]>([]);
+  const { data: topics = [] } = useTopicsQuery();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -48,11 +49,9 @@ export default function SubtopicAdminView() {
     setLoading(true);
     setLoadError(null);
     try {
-      const topicsData = (await api.fetchTopics()) as Topic[];
-      setTopics(topicsData);
       const allEvents: Event[] = [];
       await Promise.all(
-        topicsData.map(async (t) => {
+        topics.map(async (t) => {
           try {
             const evts = await api.fetchEvents(t.id);
             allEvents.push(...evts);

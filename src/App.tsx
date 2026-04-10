@@ -15,16 +15,13 @@ import {
   useParams,
 } from "react-router-dom";
 import { useUser } from "@clerk/react";
-import { useApi } from "./hooks/useApi";
 import ProfilePage from "./components/ProfilePage";
 import PortfolioView from "./views/PortfolioView";
 import LeaderboardView from "./views/LeaderboardView";
 import EventView from "./views/EventView";
 import TopicView from "./views/TopicView";
-import type { Topic, UUID } from "./models/models";
-import { TopicsContext } from "./contexts/TopicsContext";
+import type { UUID } from "./models/models";
 import { UserContext } from "./contexts/UserContext";
-import { RefreshTopicsContext } from "./contexts/RefreshTopicsContext";
 import AdminView from "./views/AdminView";
 import UserView from "./views/UserView";
 import { usePoolsQuery } from "./api/market/market.queries";
@@ -35,6 +32,7 @@ import { TopNavLayout } from "./components/navbar/TopNavLayout";
 import { Navbar } from "./components/navbar/Navbar";
 import { TopicTabs } from "./components/navbar/TopicTabs";
 import { useUserQuery } from "./api/user/user.queries";
+import { useTopicsQuery } from "./api/topic/topic.queries";
 
 const darkTheme = createTheme({
   palette: {
@@ -138,9 +136,8 @@ function InfoBanner() {
 function App() {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
-  const { fetchTopics } = useApi();
+  const { data: topics = []} = useTopicsQuery();
   const { data: userData } = useUserQuery();
-  const [topics, setTopics] = useState<Topic[]>([]);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
   const effectiveIsAdmin = isSignedIn === true && (userData?.isAdmin ?? false);
   const { navTabs, activeTab } = useNavbarTopics({ topics, effectiveIsAdmin });
@@ -152,18 +149,8 @@ function App() {
     prevIsSignedIn.current = isSignedIn;
   }, [isSignedIn, navigate]);
 
-  useEffect(() => {
-    fetchTopics().then(setTopics).catch(console.error);
-  }, [isSignedIn, fetchTopics]);
-
-  function refreshTopics() {
-    fetchTopics().then(setTopics).catch(console.error);
-  }
-
   return (
-    <RefreshTopicsContext.Provider value={refreshTopics}>
         <UserContext.Provider value={user?.id ?? null}>
-          <TopicsContext.Provider value={topics}>
             <ThemeProvider theme={darkTheme}>
               <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
                 <CssBaseline />
@@ -217,9 +204,7 @@ function App() {
                 </Routes>
               </Box>
             </ThemeProvider>
-          </TopicsContext.Provider>
         </UserContext.Provider>
-    </RefreshTopicsContext.Provider>
   );
 }
 

@@ -7,10 +7,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { Event, EventStatus, UUID } from "../../models/models";
+import type { Event, EventStatus, Topic, UUID } from "../../models/models";
 import { EVENT_STATUSES } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
-import { useTopics } from "../../contexts/TopicsContext";
+import { useTopicsQuery } from "../../api/topic/topic.queries";
 
 function statusColor(status: string): string {
   switch (status.toLowerCase()) {
@@ -36,7 +36,7 @@ function statusLabel(status: string): string {
 
 export default function EventStatusView() {
   const { fetchEvents, updateEventStatus } = useApi();
-  const topics = useTopics();
+  const { data: topics = [] } = useTopicsQuery();
   const [eventsByTopic, setEventsByTopic] = useState<
     { topicId: UUID; topicLabel: string; events: Event[] }[]
   >([]);
@@ -48,7 +48,7 @@ export default function EventStatusView() {
     if (topics.length === 0) return;
     setLoading(true);
     Promise.all(
-      topics.map((t) => fetchEvents(t.id).then((evts) => ({ topic: t, evts }))),
+      topics.map((t: Topic) => fetchEvents(t.id).then((evts) => ({ topic: t, evts }))),
     )
       .then((results) => {
         const grouped = results

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { UUID } from "../../models/models";
 import { fetchEventsBySubtopic } from "../subtopic/subtopic.api";
 import { queryKeys } from "../queryKeys";
-import { fetchEventsByTopic, fetchTopicEventCounts } from "./topic.api";
+import { fetchEventsByTopic, fetchTopicEventCounts, fetchTopics } from "./topic.api";
 
 export function useTopicEventsQuery(topicId: UUID, subtopicId: UUID | null) {
   const { getToken } = useAuth();
@@ -27,6 +27,18 @@ export function useTopicEventCountQuery(topicId: UUID) {
   return useQuery({
     queryKey: queryKeys.topicEventCounts(topicId),
     queryFn: () => fetchTopicEventCounts(topicId),
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+  });
+}
+
+export function useTopicsQuery() {
+  const { getToken } = useAuth();
+
+  return useQuery({
+    queryKey: queryKeys.topics,
+    queryFn: () => fetchTopics(getToken),
     staleTime: 60_000,
     gcTime: 10 * 60_000,
     refetchOnWindowFocus: false,

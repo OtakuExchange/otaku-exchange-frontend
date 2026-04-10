@@ -65,11 +65,11 @@ export function DesktopEventView({
 
         <Divider sx={{ my: 2 }} />
         <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
-          Top Stakes
+          Top Bets
         </Typography>
         {stakesLoading ? (
           <Stack spacing={1}>
-            {[0, 1, 2].map((i) => (
+            {[...Array(10)].map((i) => (
               <Skeleton
                 key={i}
                 variant="rectangular"

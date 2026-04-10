@@ -41,7 +41,7 @@ export function MobileEventView({
   onStakeCentsChange: (cents: number) => void;
 }) {
   const { data: eventStakes = [], isLoading: stakesLoading } =
-    useEventStakesQuery(event.id, 3);
+    useEventStakesQuery(event.id, 20);
   const showDock = event.status === "open" || event.status === "hidden";
   const dockPad = showDock
     ? "calc(168px + env(safe-area-inset-bottom))"
@@ -69,7 +69,7 @@ export function MobileEventView({
       </Typography>
       {stakesLoading ? (
         <Stack spacing={1}>
-          {[...Array(10)].map((i) => (
+          {[0, 1, 2].map((i) => (
             <Skeleton
               key={i}
               variant="rectangular"

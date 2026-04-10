@@ -43,7 +43,7 @@ export function DesktopEventView({
   onStakeCentsChange: (cents: number) => void;
 }) {
   const { data: eventStakes = [], isLoading: stakesLoading } =
-    useEventStakesQuery(event.id, 3);
+    useEventStakesQuery(event.id, 20);
 
   return (
     <Stack direction="row" alignItems="flex-start" sx={{ p: 3, gap: 3 }}>
@@ -69,7 +69,7 @@ export function DesktopEventView({
         </Typography>
         {stakesLoading ? (
           <Stack spacing={1}>
-            {[...Array(10)].map((i) => (
+            {[0, 1, 2, 3].map((i) => (
               <Skeleton
                 key={i}
                 variant="rectangular"

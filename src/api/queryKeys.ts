@@ -1,8 +1,9 @@
-import type { UUID } from "./models/models";
+import type { UUID } from "../models/models";
 
 export const queryKeys = {
   user: ["user"] as const,
   portfolio: ["portfolio"] as const,
+  portfolioUserId: (userId: UUID) => ["portfolio", "userId", userId] as const,
   topics: ["topics"] as const,
   eventById: (eventId: UUID) => ["event", "id", eventId] as const,
   poolsByEventId: (eventId: UUID) =>

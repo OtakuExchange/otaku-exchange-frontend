@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -9,14 +9,21 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { Event, Pool, UUID } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
-import { useTopics } from "../../contexts/TopicsContext";
+import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "../../api/queryKeys";
 
 export default function ResolveEventView() {
-  const { fetchEvents, fetchPools, resolveEvent } = useApi();
-  const topics = useTopics();
-
-  const [events, setEvents] = useState<Event[]>([]);
-  const [loadingEvents, setLoadingEvents] = useState(true);
+  const { fetchPools, resolveEvent } = useApi();
+  const queryClient = useQueryClient();
+  const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
+  const topicIds = useMemo(() => topics.map((t) => t.id as UUID), [topics]);
+  const { data: eventsByTopicData, isLoading: eventsLoading } =
+    useMultiTopicEventsQuery(topicIds);
+  const events = useMemo(
+    () => eventsByTopicData.flat().filter((e) => e.status !== "resolved"),
+    [eventsByTopicData],
+  );
 
   const [expandedEventId, setExpandedEventId] = useState<UUID | null>(null);
   const [poolsMap, setPoolsMap] = useState<Record<UUID, Pool[]>>({});
@@ -26,18 +33,6 @@ export default function ResolveEventView() {
   const [resolvingId, setResolvingId] = useState<UUID | null>(null);
   const [successId, setSuccessId] = useState<UUID | null>(null);
   const [errorMap, setErrorMap] = useState<Record<UUID, string>>({});
-
-  useEffect(() => {
-    if (topics.length === 0) return;
-    setLoadingEvents(true);
-    Promise.all(topics.map((t) => fetchEvents(t.id)))
-      .then((results) => {
-        const all = results.flat().filter((e) => e.status !== "resolved");
-        setEvents(all);
-      })
-      .catch(console.error)
-      .finally(() => setLoadingEvents(false));
-  }, [topics, fetchEvents]);
 
   async function handleExpand(event: Event) {
     if (expandedEventId === event.id) {
@@ -66,7 +61,11 @@ export default function ResolveEventView() {
     try {
       await resolveEvent(event.id, winningPoolId);
       setSuccessId(event.id);
-      setEvents((prev) => prev.filter((e) => e.id !== event.id));
+      queryClient.setQueryData(
+        queryKeys.eventsByTopic(event.topicId),
+        (prev: Event[] | undefined) =>
+          prev?.map((e) => (e.id === event.id ? { ...e, status: "resolved" } : e)),
+      );
     } catch (e) {
       setErrorMap((prev) => ({
         ...prev,
@@ -77,7 +76,7 @@ export default function ResolveEventView() {
     }
   }
 
-  if (loadingEvents) {
+  if (topicsLoading || eventsLoading) {
     return <CircularProgress />;
   }
 

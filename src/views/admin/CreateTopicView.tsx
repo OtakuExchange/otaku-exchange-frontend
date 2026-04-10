@@ -1,37 +1,34 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import { useApi } from "../../hooks/useApi";
+import { useTopicMutation } from "../../api/topic/topic.mutations";
 
 export default function CreateTopicView() {
-  const { createTopic } = useApi();
+  const {
+    createTopic,
+    isCreating: loading,
+    createTopicError: error,
+    isCreated: success,
+  } = useTopicMutation();
   const [topic, setTopic] = useState("");
   const [description, setDescription] = useState("");
   const [hidden, setHidden] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   async function handleSubmit() {
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
-    try {
-      await createTopic(topic, description, hidden);
-      setSuccess(true);
+    await createTopic({ topic, description, hidden });
+  }
+
+  useEffect(() => {
+    if (success) {
       setTopic("");
       setDescription("");
       setHidden(false);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to create topic");
-    } finally {
-      setLoading(false);
     }
-  }
+  }, [success]);
 
   return (
     <Box

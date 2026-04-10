@@ -2,9 +2,9 @@ import { useState, useMemo, useEffect } from "react";
 import type { Pool } from "../models/models";
 import { formatUsdFromCents } from "../utils/formatMoney";
 import { calcLegacyBasePayout, calcLegacyPayout } from "../utils/parimutuel";
-import { useUserQuery } from "./queries/useUserQuery";
+import { useUserQuery } from "../api/user/user.queries";
 import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
-import { useCreateStakeMutation } from "./mutations/createStakeMutation";
+import { useCreateStakeMutation } from "../api/events/events.mutations";
 
 export function useTradeModel({
   eventMultiplier,

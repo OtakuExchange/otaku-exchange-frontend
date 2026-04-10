@@ -1,15 +1,16 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { createStake } from "../../api";
 import type { UUID } from "../../models/models";
 import { useAuth } from "@clerk/react";
-import { queryKeys } from "../../queryKeys";
+import { queryKeys } from "../queryKeys";
+import { createStake } from "./events.api";
 
 export function useCreateStakeMutation() {
   const { getToken } = useAuth();
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: ({ marketPoolId, amount }: { marketPoolId: UUID; amount: number }) => createStake(marketPoolId, amount, getToken),
+    mutationFn: ({ marketPoolId, amount }: { marketPoolId: UUID; amount: number }) =>
+      createStake(marketPoolId, amount, getToken),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.user });
       queryClient.invalidateQueries({ queryKey: queryKeys.portfolio });
@@ -21,5 +22,6 @@ export function useCreateStakeMutation() {
     isCreating: mutation.isPending,
     isCreated: mutation.isSuccess,
     isError: mutation.isError,
-  }
+  };
 }
+

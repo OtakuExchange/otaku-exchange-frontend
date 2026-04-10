@@ -7,19 +7,15 @@ import Divider from "@mui/material/Divider";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import type { Entity, UUID } from "../../models/models";
+import type { Entity, Topic, UUID } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
-import { useTopics } from "../../contexts/TopicsContext";
+import { useTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
 
 export default function CreateMarketView() {
-  const { fetchEvents, fetchEntities, createMarketPool } = useApi();
-  const topics = useTopics();
-
+  const { fetchEntities, createMarketPool } = useApi();
+  const { data: topics = [] } = useTopicsQuery();
   const [topicId, setTopicId] = useState<UUID | "">("");
-  const [events, setEvents] = useState<
-    { id: UUID; name: string; status: string }[]
-  >([]);
-  const [loadingEvents, setLoadingEvents] = useState(false);
+  const { data: events = [], isLoading: loadingEvents } = useTopicEventsQuery(topicId, null);
   const [entities, setEntities] = useState<Entity[]>([]);
 
   const [pools, setPools] = useState([
@@ -35,23 +31,6 @@ export default function CreateMarketView() {
   useEffect(() => {
     fetchEntities().then(setEntities).catch(console.error);
   }, [fetchEntities]);
-
-  useEffect(() => {
-    if (!topicId) {
-      setEvents([]);
-      setSelectedEventId("");
-      return;
-    }
-    setLoadingEvents(true);
-    fetchEvents(topicId)
-      .then((evts) =>
-        setEvents(
-          evts.map((e) => ({ id: e.id, name: e.name, status: e.status })),
-        ),
-      )
-      .catch(console.error)
-      .finally(() => setLoadingEvents(false));
-  }, [topicId, fetchEvents]);
 
   function updatePool(
     index: number,
@@ -118,7 +97,7 @@ export default function CreateMarketView() {
         onChange={(e) => setTopicId(e.target.value as UUID)}
         disabled={loading}
       >
-        {topics.map((t) => (
+        {topics.map((t: Topic) => (
           <MenuItem key={t.id} value={t.id}>
             {t.topic}
           </MenuItem>

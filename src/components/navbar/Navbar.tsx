@@ -10,7 +10,7 @@ import Typography from "@mui/material/Typography";
 import DailyRewardButton from "../DailyRewardButton";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
-import { useUserQuery } from "../../hooks/queries/useUserQuery";
+import { useUserQuery } from "../../api/user/user.queries";
 
 function cashText(cash: number | null): string {
   return cash == null ? "--" : `$${(cash / 100).toFixed(2)}`;

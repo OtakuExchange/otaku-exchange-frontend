@@ -3,11 +3,11 @@ import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import type { Event } from "../models/models";
+import type { Event, Pool } from "../models/models";
 import { useApi } from "../hooks/useApi";
-import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
+import { usePoolsQuery } from "../api/market/market.queries";
 import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "../queryKeys";
+import { queryKeys } from "../api/queryKeys";
 import { EventCardLayout } from "./event-card/EventCardLayout";
 import { DesktopEventCardBody } from "./event-card/DesktopEventCardBody";
 import { EventCardFooter } from "./event-card/EventCardFooter";
@@ -59,7 +59,7 @@ export default function EventCard({
   }
 
   const poolsList = pools ?? [];
-  const totalVolume = poolsList.reduce((sum, p) => sum + p.volume, 0);
+  const totalVolume = poolsList.reduce((sum: number, p: Pool) => sum + p.volume, 0);
 
   function openEvent() {
     primeEventRouteCache();

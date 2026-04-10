@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { claimDailyReward } from "../../api";
 import { useAuth } from "@clerk/react";
-import { queryKeys } from "../../queryKeys";
+import { queryKeys } from "../queryKeys";
+import { claimDailyReward } from "./reward.api";
 
 export function useClaimDailyMutation() {
   const { getToken } = useAuth();
@@ -19,5 +19,6 @@ export function useClaimDailyMutation() {
     isClaiming: mutation.isPending,
     isClaimed: mutation.isSuccess,
     isError: mutation.isError,
-  }
+  };
 }
+

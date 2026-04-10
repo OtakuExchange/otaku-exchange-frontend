@@ -11,7 +11,7 @@ import { TopStakesSectionMobile } from "./TopStakesSectionMobile";
 import type { PoolStat } from "../types";
 import type { Event } from "../../../models/models";
 import { TradeDockMobile } from "../../trade-card/TradeDockMobile";
-import { useEventStakesQuery } from "../../../hooks/queries/useEventStakesQuery";
+import { useEventStakesQuery } from "../../../api/events/events.queries";
 
 export function MobileEventView({
   event,

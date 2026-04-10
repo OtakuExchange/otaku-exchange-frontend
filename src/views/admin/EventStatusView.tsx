@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -10,7 +10,9 @@ import Typography from "@mui/material/Typography";
 import type { Event, EventStatus, UUID } from "../../models/models";
 import { EVENT_STATUSES } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
-import { useTopics } from "../../contexts/TopicsContext";
+import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "../../api/queryKeys";
 
 function statusColor(status: string): string {
   switch (status.toLowerCase()) {
@@ -35,37 +37,32 @@ function statusLabel(status: string): string {
 }
 
 export default function EventStatusView() {
-  const { fetchEvents, updateEventStatus } = useApi();
-  const topics = useTopics();
-  const [eventsByTopic, setEventsByTopic] = useState<
-    { topicId: UUID; topicLabel: string; events: Event[] }[]
-  >([]);
-  const [loading, setLoading] = useState(true);
+  const { updateEventStatus } = useApi();
+  const queryClient = useQueryClient();
+
+  const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
+  const topicIds = useMemo(() => topics.map((t) => t.id as UUID), [topics]);
+  const {
+    data: eventsByTopicData,
+    isLoading: eventsLoading,
+    isError: eventsIsError,
+  } = useMultiTopicEventsQuery(topicIds);
+
   const [togglingId, setTogglingId] = useState<UUID | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (topics.length === 0) return;
-    setLoading(true);
-    Promise.all(
-      topics.map((t) => fetchEvents(t.id).then((evts) => ({ topic: t, evts }))),
-    )
-      .then((results) => {
-        const grouped = results
-          .map(({ topic, evts }) => ({
-            topicId: topic.id,
-            topicLabel: topic.topic,
-            events: evts.filter((e) => {
-              const s = e.status.toLowerCase();
-              return s === "open" || s === "hidden" || s === "staking_closed";
-            }),
-          }))
-          .filter((g) => g.events.length > 0);
-        setEventsByTopic(grouped);
-      })
-      .catch(() => setError("Failed to load events"))
-      .finally(() => setLoading(false));
-  }, [topics, fetchEvents]);
+  const eventsByTopic = useMemo(() => {
+    return topics
+      .map((topic, idx) => ({
+        topicId: topic.id,
+        topicLabel: topic.topic,
+        events: (eventsByTopicData[idx] ?? []).filter((e) => {
+          const s = e.status.toLowerCase();
+          return s === "open" || s === "hidden" || s === "staking_closed";
+        }),
+      }))
+      .filter((g) => g.events.length > 0);
+  }, [topics, eventsByTopicData]);
 
   async function handleToggle(event: Event, newStatus: string) {
     if (event.status.toLowerCase() === newStatus) return;
@@ -73,13 +70,12 @@ export default function EventStatusView() {
     setError(null);
     try {
       await updateEventStatus(event.id, newStatus);
-      setEventsByTopic((prev) =>
-        prev.map((group) => ({
-          ...group,
-          events: group.events.map((e) =>
+      queryClient.setQueryData(
+        queryKeys.eventsByTopic(event.topicId),
+        (prev: Event[] | undefined) =>
+          prev?.map((e) =>
             e.id === event.id ? { ...e, status: newStatus as EventStatus } : e,
           ),
-        })),
       );
     } catch {
       setError(`Failed to update ${event.name}`);
@@ -88,7 +84,7 @@ export default function EventStatusView() {
     }
   }
 
-  if (loading) return <CircularProgress />;
+  if (topicsLoading || eventsLoading) return <CircularProgress />;
 
   return (
     <Box sx={{ maxWidth: 640 }}>
@@ -98,9 +94,9 @@ export default function EventStatusView() {
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Toggle events between open, staking closed, and hidden.
       </Typography>
-      {error && (
+      {(eventsIsError || error) && (
         <Alert severity="error" sx={{ mb: 2 }}>
-          {error}
+          {error ?? "Failed to load events"}
         </Alert>
       )}
       {eventsByTopic.length === 0 ? (

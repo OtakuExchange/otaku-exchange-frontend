@@ -1,11 +1,11 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { PortfolioItem } from "../../api";
 import { calcLegacyPayout, calcPayout, multiplierColor } from "../../utils/parimutuel";
 import { formatCentsCompact } from "../../utils/formatMoney";
 import { StakePercentBar } from "./StakePercentBar";
 import { OutcomeAmountChip } from "./OutcomeAmountChip";
+import type { PortfolioItem } from "../../models/models";
 
 type ChipVariant = "winner_profit" | "resolved_loss" | "open_payout";
 

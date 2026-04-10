@@ -5,8 +5,8 @@ import Divider from "@mui/material/Divider";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { useLeaderboardQuery } from "../hooks/queries/useLeaderboardQuery";
-import type { LeaderboardEntry } from "../api";
+import { useLeaderboardQuery } from "../api/rank/rank.queries";
+import type { LeaderboardEntry } from "../models/models";
 
 const LeaderboardLoadingSkeleton = () =>
   [0, 1, 2, 3, 4].map((i) => (

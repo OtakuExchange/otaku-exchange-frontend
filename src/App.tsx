@@ -15,26 +15,24 @@ import {
   useParams,
 } from "react-router-dom";
 import { useUser } from "@clerk/react";
-import { useApi } from "./hooks/useApi";
 import ProfilePage from "./components/ProfilePage";
 import PortfolioView from "./views/PortfolioView";
 import LeaderboardView from "./views/LeaderboardView";
 import EventView from "./views/EventView";
 import TopicView from "./views/TopicView";
-import type { Topic, UUID } from "./models/models";
-import { TopicsContext } from "./contexts/TopicsContext";
+import type { UUID } from "./models/models";
 import { UserContext } from "./contexts/UserContext";
-import { RefreshTopicsContext } from "./contexts/RefreshTopicsContext";
 import AdminView from "./views/AdminView";
 import UserView from "./views/UserView";
-import { usePoolsQuery } from "./hooks/queries/usePoolsQuery";
+import { usePoolsQuery } from "./api/market/market.queries";
 import CircularProgress from "@mui/material/CircularProgress";
-import { useEventQuery } from "./hooks/queries/useEventQuery";
+import { useEventQuery } from "./api/events/events.queries";
 import { useNavbarTopics } from "./components/navbar/useNavbarTopics";
 import { TopNavLayout } from "./components/navbar/TopNavLayout";
 import { Navbar } from "./components/navbar/Navbar";
 import { TopicTabs } from "./components/navbar/TopicTabs";
-import { useUserQuery } from "./hooks/queries/useUserQuery";
+import { useUserQuery } from "./api/user/user.queries";
+import { useTopicsQuery } from "./api/topic/topic.queries";
 
 const darkTheme = createTheme({
   palette: {
@@ -120,8 +118,11 @@ function InfoBanner() {
       }}
     >
       <Typography sx={{ fontSize: "13px", color: "#7B8996" }}>
-        💡 <strong style={{ color: "#e8e8e8" }}>How payouts work:</strong>{" "}
-        Your slice of the winning pool is the percentage of the total volume you will win if the FillyGod chooses your team. You should aim to bet according to how much faith you have in your team. The FillyGod himself will double your first bet on an event up to $500.
+        💡 <strong style={{ color: "#e8e8e8" }}>How payouts work:</strong> Your
+        slice of the winning pool is the percentage of the total volume you will
+        win if the FillyGod chooses your team. You should aim to bet according
+        to how much faith you have in your team. The FillyGod himself will
+        double your first bet on an event up to $500.
       </Typography>
       <IconButton
         size="small"
@@ -138,9 +139,8 @@ function InfoBanner() {
 function App() {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
-  const { fetchTopics } = useApi();
+  const { data: topics = [] } = useTopicsQuery();
   const { data: userData } = useUserQuery();
-  const [topics, setTopics] = useState<Topic[]>([]);
   const prevIsSignedIn = useRef<boolean | undefined>(undefined);
   const effectiveIsAdmin = isSignedIn === true && (userData?.isAdmin ?? false);
   const { navTabs, activeTab } = useNavbarTopics({ topics, effectiveIsAdmin });
@@ -152,74 +152,62 @@ function App() {
     prevIsSignedIn.current = isSignedIn;
   }, [isSignedIn, navigate]);
 
-  useEffect(() => {
-    fetchTopics().then(setTopics).catch(console.error);
-  }, [isSignedIn, fetchTopics]);
-
-  function refreshTopics() {
-    fetchTopics().then(setTopics).catch(console.error);
-  }
-
   return (
-    <RefreshTopicsContext.Provider value={refreshTopics}>
-        <UserContext.Provider value={user?.id ?? null}>
-          <TopicsContext.Provider value={topics}>
-            <ThemeProvider theme={darkTheme}>
-              <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
-                <CssBaseline />
-                <TopNavLayout>
-                  <Toolbar>
-                    <Navbar isSignedIn={isSignedIn ?? false} />
-                  </Toolbar>
-                  <TopicTabs activeTab={activeTab} navTabs={navTabs} />
-                </TopNavLayout>
-                <Toolbar />
-                <Box sx={{ height: 48 }} />
-                <InfoBanner />
-                <Routes>
-                  {navTabs.map((tab) => (
-                    <Route
-                      key={tab.path}
-                      path={`${tab.path}/*`}
-                      element={
-                        <TopicView
-                          topicId={tab.id}
-                          topicLabel={tab.label}
-                          topicPath={tab.path}
-                          subtopics={tab.subtopics}
-                          isAdmin={effectiveIsAdmin}
-                        />
-                      }
-                    />
-                  ))}
-                  {navTabs.length > 0 && (
-                    <Route
-                      path="/"
-                      element={<Navigate to={navTabs[0].path} replace />}
-                    />
-                  )}
-                  <Route path="/events/:eventId" element={<EventViewRoute />} />
-                  <Route path="/portfolio" element={<PortfolioView />} />
-                  <Route path="/leaderboard" element={<LeaderboardView />} />
-                  <Route path="/profile" element={<ProfilePage />} />
-                  <Route path="/users/:userId" element={<UserView />} />
-                  <Route path="/admin/*" element={<AdminView />} />
-                  <Route
-                    path="*"
-                    element={
-                      navTabs.length > 0 ? (
-                        <Navigate to={navTabs[0].path} replace />
-                      ) : (
-                        <Box />
-                      )
-                    }
+    <UserContext.Provider value={user?.id ?? null}>
+      <ThemeProvider theme={darkTheme}>
+        <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
+          <CssBaseline />
+          <TopNavLayout>
+            <Toolbar>
+              <Navbar isSignedIn={isSignedIn ?? false} />
+            </Toolbar>
+            <TopicTabs activeTab={activeTab} navTabs={navTabs} />
+          </TopNavLayout>
+          <Toolbar />
+          <Box sx={{ height: 48 }} />
+          <InfoBanner />
+          <Routes>
+            {navTabs.map((tab) => (
+              <Route
+                key={tab.path}
+                path={`${tab.path}/*`}
+                element={
+                  <TopicView
+                    topicId={tab.id}
+                    topicLabel={tab.label}
+                    topicPath={tab.path}
+                    subtopics={tab.subtopics}
+                    isAdmin={effectiveIsAdmin}
                   />
-                </Routes>
-              </Box>
-            </ThemeProvider>
-          </TopicsContext.Provider>
-        </UserContext.Provider>
-    </RefreshTopicsContext.Provider>
+                }
+              />
+            ))}
+            {navTabs.length > 0 && (
+              <Route
+                path="/"
+                element={<Navigate to={navTabs[0].path} replace />}
+              />
+            )}
+            <Route path="/events/:eventId" element={<EventViewRoute />} />
+            <Route path="/portfolio" element={<PortfolioView />} />
+            <Route path="/leaderboard" element={<LeaderboardView />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/users/:userId" element={<UserView />} />
+            <Route path="/admin/*" element={<AdminView />} />
+            <Route
+              path="*"
+              element={
+                navTabs.length > 0 ? (
+                  <Navigate to={navTabs[0].path} replace />
+                ) : (
+                  <Box />
+                )
+              }
+            />
+          </Routes>
+        </Box>
+      </ThemeProvider>
+    </UserContext.Provider>
   );
 }
 

@@ -1,25 +1,16 @@
 import { useParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@clerk/react";
 import Avatar from "@mui/material/Avatar";
 import Box from "@mui/material/Box";
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { fetchUserPortfolio } from "../api";
-import type { UUID } from "../models/models";
 import { PortfolioStakeSections } from "../components/portfolio/PortfolioStakeSections";
+import { useUserPortfolioQuery } from "../api/portfolio/portfolio.queries";
+import type { UUID } from "../models/models";
 
 export default function UserView() {
   const { userId } = useParams<{ userId: string }>();
-  const { getToken } = useAuth();
-
-  const { data, isLoading } = useQuery({
-    queryKey: ["portfolio", userId],
-    queryFn: () => fetchUserPortfolio(userId as UUID, getToken),
-    enabled: !!userId,
-    staleTime: 30_000,
-  });
+  const { data, isLoading } = useUserPortfolioQuery(userId as UUID);
 
   return (
     <Box sx={{ p: { xs: 2, sm: 3 } }}>

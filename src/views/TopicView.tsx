@@ -11,8 +11,10 @@ import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import EventCard from "../components/EventCard";
 import SubtopicNav from "../components/SubtopicNav";
 import type { Event, Subtopic, UUID } from "../models/models";
-import { useTopicEventsQuery } from "../hooks/queries/useTopicsQuery";
-import { useTopicEventCountQuery } from "../hooks/queries/useTopicEventCountQuery";
+import {
+  useTopicEventCountQuery,
+  useTopicEventsQuery,
+} from "../api/topic/topic.queries";
 
 function LoadingState() {
   return (
@@ -157,37 +159,45 @@ export default function TopicView({
   const [filterBookmarked, setFilterBookmarked] = useState(false);
   const { data: topicEventCounts } = useTopicEventCountQuery(topicId);
 
-  const selectedSubtopic =
-    subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ?? null;
+  const selectedSubtopicId =
+    subtopicSlug != null
+      ? subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ?? null
+      : null;
+
+  // Important: when switching topics, the URL briefly becomes `/${topic}` before we
+  // redirect to the first subtopic. If we treat that as "no subtopic" and query
+  // topic-wide events, cached data can flash (flicker). Default to first subtopic
+  // immediately whenever subtopics exist.
+  const effectiveSubtopicId = selectedSubtopicId ?? (subtopics[0]?.id ?? null);
 
   const {
     data: events,
     isLoading,
     error,
-  } = useTopicEventsQuery(topicId, selectedSubtopic);
+  } = useTopicEventsQuery(topicId, effectiveSubtopicId);
 
-  const serverBookmarkedIds = useMemo(
-    () => new Set((events ?? []).filter((e) => e.bookmarked).map((e) => e.id)),
+  const serverBookmarkedIds: Set<UUID> = useMemo(
+    () => new Set((events ?? []).filter((e: Event) => e.bookmarked).map((e: Event) => e.id as UUID)),
     [events],
   );
 
-  const bookmarkedIds = useMemo(() => {
+  const bookmarkedIds: Set<UUID> = useMemo(() => {
     const next = new Set(serverBookmarkedIds);
     for (const [id, bookmarked] of bookmarkOverrides) {
       if (bookmarked) {
-        next.add(id);
+        next.add(id as UUID);
       } else {
-        next.delete(id);
+        next.delete(id as UUID);
       }
     }
     return next;
   }, [serverBookmarkedIds, bookmarkOverrides]);
 
   useEffect(() => {
-    if (subtopics.length > 0 && !subtopicSlug) {
+    if (subtopics.length > 0 && (!subtopicSlug || selectedSubtopicId == null)) {
       navigate(`${topicPath}/${toSlug(subtopics[0].name)}`, { replace: true });
     }
-  }, [topicId, subtopics, navigate, topicPath, subtopicSlug]);
+  }, [topicId, subtopics, navigate, topicPath, subtopicSlug, selectedSubtopicId]);
 
   function handleBookmarkChange(id: UUID, bookmarked: boolean) {
     setBookmarkOverrides((prev) => {
@@ -211,14 +221,14 @@ export default function TopicView({
     });
 
   const visibleEvents = sortEvents(
-    (events ?? []).filter((e) => {
+    (events ?? []).filter((e: Event) => {
       const status = e.status.toLowerCase();
       if (status === "hidden") return isAdmin;
       return status !== "resolved";
     }),
   );
   const renderedEvents = filterBookmarked
-    ? visibleEvents.filter((e) => bookmarkedIds.has(e.id))
+    ? visibleEvents.filter((e: Event) => bookmarkedIds.has(e.id as UUID))
     : visibleEvents;
 
   return (
@@ -227,9 +237,9 @@ export default function TopicView({
         <SubtopicNav
           topicEventCounts={topicEventCounts}
           subtopics={subtopics}
-          selected={selectedSubtopic}
+          selected={effectiveSubtopicId}
           onSelect={(id) => {
-            const sub = subtopics.find((s) => s.id === id);
+            const sub = subtopics.find((s: Subtopic) => s.id === id);
             if (sub) navigate(`${topicPath}/${toSlug(sub.name)}`);
           }}
         />

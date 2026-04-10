@@ -157,3 +157,44 @@ export interface SubtopicEventCounts {
   total: number;
   byStatus: Record<EventStatus, number>;
 }
+
+export interface PortfolioItem {
+  id: UUID;
+  eventId: UUID;
+  label: string;
+  entity: Entity | null;
+  isWinner: boolean;
+  amount: number;
+  volume: number;
+  userStake: number | null;
+  eventStatus: string;
+  createdAt: string;
+  eventMultiplier: number;
+}
+
+export interface LeaderboardEntry {
+  rank: number;
+  userId: UUID;
+  username: string;
+  avatarUrl: string | null;
+  balance: number;
+}
+
+export interface EventStake {
+  id: UUID;
+  userId: UUID;
+  username: string;
+  avatarUrl: string | null;
+  marketPoolId: UUID;
+  poolLabel: string;
+  amount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StreakStatus {
+  streak: number;
+  rewardCents: number;
+  canClaim: boolean;
+  comebackBonusCents: number;
+}

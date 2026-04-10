@@ -3,9 +3,9 @@ import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip from "@mui/material/Tooltip";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import type { StreakStatus } from "../api";
+import type { StreakStatus } from "../models/models";
 import { useApi } from "../hooks/useApi";
-import { useClaimDailyMutation } from "../hooks/mutations/claimDailyMutation";
+import { useClaimDailyMutation } from "../api/reward/reward.mutations";
 
 export default function DailyRewardButton({
   variant = "desktop",

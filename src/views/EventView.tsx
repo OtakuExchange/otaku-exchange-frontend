@@ -3,14 +3,13 @@ import { useMemo, useState, useEffect } from "react";
 import { DesktopEventView } from "../components/event/desktop/DesktopEventView";
 import { MobileEventView } from "../components/event/mobile/MobileEventView";
 import type { PoolStat } from "../components/event/types";
-import { useTopics } from "../contexts/TopicsContext";
-import { useRefreshTopics } from "../contexts/RefreshTopicsContext";
 import { useUserId } from "../contexts/UserContext";
-import { usePoolsQuery } from "../hooks/queries/usePoolsQuery";
+import { usePoolsQuery } from "../api/market/market.queries";
 import { useApi } from "../hooks/useApi";
 import { useQueryClient } from "@tanstack/react-query";
 import type { Event, Pool } from "../models/models";
 import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
+import { useTopicsQuery } from "../api/topic/topic.queries";
 
 export default function EventView({
   event,
@@ -24,10 +23,9 @@ export default function EventView({
   const { markEventSeen } = useApi();
   const userId = useUserId();
   const queryClient = useQueryClient();
-  const refreshTopics = useRefreshTopics();
-  const topics = useTopics();
-  const topicName = topics.find((t) => t.id === event.topicId)?.topic;
+  const { data: topics = [] } = useTopicsQuery();
   const { data: poolsData, refetch: refetchPools } = usePoolsQuery(event.id);
+  const topicName = useMemo(() => topics.find((t) => t.id === event.topicId)?.topic, [topics, event.topicId]);
   const pools = useMemo(
     () => poolsData ?? initialPools ?? [],
     [poolsData, initialPools],
@@ -41,11 +39,11 @@ export default function EventView({
   const effectiveSelectedPoolId = selectedPoolId ?? pools[0]?.id ?? null;
   const selectedPool = useMemo(() => {
     if (!effectiveSelectedPoolId) return null;
-    return pools.find((p) => p.id === effectiveSelectedPoolId) ?? null;
+    return pools.find((p: Pool) => p.id === effectiveSelectedPoolId) ?? null;
   }, [pools, effectiveSelectedPoolId]);
 
   const totalVolume = useMemo(
-    () => pools.reduce((sum, p) => sum + p.volume, 0),
+    () => pools.reduce((sum: number, p: Pool) => sum + p.volume, 0),
     [pools],
   );
 
@@ -64,7 +62,7 @@ export default function EventView({
   }, [totalVolume, selectedPool, effectiveStakeCents]);
 
   const poolStats = useMemo<PoolStat[]>(() => {
-    return pools.map((pool) => {
+    return pools.map((pool: Pool) => {
       const color = pool.entity?.color ?? "#1565c0";
       const label = pool.entity?.name ?? pool.label;
       const effectivePoolVolume =
@@ -103,10 +101,10 @@ export default function EventView({
                 e.id === event.id ? { ...e, isNew: false } : e,
               ),
           );
-          refreshTopics();
+          // refreshTopics();
         })
         .catch(console.error);
-  }, [event.id, markEventSeen, queryClient, refreshTopics, userId]);
+  }, [event.id, markEventSeen, queryClient, userId]);
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);

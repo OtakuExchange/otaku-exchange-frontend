@@ -1,7 +1,8 @@
 import { useAuth } from "@clerk/react";
 import { useQuery, type UseQueryResult } from "@tanstack/react-query";
-import { queryKeys } from "../../queryKeys";
-import { fetchLeaderboard, type LeaderboardEntry } from "../../api";
+import type { LeaderboardEntry } from "../../models/models";
+import { queryKeys } from "../queryKeys";
+import { fetchLeaderboard } from "./rank.api";
 
 export function useLeaderboardQuery(
   limit: number,
@@ -11,10 +12,9 @@ export function useLeaderboardQuery(
   return useQuery({
     queryKey: queryKeys.leaderboard(limit),
     queryFn: () => fetchLeaderboard(limit, getToken),
-
-    // caching knobs
-    staleTime: 60_000, // 1 min: switching tabs won't refetch immediately
-    gcTime: 10 * 60_000, // 10 min: keep cache around after unmount
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
     refetchOnWindowFocus: false,
   });
 }
+

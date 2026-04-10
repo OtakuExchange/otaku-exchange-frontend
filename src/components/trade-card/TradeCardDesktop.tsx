@@ -139,7 +139,7 @@ export function TradeCardDesktop({
           <Stack spacing={0.75}>
             <Stack direction="row" alignItems="center" justifyContent="space-between">
               <Typography variant="caption" sx={{ color: "#7B8996", fontWeight: 700 }}>
-                Stake
+                Bet
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 800 }}>
                 {model.displayAmount || "$0.00"}

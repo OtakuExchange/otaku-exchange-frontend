@@ -43,7 +43,7 @@ export function DesktopEventView({
   onStakeCentsChange: (cents: number) => void;
 }) {
   const { data: eventStakes = [], isLoading: stakesLoading } =
-    useEventStakesQuery(event.id, 3);
+    useEventStakesQuery(event.id, 20);
 
   return (
     <Stack direction="row" alignItems="flex-start" sx={{ p: 3, gap: 3 }}>
@@ -65,11 +65,11 @@ export function DesktopEventView({
 
         <Divider sx={{ my: 2 }} />
         <Typography variant="subtitle2" fontWeight="bold" sx={{ mb: 1 }}>
-          Top Stakes
+          Top Bets
         </Typography>
         {stakesLoading ? (
           <Stack spacing={1}>
-            {[0, 1, 2].map((i) => (
+            {[0, 1, 2, 3].map((i) => (
               <Skeleton
                 key={i}
                 variant="rectangular"

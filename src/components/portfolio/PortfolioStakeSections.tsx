@@ -49,7 +49,7 @@ export function PortfolioStakeSections({
   return (
     <Box>
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
-        Current Stakes
+        Current Bets
       </Typography>
       <Stack divider={<Divider />} sx={{ maxWidth, mb: 4 }}>
         {loading ? (
@@ -63,7 +63,7 @@ export function PortfolioStakeSections({
           ))
         ) : currentRows.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            No current stakes.
+            No current bets.
           </Typography>
         ) : (
           currentRows.map((row) => (
@@ -80,7 +80,7 @@ export function PortfolioStakeSections({
       </Stack>
 
       <Typography variant="h6" fontWeight="bold" sx={{ mb: 1 }}>
-        Closed Stakes
+        Closed Bets
       </Typography>
       <Stack divider={<Divider />} sx={{ maxWidth }}>
         {loading ? (
@@ -94,7 +94,7 @@ export function PortfolioStakeSections({
           ))
         ) : closedRows.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            No closed stakes.
+            No closed bets.
           </Typography>
         ) : (
           closedRows.map((row) => (

@@ -11,11 +11,13 @@ export function EventCardFooter({
   pools,
   bookmarked,
   onBookmark,
+  showBookmark = true,
 }: {
   event: Event;
   pools: Pool[] | undefined;
   bookmarked: boolean;
-  onBookmark: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onBookmark?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  showBookmark?: boolean;
 }) {
   return (
     <Box
@@ -41,21 +43,24 @@ export function EventCardFooter({
           })}{" "}
           Vol.
         </Typography>
-        <IconButton
-          size="small"
-          sx={{
-            p: 0,
-            color: "#7B8996",
-            display: { xs: "none", md: "inline-flex" },
-          }}
-          onClick={onBookmark}
-        >
-          {bookmarked ? (
-            <BookmarkIcon fontSize="small" />
-          ) : (
-            <BookmarkBorderIcon fontSize="small" />
-          )}
-        </IconButton>
+        {showBookmark && (
+          <IconButton
+            size="small"
+            sx={{
+              p: 0,
+              color: "#7B8996",
+              display: { xs: "none", md: "inline-flex" },
+            }}
+            onClick={onBookmark}
+            disabled={!onBookmark}
+          >
+            {bookmarked ? (
+              <BookmarkIcon fontSize="small" />
+            ) : (
+              <BookmarkBorderIcon fontSize="small" />
+            )}
+          </IconButton>
+        )}
       </Box>
     </Box>
   );

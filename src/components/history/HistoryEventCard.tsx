@@ -4,7 +4,6 @@ import Box from "@mui/material/Box";
 import type { Event, Pool, UUID } from "../../models/models";
 import { usePoolsQuery } from "../../api/pool/pool.queries";
 import { useEventStakesQuery } from "../../api/events/events.queries";
-import { useBookmarkMutation } from "../../api/events/events.mutations";
 import { useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../../api/queryKeys";
@@ -32,7 +31,6 @@ function PoolsSkeleton() {
 export function HistoryEventCard({ event }: { event: Event }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { bookmarkEvent, unbookmarkEvent } = useBookmarkMutation();
   const theme = useTheme();
   const isDesktop = useMediaQuery(theme.breakpoints.up("md"), { noSsr: true });
 
@@ -51,14 +49,6 @@ export function HistoryEventCard({ event }: { event: Event }) {
     if (pools) {
       queryClient.setQueryData(queryKeys.poolsByEventId(event.id), pools);
     }
-  }
-
-  function handleBookmark(e: React.MouseEvent<HTMLButtonElement>) {
-    e.stopPropagation();
-    const action = event.bookmarked
-      ? unbookmarkEvent({ eventId: event.id as UUID, topicId: event.topicId as UUID })
-      : bookmarkEvent({ eventId: event.id as UUID, topicId: event.topicId as UUID });
-    action.catch(console.error);
   }
 
   function openEvent() {
@@ -93,14 +83,14 @@ export function HistoryEventCard({ event }: { event: Event }) {
           <EventCardHeaderMulti
             event={event}
             bookmarked={event.bookmarked}
-            onBookmark={handleBookmark}
+            showBookmark={false}
           />
         ) : (
           <EventCardHeaderSingle
             event={event}
             title={event.alias ?? ""}
             bookmarked={event.bookmarked}
-            onBookmark={handleBookmark}
+            showBookmark={false}
           />
         )}
 
@@ -130,7 +120,7 @@ export function HistoryEventCard({ event }: { event: Event }) {
           event={event}
           pools={pools}
           bookmarked={event.bookmarked}
-          onBookmark={handleBookmark}
+          showBookmark={false}
         />
         <Box sx={{ px: 2, pb: 1, minHeight: 44 }}>
           <Stack spacing={0.5}>

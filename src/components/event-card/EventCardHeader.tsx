@@ -15,11 +15,13 @@ export function EventCardHeaderSingle({
   title = "",
   bookmarked,
   onBookmark,
+  showBookmark = true,
 }: {
   event: Event;
   title: string;
   bookmarked: boolean;
-  onBookmark: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onBookmark?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  showBookmark?: boolean;
 }) {
   return (
     <Stack
@@ -61,21 +63,24 @@ export function EventCardHeaderSingle({
       )}
 
       {/* Mobile-only bookmark (desktop bookmark lives in footer) */}
-      <IconButton
-        size="small"
-        sx={{
-          p: 0,
-          color: "#7B8996",
-          display: { xs: "inline-flex", md: "none" },
-        }}
-        onClick={onBookmark}
-      >
-        {bookmarked ? (
-          <BookmarkIcon fontSize="small" />
-        ) : (
-          <BookmarkBorderIcon fontSize="small" />
-        )}
-      </IconButton>
+      {showBookmark && (
+        <IconButton
+          size="small"
+          sx={{
+            p: 0,
+            color: "#7B8996",
+            display: { xs: "inline-flex", md: "none" },
+          }}
+          onClick={onBookmark}
+          disabled={!onBookmark}
+        >
+          {bookmarked ? (
+            <BookmarkIcon fontSize="small" />
+          ) : (
+            <BookmarkBorderIcon fontSize="small" />
+          )}
+        </IconButton>
+      )}
     </Stack>
   );
 }
@@ -84,10 +89,12 @@ export function EventCardHeaderMulti({
   event,
   bookmarked,
   onBookmark,
+  showBookmark = true,
 }: {
   event: Event;
   bookmarked: boolean;
-  onBookmark: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onBookmark?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  showBookmark?: boolean;
 }) {
   return (
     <Stack direction="row" spacing={1} alignItems="flex-start" sx={{ mb: 0.5 }}>
@@ -116,6 +123,7 @@ export function EventCardHeaderMulti({
           title={event.alias ?? ""}
           bookmarked={bookmarked}
           onBookmark={onBookmark}
+          showBookmark={showBookmark}
         />
       </Box>
     </Stack>

@@ -175,6 +175,7 @@ function App() {
             <Route path="/leaderboard" element={<LeaderboardView />} />
             <Route path="/portfolio" element={<PortfolioView />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/history/*" element={<HistoryView/>}/>
             <Route path="*" element={navTabs.length > 0 ? <Navigate to={navTabs[0].path} replace /> : <Box />}/>
 
             {/* Signed In Routes */}
@@ -185,7 +186,6 @@ function App() {
             {/* Admin Routes */}
             <Route element={<AdminGuard />}>
               <Route path="/admin/*" element={<AdminView />} />
-              <Route path="/history/*" element={<HistoryView/>}/>
             </Route>
 
             {/* Fallback Route */}

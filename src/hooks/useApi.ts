@@ -3,7 +3,6 @@ import type { UUID } from "../models/models";
 import { fetchEntities, createEntity } from "../api/entity/entity.api";
 import { fetchMarkets, fetchPools, deleteMarket, createMarketPool } from "../api/market/market.api";
 import { fetchDailyStreak } from "../api/reward/reward.api";
-import { createSubtopic, deleteSubtopic } from "../api/subtopic/subtopic.api";
 
 export function useApi() {
   const { getToken } = useAuth();
@@ -22,8 +21,5 @@ export function useApi() {
     }) => createEntity(payload, getToken),
     createMarketPool: (eventId: UUID, label: string, entityId: UUID | null) =>
       createMarketPool(eventId, label, entityId, getToken),
-    createSubtopic: (topicId: UUID, name: string) =>
-      createSubtopic(topicId, name, getToken),
-    deleteSubtopic: (subtopicId: UUID) => deleteSubtopic(subtopicId, getToken),
   };
 }

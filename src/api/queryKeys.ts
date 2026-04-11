@@ -1,6 +1,9 @@
 import type { UUID } from "../models/models";
 
 export const queryKeys = {
+  // Entities
+  entities: ["entities"] as const,
+
   // User
   user: ["user"] as const,
 

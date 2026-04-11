@@ -4,22 +4,16 @@ import Button from "@mui/material/Button";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import Alert from "@mui/material/Alert";
-import { useApi } from "../../hooks/useApi";
+import { useEntityMutation } from "../../api/entity/entity.mutations";
 
 export default function CreateEntityView() {
-  const { createEntity } = useApi();
+  const { createEntity, isCreating: loading, createEntityError: error, isCreated: success } = useEntityMutation();
   const [name, setName] = useState("");
   const [abbreviatedName, setAbbreviatedName] = useState("");
   const [logoPath, setLogoPath] = useState("");
   const [color, setColor] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   async function handleSubmit() {
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
     try {
       await createEntity({
         name: name.trim(),
@@ -27,15 +21,12 @@ export default function CreateEntityView() {
         logoPath: logoPath.trim(),
         color: color.trim() || undefined,
       });
-      setSuccess(true);
       setName("");
       setAbbreviatedName("");
       setLogoPath("");
       setColor("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to create entity");
-    } finally {
-      setLoading(false);
+      console.error(e);
     }
   }
 

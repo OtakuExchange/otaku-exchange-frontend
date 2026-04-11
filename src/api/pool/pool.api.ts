@@ -26,4 +26,3 @@ export async function fetchPools(
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
-

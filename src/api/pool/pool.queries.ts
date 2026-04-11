@@ -1,6 +1,7 @@
 import { useAuth } from "@clerk/react";
-import { useQuery } from "@tanstack/react-query";
-import type { UUID } from "../../models/models";
+import { useQueries, useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
+import type { Pool, UUID } from "../../models/models";
 import { queryKeys } from "../queryKeys";
 import { fetchPools } from "./pool.api";
 
@@ -27,3 +28,27 @@ export function usePoolsQuery(eventId: UUID | null) {
   });
 }
 
+export function usePoolsByEventIdsQueries(eventIds: UUID[], enabled: boolean) {
+  const { getToken } = useAuth();
+
+  const uniqueEventIds = useMemo(
+    () => Array.from(new Set(eventIds)),
+    [eventIds],
+  );
+
+  const results = useQueries({
+    queries: uniqueEventIds.map((eventId) => ({
+      queryKey: queryKeys.poolsByEventId(eventId),
+      queryFn: () => fetchPools(eventId, getToken),
+      enabled,
+      staleTime: 10_000,
+      gcTime: 10 * 60_000,
+      refetchOnWindowFocus: true,
+    })),
+  });
+
+  return {
+    eventIds: uniqueEventIds,
+    results: results as Array<{ data?: Pool[]; isLoading: boolean; isError: boolean }>,
+  };
+}

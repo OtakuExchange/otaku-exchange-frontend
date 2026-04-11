@@ -18,11 +18,13 @@ export function DesktopEventCardBody({
   totalVolume,
   isMulti,
   onSelectPool,
+  highlightWinnerPool = false,
 }: {
   pools: Pool[];
   totalVolume: number;
   isMulti: boolean;
   onSelectPool: (e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>, poolId: string) => void;
+  highlightWinnerPool?: boolean;
 }) {
   return (
     <Box sx={{ display: { xs: "none", md: "block" } }}>
@@ -30,6 +32,7 @@ export function DesktopEventCardBody({
         {pools.map((pool, i) => {
           const pct =
             totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
+          const isWinner = highlightWinnerPool && pool.isWinner;
           return (
             <Stack
               key={pool.id}
@@ -41,6 +44,11 @@ export function DesktopEventCardBody({
                 minHeight: 36,
                 mb: i === 0 ? "4px" : 0,
                 cursor: "pointer",
+                px: 1,
+                borderRadius: 1,
+                border: "1px solid",
+                borderColor: isWinner ? "success.main" : "transparent",
+                bgcolor: isWinner ? "rgba(61, 180, 104, 0.08)" : "transparent",
               }}
               onClick={(e) => onSelectPool(e, pool.id)}
             >
@@ -82,6 +90,7 @@ export function DesktopEventCardBody({
         >
           {pools.map((pool) => {
             const color = pool.entity?.color ?? "#1565c0";
+            const isWinner = highlightWinnerPool && pool.isWinner;
             return (
               <Button
                 key={pool.id}
@@ -96,6 +105,8 @@ export function DesktopEventCardBody({
                   bgcolor: color + "26",
                   color: entityTextColor(color),
                   "&:hover": { bgcolor: color + "40" },
+                  border: "1px solid",
+                  borderColor: isWinner ? "success.main" : "transparent",
                 }}
                 onClick={(e) => onSelectPool(e, pool.id)}
               >

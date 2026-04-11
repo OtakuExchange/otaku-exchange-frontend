@@ -18,11 +18,13 @@ export function MobileEventCardBody({
   totalVolume,
   isMulti,
   onSelectPool,
+  highlightWinnerPool = false,
 }: {
   pools: Pool[];
   totalVolume: number;
   isMulti: boolean;
   onSelectPool: (e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>, poolId: string) => void;
+  highlightWinnerPool?: boolean;
 }) {
   return (
     <Stack
@@ -33,6 +35,7 @@ export function MobileEventCardBody({
         const pct =
           totalVolume > 0 ? Math.round((pool.volume / totalVolume) * 100) : 0;
         const color = pool.entity?.color ?? "#1565c0";
+        const isWinner = highlightWinnerPool && pool.isWinner;
         return (
           <Button
             key={pool.id}
@@ -48,6 +51,9 @@ export function MobileEventCardBody({
               color: entityTextColor(color),
               "&:hover": { bgcolor: color + "40" },
               textTransform: "none",
+              border: "1px solid",
+              borderColor: isWinner ? "success.main" : "transparent",
+              boxShadow: isWinner ? "0 0 0 1px rgba(61, 180, 104, 0.25)" : undefined,
             }}
             onClick={(e) => onSelectPool(e, pool.id)}
           >

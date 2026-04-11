@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Box from "@mui/material/Box";
-import CircularProgress from "@mui/material/CircularProgress";
 import Collapse from "@mui/material/Collapse";
 import List from "@mui/material/List";
 import ListItemButton from "@mui/material/ListItemButton";
@@ -12,7 +11,6 @@ import ExpandLess from "@mui/icons-material/ExpandLess";
 import ExpandMore from "@mui/icons-material/ExpandMore";
 import GrassIcon from "@mui/icons-material/Grass";
 import { Navigate, Route, Routes, useNavigate } from "react-router-dom";
-import { useUser } from "@clerk/react";
 import CreateTopicView from "./admin/CreateTopicView";
 import CreateEventView from "./admin/CreateEventView";
 import CreateMarketView from "./admin/CreateMarketView";
@@ -21,7 +19,7 @@ import ResolveEventView from "./admin/ResolveEventView";
 import CreateEntityView from "./admin/CreateEntityView";
 import EventStatusView from "./admin/EventStatusView";
 import SubtopicAdminView from "./admin/SubtopicAdminView";
-import { useUserQuery } from "../api/user/user.queries";
+import { AdminGuard } from "../components/admin/AdminGuard";
 
 function AdminSidebar() {
   const navigate = useNavigate();
@@ -213,43 +211,6 @@ function AdminSidebar() {
 //       )}
 //     </Box>
 //   );
-// }
-
-function AdminGuard({ children }: { children: React.ReactNode }) {
-  const { isSignedIn, isLoaded } = useUser();
-  const { data: userData, isLoading: isLoadingUser } = useUserQuery();
-  const effectiveIsAdmin = isSignedIn === true && (userData?.isAdmin ?? false);
-
-  if (!isLoaded) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!isSignedIn) {
-    console.log("[AdminGuard] Not signed in — redirecting to /");
-    return <Navigate to="/" replace />;
-  }
-
-  if (isLoadingUser) {
-    return (
-      <Box sx={{ display: "flex", justifyContent: "center", mt: 8 }}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
-  if (!effectiveIsAdmin) {
-    console.log("[AdminGuard] Access denied — redirecting to /");
-    return <Navigate to="/" replace />;
-  }
-
-  console.log("[AdminGuard] Access granted");
-  return <>{children}</>;
-}
-
 export default function AdminView() {
   return (
     <AdminGuard>

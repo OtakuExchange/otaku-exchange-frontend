@@ -186,7 +186,10 @@ function NavbarActionsDesktop({
   return (
     <Box sx={{ display: { xs: "none", md: "flex" } }}>
       {effectiveIsAdmin && (
-        <NavbarButton label="Admin" onClick={() => navigate("/admin")} />
+        <>
+          <NavbarButton label="Admin" onClick={() => navigate("/admin")} />
+          <NavbarButton label="History" onClick={() => navigate("/history")} />
+        </>
       )}
       {isSignedIn && (
         <>
@@ -217,7 +220,10 @@ function NavbarMobileHamburgerButton({ isSignedIn }: { isSignedIn: boolean }) {
     { label: "Leaderboard", path: "/leaderboard" },
     { label: "Portfolio", path: "/portfolio" },
   ];
-  if (effectiveIsAdmin) items.unshift({ label: "Admin", path: "/admin" });
+  if (effectiveIsAdmin) {
+    items.unshift({ label: "History", path: "/history" });
+    items.unshift({ label: "Admin", path: "/admin" });
+  }
 
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);

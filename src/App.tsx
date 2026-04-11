@@ -22,6 +22,7 @@ import TopicView from "./views/TopicView";
 import type { UUID } from "./models/models";
 import { UserContext } from "./contexts/UserContext";
 import AdminView from "./views/AdminView";
+import HistoryView from "./views/HistoryView.tsx";
 import UserView from "./views/UserView";
 import { usePoolsQuery } from "./api/pool/pool.queries";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -34,6 +35,7 @@ import { useUserQuery } from "./api/user/user.queries";
 import { useTopicsQuery } from "./api/topic/topic.queries";
 import { InfoBanner } from "./components/InfoBanner";
 import Stack from "@mui/material/Stack";
+import { AdminGuard } from "./components/admin/AdminGuard";
 
 const darkTheme = createTheme({
   palette: {
@@ -178,7 +180,15 @@ function App() {
             <Route path="/leaderboard" element={<LeaderboardView />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/users/:userId" element={<UserView />} />
-            <Route path="/admin/*" element={<AdminView />} />
+            <Route path="/admin/*" element={<AdminGuard><AdminView /></AdminGuard>} />
+            <Route
+              path="/history/*"
+              element={
+                <AdminGuard>
+                  <HistoryView />
+                </AdminGuard>
+              }
+            />
             <Route
               path="*"
               element={

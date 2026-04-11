@@ -36,7 +36,6 @@ import { useTopicsQuery } from "./api/topic/topic.queries";
 import { InfoBanner } from "./components/InfoBanner";
 import Stack from "@mui/material/Stack";
 import { AdminGuard } from "./components/guard/AdminGuard.tsx";
-import { Show } from "@clerk/react";
 import { SignedInGuard } from "./components/guard/SignedInGuard.tsx";
 
 

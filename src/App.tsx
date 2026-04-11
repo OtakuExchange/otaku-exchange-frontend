@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useEffect, useRef } from "react";
 import Box from "@mui/material/Box";
 import CssBaseline from "@mui/material/CssBaseline";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
+
 import {
   Navigate,
   Route,
@@ -33,6 +32,8 @@ import { Navbar } from "./components/navbar/Navbar";
 import { TopicTabs } from "./components/navbar/TopicTabs";
 import { useUserQuery } from "./api/user/user.queries";
 import { useTopicsQuery } from "./api/topic/topic.queries";
+import { InfoBanner } from "./components/InfoBanner";
+import Stack from "@mui/material/Stack";
 
 const darkTheme = createTheme({
   palette: {
@@ -87,55 +88,6 @@ function EventViewRoute() {
   );
 }
 
-// use localStorage to persist the state of the banner
-function InfoBanner() {
-  const [hideInfoBanner, setHideInfoBanner] = useState(() => {
-    try {
-      return localStorage.getItem("hideInfoBanner") === "true";
-    } catch {
-      return false;
-    }
-  });
-
-  const handleDismiss = useCallback(() => {
-    setHideInfoBanner(true);
-    localStorage.setItem("hideInfoBanner", "true");
-  }, []);
-
-  if (hideInfoBanner) return null;
-
-  return (
-    <Box
-      sx={{
-        bgcolor: "#1e2a3a",
-        borderBottom: "1px solid #252b31",
-        px: 3,
-        py: 1,
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        gap: 2,
-      }}
-    >
-      <Typography sx={{ fontSize: "13px", color: "#7B8996" }}>
-        💡 <strong style={{ color: "#e8e8e8" }}>How payouts work:</strong> Your
-        slice of the winning pool is the percentage of the total volume you will
-        win if the FillyGod chooses your team. You should aim to bet according
-        to how much faith you have in your team. The FillyGod himself will
-        double your first bet on an event up to $500.
-      </Typography>
-      <IconButton
-        size="small"
-        aria-label="Dismiss payouts info"
-        onClick={handleDismiss}
-        sx={{ color: "#7B8996" }}
-      >
-        <CloseIcon fontSize="small" />
-      </IconButton>
-    </Box>
-  );
-}
-
 function App() {
   const navigate = useNavigate();
   const { isSignedIn, user } = useUser();
@@ -165,7 +117,40 @@ function App() {
           </TopNavLayout>
           <Toolbar />
           <Box sx={{ height: 48 }} />
-          <InfoBanner />
+          <Stack direction="column" spacing={0.5} sx={{ mb: 1 }}>
+            <InfoBanner
+              storageKey="end-of-service"
+              variant="warning"
+              message={
+                <Typography sx={{ fontSize: "13px", color: "error.main" }}>
+                  ⚠️{" "}
+                  <strong style={{ color: "#e8e8e8" }}>
+                    End of Service Announcment:
+                  </strong>{" "}
+                  We will be shutting down FillyB Exchange on April 23rd, 2026.
+                  Top 3 Leaderboard prizes will be awarded shortly after.
+                </Typography>
+              }
+            />
+            <InfoBanner
+              storageKey="payouts"
+              variant="info"
+              message={
+                <Typography sx={{ fontSize: "13px", color: "#7B8996" }}>
+                  💡{" "}
+                  <strong style={{ color: "#e8e8e8" }}>
+                    How payouts work:
+                  </strong>{" "}
+                  Your slice of the winning pool is the percentage of the total
+                  volume you will win if the FillyGod chooses your team. You
+                  should aim to bet according to how much faith you have in your
+                  team. The FillyGod himself will double your first bet on an
+                  event up to $500.
+                </Typography>
+              }
+            />
+          </Stack>
+
           <Routes>
             {navTabs.map((tab) => (
               <Route

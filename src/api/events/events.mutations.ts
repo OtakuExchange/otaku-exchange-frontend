@@ -38,6 +38,7 @@ export function useEventMutation() {
 
       // optimistic update
       queryClient.setQueryData(queryKeys.eventsByTopic(variables.topicId), (old: Event[]) => [...old, data]);
+      queryClient.setQueriesData({ queryKey: ["events", "subtopic"] }, (old: Event[] | undefined) => old ? [...old, data] : [data]);
     },
   });
 
@@ -51,6 +52,7 @@ export function useEventMutation() {
 
       // optimistic update
       queryClient.setQueryData(queryKeys.eventsByTopic(variables.topicId), (old: Event[]) => old.filter((e) => e.id !== variables.eventId));
+      queryClient.setQueriesData({ queryKey: ["events", "subtopic"] }, (old: Event[] | undefined) => old ? old.filter((e) => e.id !== variables.eventId) : old);
     },
   });
 
@@ -85,6 +87,7 @@ export function useEventActionMutation() {
         isNew: false,
       }));
       queryClient.setQueryData(queryKeys.eventsByTopic(variables.topicId), (old: Event[]) => old.map((e) => e.id === variables.eventId ? { ...e, isNew: false } : e));
+      queryClient.setQueriesData({ queryKey: ["events", "subtopic"] }, (old: Event[] | undefined) => old ? old.map((e) => e.id === variables.eventId ? { ...e, isNew: false } : e) : old);
     },
   });
 
@@ -112,6 +115,7 @@ export function useEventActionMutation() {
         status: variables.status,
       }));
       queryClient.setQueryData(queryKeys.eventsByTopic(variables.topicId), (old: Event[]) => old.map((e) => e.id === variables.eventId ? { ...e, status: variables.status } : e));
+      queryClient.setQueriesData({ queryKey: ["events", "subtopic"] }, (old: Event[] | undefined) => old ? old.map((e) => e.id === variables.eventId ? { ...e, status: variables.status } : e) : old);
     },
   });
 
@@ -121,6 +125,7 @@ export function useEventActionMutation() {
       queryClient.invalidateQueries({ queryKey: queryKeys.eventById(variables.eventId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.eventsByTopic(variables.topicId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.topicEventCounts(variables.topicId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.portfolio})
       // TODO: invalidate queries for events by subtopic
 
       // optimistic update
@@ -129,6 +134,7 @@ export function useEventActionMutation() {
         status: "resolved",
       }));
       queryClient.setQueryData(queryKeys.eventsByTopic(variables.topicId), (old: Event[]) => old.map((e) => e.id === variables.eventId ? { ...e, status: "resolved" } : e));
+      queryClient.setQueriesData({ queryKey: ["events", "subtopic"] }, (old: Event[] | undefined) => old ? old.map((e) => e.id === variables.eventId ? { ...e, status: "resolved" } : e) : old);
     },
   });
 
@@ -172,7 +178,7 @@ export function useBookmarkMutation() {
         ...old,
         bookmarked: true,
       }));
-      queryClient.setQueryData(queryKeys.eventsByTopic(variables.topicId), (old: Event[]) => old.map((e) => e.id === variables.eventId ? { ...e, bookmarked: true } : e));
+      queryClient.setQueryData(["events"], (old: Event[]) => old.map((e) => e.id === variables.eventId ? { ...e, bookmarked: true } : e));
     },
   });
 
@@ -189,7 +195,7 @@ export function useBookmarkMutation() {
         ...old,
         bookmarked: false,
       }));
-      queryClient.setQueryData(queryKeys.eventsByTopic(variables.topicId), (old: Event[]) => old.map((e) => e.id === variables.eventId ? { ...e, bookmarked: false } : e));
+      queryClient.setQueryData(["events"], (old: Event[]) => old.map((e) => e.id === variables.eventId ? { ...e, bookmarked: false } : e));
     },
   });
 

@@ -8,12 +8,18 @@ export type PoolItem = NonNullable<
   ReturnType<typeof usePoolsQuery>["data"]
 >[number];
 
-export function usePoolsQuery(eventId: UUID) {
+export function usePoolsQuery(eventId: UUID | null) {
   const { getToken } = useAuth();
 
+  const enabled = Boolean(eventId);
+
   return useQuery({
-    queryKey: queryKeys.poolsByEventId(eventId),
-    queryFn: () => fetchPools(eventId, getToken),
+    queryKey: eventId ? queryKeys.poolsByEventId(eventId) : ["pools", "idle"],
+    queryFn: () => {
+      if (!eventId) throw new Error("No eventId provided");
+      return fetchPools(eventId, getToken);
+    },
+    enabled,
     staleTime: 10_000,
     gcTime: 10 * 60_000,
     refetchInterval: 10_000,

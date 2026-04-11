@@ -98,7 +98,7 @@ export default function EventView({
       await markEventSeen({ eventId: event.id, topicId: event.topicId });
     };
     mark();
-  }, [event.id, markEventSeen, userId, event.isNew]);
+  }, [event.id, markEventSeen, userId, event.isNew, event.topicId]);
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);

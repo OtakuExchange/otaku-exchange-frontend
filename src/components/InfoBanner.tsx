@@ -25,9 +25,7 @@ export function InfoBanner({
 
   const handleDismiss = useCallback(() => {
     setHidden(true);
-    try {
-      localStorage.setItem(`hideInfoBanner:${storageKey}`, "true");
-    } catch {}
+    localStorage.setItem(`hideInfoBanner:${storageKey}`, "true");
   }, [storageKey]);
 
   if (hidden) return null;

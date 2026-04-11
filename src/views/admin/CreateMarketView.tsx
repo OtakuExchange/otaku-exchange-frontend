@@ -16,8 +16,8 @@ import { useEntitiesQuery } from "../../api/entity/entity.queries";
 import { usePoolMutation } from "../../api/pool/pool.mutations";
 
 export default function CreateMarketView() {
-  const { createMarketPool } = usePoolMutation();
-  const { data: entities = [], isError: entitiesError } = useEntitiesQuery();
+  const { createMarketPool, createMarketPoolError: createMarketPoolError, isCreating: loadingCreatePools } = usePoolMutation();
+  const { data: entities = [], isError: entitiesError, isLoading: loadingEntities } = useEntitiesQuery();
   const {
     data: topics = [],
     isLoading: loadingTopics,
@@ -36,13 +36,13 @@ export default function CreateMarketView() {
   ]);
 
   const [selectedEventId, setSelectedEventId] = useState<UUID | "">("");
-  const [loading, setLoading] = useState(false);
   const error = useMemo(() => {
     if (topicsError) return "Failed to load topics";
     if (eventsError) return "Failed to load events";
     if (entitiesError) return "Failed to load entities";
+    if (createMarketPoolError) return "Failed to create pools";
     return null;
-  }, [topicsError, eventsError, entitiesError]);
+  }, [topicsError, eventsError, entitiesError, createMarketPoolError]);
   const [success, setSuccess] = useState(false);
 
   function updatePool(
@@ -65,7 +65,6 @@ export default function CreateMarketView() {
 
   async function handleSubmit() {
     if (!selectedEventId) return;
-    setLoading(true);
     setSuccess(false);
     try {
       await Promise.all(
@@ -84,14 +83,15 @@ export default function CreateMarketView() {
       ]);
       setSelectedEventId("");
     } catch (e) {
-      // setError(e instanceof Error ? e.message : "Failed to create pools");
-    } finally {
-      setLoading(false);
+      console.error(e);
     }
   }
 
   const canSubmit =
-    !loading &&
+    !loadingCreatePools &&
+    !loadingEntities &&
+    !loadingTopics &&
+    !loadingEvents &&
     !!selectedEventId &&
     pools.length > 0 &&
     pools.every((p) => p.label.trim());
@@ -149,7 +149,7 @@ export default function CreateMarketView() {
             label={`Pool ${i + 1} Label`}
             value={pool.label}
             onChange={(e) => updatePool(i, "label", e.target.value)}
-            disabled={loading}
+            disabled={loadingCreatePools}
             size="small"
             sx={{ flexGrow: 1 }}
           />
@@ -158,7 +158,7 @@ export default function CreateMarketView() {
             label="Entity"
             value={pool.entityId}
             onChange={(e) => updatePool(i, "entityId", e.target.value)}
-            disabled={loading}
+            disabled={loadingCreatePools}
             size="small"
             sx={{ minWidth: 160 }}
           >
@@ -181,7 +181,7 @@ export default function CreateMarketView() {
         variant="outlined"
         size="small"
         onClick={addPool}
-        disabled={loading}
+        disabled={loadingCreatePools}
         sx={{ alignSelf: "flex-start" }}
       >
         + Add Pool
@@ -191,7 +191,7 @@ export default function CreateMarketView() {
       {success && <Alert severity="success">Pools created successfully.</Alert>}
 
       <Button variant="contained" onClick={handleSubmit} disabled={!canSubmit}>
-        {loading ? <CircularProgress size={18} /> : "Create Pools"}
+        {loadingCreatePools ? <CircularProgress size={18} /> : "Create Pools"}
       </Button>
     </Box>
   );

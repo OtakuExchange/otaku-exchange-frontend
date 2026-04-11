@@ -19,7 +19,6 @@ import ResolveEventView from "./admin/ResolveEventView";
 import CreateEntityView from "./admin/CreateEntityView";
 import EventStatusView from "./admin/EventStatusView";
 import SubtopicAdminView from "./admin/SubtopicAdminView";
-import { AdminGuard } from "../components/admin/AdminGuard";
 
 function AdminSidebar() {
   const navigate = useNavigate();

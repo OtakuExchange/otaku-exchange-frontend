@@ -23,7 +23,10 @@ export default function EventView({
   const userId = useUserId();
   const { data: topics = [] } = useTopicsQuery();
   const { data: poolsData, refetch: refetchPools } = usePoolsQuery(event.id);
-  const topicName = useMemo(() => topics.find((t) => t.id === event.topicId)?.topic, [topics, event.topicId]);
+  const topicName = useMemo(
+    () => topics.find((t) => t.id === event.topicId)?.topic,
+    [topics, event.topicId],
+  );
   const pools = useMemo(
     () => poolsData ?? initialPools ?? [],
     [poolsData, initialPools],
@@ -90,7 +93,7 @@ export default function EventView({
 
   useEffect(() => {
     if (!userId || !event.isNew) return;
-    
+
     const mark = async () => {
       await markEventSeen({ eventId: event.id, topicId: event.topicId });
     };

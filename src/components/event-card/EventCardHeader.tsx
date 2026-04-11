@@ -41,7 +41,7 @@ export function EventCardHeaderSingle({
 
       {event.isFirstStakeBonusEligible &&
         (event.status === "open" || event.status === "hidden") && (
-          <FirstBetBonusBadge variant="icon"/>
+          <FirstBetBonusBadge variant="icon" />
         )}
 
       {event.multiplier > 1 && (

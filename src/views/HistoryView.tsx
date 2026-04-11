@@ -4,9 +4,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import type { Event, Topic } from "../models/models";
-import {
-  useTopicsQuery,
-} from "../api/topic/topic.queries";
+import { useTopicsQuery } from "../api/topic/topic.queries";
 import { HistoryFiltersBar } from "../components/history/HistoryFiltersBar";
 import { HistoryEventCard } from "../components/history/HistoryEventCard";
 import { useHistoryController } from "../components/history/useHistoryController";
@@ -100,9 +98,11 @@ export default function HistoryView() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/history/all" replace />} />
-      <Route path=":topicSlug/*" element={<HistoryTopicPage topics={topics} />} />
+      <Route
+        path=":topicSlug/*"
+        element={<HistoryTopicPage topics={topics} />}
+      />
       <Route path="*" element={<Navigate to="/history/all" replace />} />
     </Routes>
   );
 }
-

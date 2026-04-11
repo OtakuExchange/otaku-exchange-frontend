@@ -26,4 +26,3 @@ export async function fetchUserPortfolio(
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
-

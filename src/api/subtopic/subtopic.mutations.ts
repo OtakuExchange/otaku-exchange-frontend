@@ -9,18 +9,24 @@ export function useSubtopicMutation() {
   const queryClient = useQueryClient();
 
   const createSubtopicMutation = useMutation({
-    mutationFn: ({ topicId, name }: { topicId: UUID; name: string }) => createSubtopic(topicId, name, getToken),
+    mutationFn: ({ topicId, name }: { topicId: UUID; name: string }) =>
+      createSubtopic(topicId, name, getToken),
     onSuccess: (_, variables: { topicId: UUID; name: string }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.topics });
-      queryClient.invalidateQueries({ queryKey: queryKeys.topicEventCounts(variables.topicId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.topicEventCounts(variables.topicId),
+      });
     },
   });
 
   const deleteSubtopicMutation = useMutation({
-    mutationFn: (payload: { subtopicId: UUID; topicId: UUID }) => deleteSubtopic(payload.subtopicId, getToken),
+    mutationFn: (payload: { subtopicId: UUID; topicId: UUID }) =>
+      deleteSubtopic(payload.subtopicId, getToken),
     onSuccess: (_, variables: { subtopicId: UUID; topicId: UUID }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.topics });
-      queryClient.invalidateQueries({ queryKey: queryKeys.topicEventCounts(variables.topicId) });
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.topicEventCounts(variables.topicId),
+      });
     },
   });
 

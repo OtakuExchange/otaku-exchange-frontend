@@ -57,11 +57,12 @@ export function useTradeModel({
     const nextPoolVolume = selectedPool.volume + effectiveStakeCents;
     const nextTotalVolume = totalVolume + effectiveStakeCents;
 
-    const baseProfitCents = calcLegacyBasePayout(
-      effectiveStakeCents,
-      nextPoolVolume,
-      nextTotalVolume,
-    ) - effectiveStakeCents;
+    const baseProfitCents =
+      calcLegacyBasePayout(
+        effectiveStakeCents,
+        nextPoolVolume,
+        nextTotalVolume,
+      ) - effectiveStakeCents;
 
     const projectedPayout = calcLegacyPayout(
       effectiveStakeCents,

@@ -26,4 +26,3 @@ export function usePoolsVolumesByEventIds(eventIds: UUID[], enabled: boolean) {
     isError: enabled ? results.some((r) => r.isError) : false,
   };
 }
-

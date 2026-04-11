@@ -19,4 +19,3 @@ export async function fetchCurrentUser(
     r.ok ? r.json() : null,
   );
 }
-

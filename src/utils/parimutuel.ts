@@ -20,10 +20,10 @@ export function calcLegacyPayout(
   totalVolume: number,
   multiplier: number = 1,
 ): number {
-  if (poolVolume <= 0) return 0
+  if (poolVolume <= 0) return 0;
   const basePayout = (userStake / poolVolume) * totalVolume;
   const profit = basePayout - userStake;
-  return userStake + (profit * multiplier)
+  return userStake + profit * multiplier;
 }
 
 export function calcLegacyBasePayout(
@@ -31,7 +31,7 @@ export function calcLegacyBasePayout(
   poolVolume: number,
   totalVolume: number,
 ): number {
-  if (poolVolume <= 0) return 0
+  if (poolVolume <= 0) return 0;
   return (userStake / poolVolume) * totalVolume;
 }
 

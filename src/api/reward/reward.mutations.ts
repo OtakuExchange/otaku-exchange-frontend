@@ -22,4 +22,3 @@ export function useClaimDailyMutation() {
     isError: mutation.isError,
   };
 }
-

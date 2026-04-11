@@ -142,7 +142,13 @@ export function TradeDockMobile({
               size="small"
               fullWidth
               placeholder="$0.00"
-              value={stakeCents != null ? (controlledStakeCents > 0 ? `$${(controlledStakeCents / 100).toFixed(2)}` : "") : model.displayAmount}
+              value={
+                stakeCents != null
+                  ? controlledStakeCents > 0
+                    ? `$${(controlledStakeCents / 100).toFixed(2)}`
+                    : ""
+                  : model.displayAmount
+              }
               onChange={(e) => {
                 const digits = e.target.value.replace(/\D/g, "");
                 const n = digits ? parseInt(digits, 10) : 0;

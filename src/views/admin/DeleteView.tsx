@@ -5,7 +5,10 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { Event, Topic, UUID } from "../../models/models";
-import { useTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import {
+  useTopicEventsQuery,
+  useTopicsQuery,
+} from "../../api/topic/topic.queries";
 import { useTopicMutation } from "../../api/topic/topic.mutations";
 import { useEventMutation } from "../../api/events/events.mutations";
 
@@ -13,7 +16,7 @@ export default function DeleteView() {
   const [eventId, setEventId] = useState<UUID | null>(null);
   const { deleteTopic } = useTopicMutation();
   const { deleteEvent } = useEventMutation();
-  const { data: topics = [] } = useTopicsQuery(); 
+  const { data: topics = [] } = useTopicsQuery();
   const [topicId, setTopicId] = useState<UUID | "">("");
   const { data: events = [] } = useTopicEventsQuery(topicId, null);
   const [loading, setLoading] = useState(false);
@@ -21,10 +24,10 @@ export default function DeleteView() {
   const [success, setSuccess] = useState<string | null>(null);
 
   const buttonLabel = eventId
-      ? "Delete Event"
-      : topicId
-        ? "Delete Topic"
-        : "Delete";
+    ? "Delete Event"
+    : topicId
+      ? "Delete Topic"
+      : "Delete";
   const canSubmit = !loading && topicId !== null;
 
   async function handleDelete() {
@@ -33,10 +36,13 @@ export default function DeleteView() {
     setSuccess(null);
     try {
       if (eventId && topicId) {
-        await deleteEvent({ eventId: eventId as UUID, topicId: topicId as UUID});
+        await deleteEvent({
+          eventId: eventId as UUID,
+          topicId: topicId as UUID,
+        });
         setSuccess("Event deleted successfully.");
         setEventId(null);
-      } else if(topicId) {
+      } else if (topicId) {
         await deleteTopic(topicId as UUID);
         setSuccess("Topic deleted successfully.");
         setTopicId("");

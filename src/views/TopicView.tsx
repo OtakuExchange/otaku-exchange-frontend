@@ -161,14 +161,14 @@ export default function TopicView({
 
   const selectedSubtopicId =
     subtopicSlug != null
-      ? subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ?? null
+      ? (subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ?? null)
       : null;
 
   // Important: when switching topics, the URL briefly becomes `/${topic}` before we
   // redirect to the first subtopic. If we treat that as "no subtopic" and query
   // topic-wide events, cached data can flash (flicker). Default to first subtopic
   // immediately whenever subtopics exist.
-  const effectiveSubtopicId = selectedSubtopicId ?? (subtopics[0]?.id ?? null);
+  const effectiveSubtopicId = selectedSubtopicId ?? subtopics[0]?.id ?? null;
 
   const {
     data: events,
@@ -177,7 +177,12 @@ export default function TopicView({
   } = useTopicEventsQuery(topicId, effectiveSubtopicId);
 
   const serverBookmarkedIds: Set<UUID> = useMemo(
-    () => new Set((events ?? []).filter((e: Event) => e.bookmarked).map((e: Event) => e.id as UUID)),
+    () =>
+      new Set(
+        (events ?? [])
+          .filter((e: Event) => e.bookmarked)
+          .map((e: Event) => e.id as UUID),
+      ),
     [events],
   );
 
@@ -197,7 +202,14 @@ export default function TopicView({
     if (subtopics.length > 0 && (!subtopicSlug || selectedSubtopicId == null)) {
       navigate(`${topicPath}/${toSlug(subtopics[0].name)}`, { replace: true });
     }
-  }, [topicId, subtopics, navigate, topicPath, subtopicSlug, selectedSubtopicId]);
+  }, [
+    topicId,
+    subtopics,
+    navigate,
+    topicPath,
+    subtopicSlug,
+    selectedSubtopicId,
+  ]);
 
   function handleBookmarkChange(id: UUID, bookmarked: boolean) {
     setBookmarkOverrides((prev) => {

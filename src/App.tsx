@@ -180,7 +180,14 @@ function App() {
             <Route path="/leaderboard" element={<LeaderboardView />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/users/:userId" element={<UserView />} />
-            <Route path="/admin/*" element={<AdminGuard><AdminView /></AdminGuard>} />
+            <Route
+              path="/admin/*"
+              element={
+                <AdminGuard>
+                  <AdminView />
+                </AdminGuard>
+              }
+            />
             <Route
               path="/history/*"
               element={

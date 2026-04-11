@@ -9,7 +9,10 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import type { Event, UUID } from "../../models/models";
 import { EVENT_STATUSES } from "../../models/models";
-import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import {
+  useMultiTopicEventsQuery,
+  useTopicsQuery,
+} from "../../api/topic/topic.queries";
 import { useEventActionMutation } from "../../api/events/events.mutations";
 
 function statusColor(status: string): string {
@@ -35,7 +38,8 @@ function statusLabel(status: string): string {
 }
 
 export default function EventStatusView() {
-  const { updateEventStatus, updateEventStatusError: error } = useEventActionMutation();
+  const { updateEventStatus, updateEventStatusError: error } =
+    useEventActionMutation();
 
   const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
   const topicIds = useMemo(() => topics.map((t) => t.id as UUID), [topics]);
@@ -63,7 +67,11 @@ export default function EventStatusView() {
   async function handleToggle(event: Event, newStatus: string) {
     if (event.status.toLowerCase() === newStatus) return;
     setTogglingId(event.id);
-    await updateEventStatus({eventId: event.id, topicId: event.topicId, status: newStatus});
+    await updateEventStatus({
+      eventId: event.id,
+      topicId: event.topicId,
+      status: newStatus,
+    });
     setTogglingId(null);
   }
 

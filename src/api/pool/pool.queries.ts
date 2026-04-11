@@ -49,6 +49,10 @@ export function usePoolsByEventIdsQueries(eventIds: UUID[], enabled: boolean) {
 
   return {
     eventIds: uniqueEventIds,
-    results: results as Array<{ data?: Pool[]; isLoading: boolean; isError: boolean }>,
+    results: results as Array<{
+      data?: Pool[];
+      isLoading: boolean;
+      isError: boolean;
+    }>,
   };
 }

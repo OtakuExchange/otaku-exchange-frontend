@@ -8,16 +8,27 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { Topic, UUID } from "../../models/models";
-import { useTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import {
+  useTopicEventsQuery,
+  useTopicsQuery,
+} from "../../api/topic/topic.queries";
 import { useEntitiesQuery } from "../../api/entity/entity.queries";
 import { usePoolMutation } from "../../api/pool/pool.mutations";
 
 export default function CreateMarketView() {
   const { createMarketPool } = usePoolMutation();
   const { data: entities = [], isError: entitiesError } = useEntitiesQuery();
-  const { data: topics = [], isLoading: loadingTopics, isError: topicsError } = useTopicsQuery();
+  const {
+    data: topics = [],
+    isLoading: loadingTopics,
+    isError: topicsError,
+  } = useTopicsQuery();
   const [topicId, setTopicId] = useState<UUID | "">("");
-  const { data: events = [], isLoading: loadingEvents, isError: eventsError } = useTopicEventsQuery(topicId, null);
+  const {
+    data: events = [],
+    isLoading: loadingEvents,
+    isError: eventsError,
+  } = useTopicEventsQuery(topicId, null);
 
   const [pools, setPools] = useState([
     { label: "", entityId: "" as UUID | "" },

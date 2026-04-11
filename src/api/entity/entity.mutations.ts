@@ -8,7 +8,8 @@ export function useEntityMutation() {
   const queryClient = useQueryClient();
 
   const createEntityMutation = useMutation({
-    mutationFn: (payload: CreateEntityPayload) => createEntity(payload, getToken),
+    mutationFn: (payload: CreateEntityPayload) =>
+      createEntity(payload, getToken),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.entities });
     },

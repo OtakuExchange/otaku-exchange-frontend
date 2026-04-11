@@ -55,7 +55,10 @@ export function PayoutPreviewRow({
       {hasMultiplier && (
         <Typography variant="caption">
           Profit multiplier:{" "}
-          <Box component="span" sx={{ color: multiplierColor(eventMultiplier), fontWeight: 900 }}>
+          <Box
+            component="span"
+            sx={{ color: multiplierColor(eventMultiplier), fontWeight: 900 }}
+          >
             ×{eventMultiplier}
           </Box>
         </Typography>

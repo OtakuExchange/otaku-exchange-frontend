@@ -27,4 +27,3 @@ export async function createEntity(
     body: JSON.stringify(payload),
   }).then((r) => r.json());
 }
-

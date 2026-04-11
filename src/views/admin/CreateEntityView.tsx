@@ -7,7 +7,12 @@ import Alert from "@mui/material/Alert";
 import { useEntityMutation } from "../../api/entity/entity.mutations";
 
 export default function CreateEntityView() {
-  const { createEntity, isCreating: loading, createEntityError: error, isCreated: success } = useEntityMutation();
+  const {
+    createEntity,
+    isCreating: loading,
+    createEntityError: error,
+    isCreated: success,
+  } = useEntityMutation();
   const [name, setName] = useState("");
   const [abbreviatedName, setAbbreviatedName] = useState("");
   const [logoPath, setLogoPath] = useState("");

@@ -8,7 +8,10 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { Event, Pool, UUID } from "../../models/models";
-import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import {
+  useMultiTopicEventsQuery,
+  useTopicsQuery,
+} from "../../api/topic/topic.queries";
 import { useEventActionMutation } from "../../api/events/events.mutations";
 import { usePoolsQuery } from "../../api/pool/pool.queries";
 
@@ -50,7 +53,11 @@ export default function ResolveEventView() {
     setErrorMap((prev) => ({ ...prev, [event.id]: "" }));
     setSuccessId(null);
     try {
-      await resolveEvent({ eventId: event.id as UUID, topicId: event.topicId as UUID, winningPoolId: winningPoolId as UUID });
+      await resolveEvent({
+        eventId: event.id as UUID,
+        topicId: event.topicId as UUID,
+        winningPoolId: winningPoolId as UUID,
+      });
       setSuccessId(event.id);
     } catch (e) {
       setErrorMap((prev) => ({

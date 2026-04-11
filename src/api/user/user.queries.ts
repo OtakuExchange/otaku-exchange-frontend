@@ -25,4 +25,3 @@ export function useUserQuery() {
     refetchOnWindowFocus: false,
   });
 }
-

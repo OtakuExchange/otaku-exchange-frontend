@@ -11,14 +11,12 @@ function statusLower(s: string) {
   return s.toLowerCase();
 }
 
-export type HistoryMultiplierFilter =
-  | "any"
-  | "ge2"
-  | "ge3"
-  | "ge4"
-  | "ge5";
+export type HistoryMultiplierFilter = "any" | "ge2" | "ge3" | "ge4" | "ge5";
 
-function meetsMultiplierFilter(multiplier: number, filter: HistoryMultiplierFilter) {
+function meetsMultiplierFilter(
+  multiplier: number,
+  filter: HistoryMultiplierFilter,
+) {
   switch (filter) {
     case "any":
       return true;
@@ -82,11 +80,15 @@ export function useHistoryEventFilters() {
         }
         case "volume_desc": {
           const diff = bVol - aVol;
-          return diff !== 0 ? diff : safeTimeMs(b.closeTime) - safeTimeMs(a.closeTime);
+          return diff !== 0
+            ? diff
+            : safeTimeMs(b.closeTime) - safeTimeMs(a.closeTime);
         }
         case "volume_asc": {
           const diff = aVol - bVol;
-          return diff !== 0 ? diff : safeTimeMs(b.closeTime) - safeTimeMs(a.closeTime);
+          return diff !== 0
+            ? diff
+            : safeTimeMs(b.closeTime) - safeTimeMs(a.closeTime);
         }
       }
     });
@@ -110,4 +112,3 @@ export function useHistoryEventFilters() {
     apply,
   };
 }
-

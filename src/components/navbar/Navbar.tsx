@@ -173,14 +173,14 @@ function NavbarButton({
   );
 }
 
-function NavbarActionsDesktop({
-  isSignedIn,
-}: {
-  isSignedIn: boolean;
-}) {
+function NavbarActionsDesktop({ isSignedIn }: { isSignedIn: boolean }) {
   const navigate = useNavigate();
   const { data: userData } = useUserQuery();
-  const userBalance = useMemo(() => userData?.balance ? userData.balance - userData.lockedBalance : null, [userData]);
+  const userBalance = useMemo(
+    () =>
+      userData?.balance ? userData.balance - userData.lockedBalance : null,
+    [userData],
+  );
 
   const effectiveIsAdmin = isSignedIn === true && (userData?.isAdmin ?? false);
   return (
@@ -261,13 +261,13 @@ function NavbarMobileHamburgerButton({ isSignedIn }: { isSignedIn: boolean }) {
   );
 }
 
-function NavbarInfoMobile({
-  isSignedIn,
-}: {
-  isSignedIn: boolean;
-}) {
+function NavbarInfoMobile({ isSignedIn }: { isSignedIn: boolean }) {
   const { data: userData } = useUserQuery();
-  const userBalance = useMemo(() => userData?.balance ? userData.balance - userData.lockedBalance : null, [userData]);
+  const userBalance = useMemo(
+    () =>
+      userData?.balance ? userData.balance - userData.lockedBalance : null,
+    [userData],
+  );
 
   if (!isSignedIn) return null;
 
@@ -284,7 +284,7 @@ function NavbarInfoMobile({
   );
 }
 
-export function Navbar({ isSignedIn }: { isSignedIn: boolean }) {  
+export function Navbar({ isSignedIn }: { isSignedIn: boolean }) {
   return (
     <>
       <NavbarBrand />

@@ -8,7 +8,7 @@ export function useDailyStreakQuery() {
   return useQuery({
     queryKey: queryKeys.dailyStreak,
     queryFn: () => fetchDailyStreak(getToken),
-    
+
     staleTime: 60_000,
     gcTime: 10 * 60_000,
     refetchOnWindowFocus: false,

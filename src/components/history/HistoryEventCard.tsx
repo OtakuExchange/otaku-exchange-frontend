@@ -36,13 +36,16 @@ export function HistoryEventCard({ event }: { event: Event }) {
 
   const { data: pools, isLoading: poolsLoading } = usePoolsQuery(event.id);
   const poolsList = pools ?? [];
-  const totalVolume = poolsList.reduce((sum: number, p: Pool) => sum + p.volume, 0);
+  const totalVolume = poolsList.reduce(
+    (sum: number, p: Pool) => sum + p.volume,
+    0,
+  );
 
   // We only need the top stake per pool to compute winner/loser highlights.
-  const {
-    data: topStakes,
-    isLoading: stakesLoading,
-  } = useEventStakesQuery(event.id as UUID, 1);
+  const { data: topStakes, isLoading: stakesLoading } = useEventStakesQuery(
+    event.id as UUID,
+    1,
+  );
 
   function primeEventRouteCache() {
     queryClient.setQueryData(queryKeys.eventById(event.id), event);
@@ -68,7 +71,7 @@ export function HistoryEventCard({ event }: { event: Event }) {
   const winnerPoolId = poolsList.find((p) => p.isWinner)?.id ?? null;
 
   const winnerStake = winnerPoolId
-    ? (topStakes ?? []).find((s) => s.marketPoolId === winnerPoolId) ?? null
+    ? ((topStakes ?? []).find((s) => s.marketPoolId === winnerPoolId) ?? null)
     : null;
 
   const loserStake =
@@ -144,4 +147,3 @@ export function HistoryEventCard({ event }: { event: Event }) {
     </EventCardLayout>
   );
 }
-

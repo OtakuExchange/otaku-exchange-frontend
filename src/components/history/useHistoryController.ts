@@ -31,8 +31,8 @@ export function useHistoryController(topics: Topic[]) {
     if (!selectedTopic) return null;
     if (!subtopicSlug) return null; // All divisions
     return (
-      selectedTopic.subtopics.find((s) => toSlug(s.name) === subtopicSlug)?.id ??
-      null
+      selectedTopic.subtopics.find((s) => toSlug(s.name) === subtopicSlug)
+        ?.id ?? null
     );
   }, [selectedTopic, subtopicSlug]);
 
@@ -150,4 +150,3 @@ export function useHistoryController(topics: Topic[]) {
     allEventsIsError,
   };
 }
-

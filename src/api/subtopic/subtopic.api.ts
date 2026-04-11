@@ -37,4 +37,3 @@ export async function deleteSubtopic(
   });
   if (!res.ok) throw new Error(await res.text());
 }
-

@@ -9,8 +9,15 @@ export function useTopicMutation() {
   const queryClient = useQueryClient();
 
   const createTopicMutation = useMutation({
-    mutationFn: ({ topic, description, hidden }: { topic: string; description: string; hidden: boolean }) =>
-      createTopic(topic, description, hidden, getToken),
+    mutationFn: ({
+      topic,
+      description,
+      hidden,
+    }: {
+      topic: string;
+      description: string;
+      hidden: boolean;
+    }) => createTopic(topic, description, hidden, getToken),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.topics });
     },
@@ -28,11 +35,10 @@ export function useTopicMutation() {
     isCreating: createTopicMutation.isPending,
     isCreated: createTopicMutation.isSuccess,
     createTopicError: createTopicMutation.isError,
-    
+
     deleteTopic: deleteTopicMutation.mutateAsync,
     isDeleting: deleteTopicMutation.isPending,
     isDeleted: deleteTopicMutation.isSuccess,
     deleteTopicError: deleteTopicMutation.isError,
   };
 }
-

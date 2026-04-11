@@ -1,7 +1,11 @@
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import { calcLegacyPayout, calcPayout, multiplierColor } from "../../utils/parimutuel";
+import {
+  calcLegacyPayout,
+  calcPayout,
+  multiplierColor,
+} from "../../utils/parimutuel";
 import { formatCentsCompact } from "../../utils/formatMoney";
 import { StakePercentBar } from "./StakePercentBar";
 import { OutcomeAmountChip } from "./OutcomeAmountChip";
@@ -119,7 +123,12 @@ function computeRowModel({
     new Date(pool.createdAt) >= BACK_TO_LEGACY;
 
   const payout = isLegacy
-    ? calcLegacyPayout(userStake, pool.volume, totalVolume, pool.eventMultiplier)
+    ? calcLegacyPayout(
+        userStake,
+        pool.volume,
+        totalVolume,
+        pool.eventMultiplier,
+      )
     : calcPayout(userStake, pool.volume, totalVolume, pool.eventMultiplier);
 
   const isResolved = pool.eventStatus.toLowerCase() === "resolved";

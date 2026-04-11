@@ -137,8 +137,15 @@ export function TradeCardDesktop({
             slotProps={{ htmlInput: { inputMode: "numeric" } }}
           />
           <Stack spacing={0.75}>
-            <Stack direction="row" alignItems="center" justifyContent="space-between">
-              <Typography variant="caption" sx={{ color: "#7B8996", fontWeight: 700 }}>
+            <Stack
+              direction="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              <Typography
+                variant="caption"
+                sx={{ color: "#7B8996", fontWeight: 700 }}
+              >
                 Bet
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 800 }}>

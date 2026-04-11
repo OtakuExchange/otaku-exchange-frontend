@@ -46,8 +46,14 @@ export default function EventCard({
     e.stopPropagation();
     onBookmarkChange?.(event.id, !bookmarked);
     const action = bookmarked
-      ? unbookmarkEvent({ eventId: event.id as UUID, topicId: event.topicId as UUID })
-      : bookmarkEvent({ eventId: event.id as UUID, topicId: event.topicId as UUID });
+      ? unbookmarkEvent({
+          eventId: event.id as UUID,
+          topicId: event.topicId as UUID,
+        })
+      : bookmarkEvent({
+          eventId: event.id as UUID,
+          topicId: event.topicId as UUID,
+        });
     action.catch(console.error);
   }
 
@@ -59,14 +65,20 @@ export default function EventCard({
   }
 
   const poolsList = pools ?? [];
-  const totalVolume = poolsList.reduce((sum: number, p: Pool) => sum + p.volume, 0);
+  const totalVolume = poolsList.reduce(
+    (sum: number, p: Pool) => sum + p.volume,
+    0,
+  );
 
   function openEvent() {
     primeEventRouteCache();
     navigate(`/events/${event.id}`);
   }
 
-  function selectPool(e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>, poolId: string) {
+  function selectPool(
+    e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
+    poolId: string,
+  ) {
     e.stopPropagation();
     primeEventRouteCache();
     navigate(`/events/${event.id}`, { state: { selectedPoolId: poolId } });

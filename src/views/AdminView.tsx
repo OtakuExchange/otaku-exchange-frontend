@@ -213,30 +213,28 @@ function AdminSidebar() {
 //   );
 export default function AdminView() {
   return (
-    <AdminGuard>
-      <Box sx={{ display: "flex", minHeight: "100%" }}>
-        <AdminSidebar />
-        <Box sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
-          <Typography variant="h4" gutterBottom>
-            Administration
-          </Typography>
-          <Routes>
-            <Route path="create/topic" element={<CreateTopicView />} />
-            <Route path="create/event" element={<CreateEventView />} />
-            <Route path="create/market" element={<CreateMarketView />} />
-            <Route path="create/entity" element={<CreateEntityView />} />
-            <Route path="delete" element={<DeleteView />} />
-            <Route path="event-status" element={<EventStatusView />} />
-            {/* <Route path="seed/market" element={<SeedMarketView />} /> */}
-            <Route
-              path="*"
-              element={<Navigate to="/admin/create/topic" replace />}
-            />
-            <Route path="resolve/event" element={<ResolveEventView />} />
-            <Route path="subtopics" element={<SubtopicAdminView />} />
-          </Routes>
-        </Box>
+    <Box sx={{ display: "flex", minHeight: "100%" }}>
+      <AdminSidebar />
+      <Box sx={{ flexGrow: 1, p: { xs: 2, sm: 3 } }}>
+        <Typography variant="h4" gutterBottom>
+          Administration
+        </Typography>
+        <Routes>
+          <Route path="create/topic" element={<CreateTopicView />} />
+          <Route path="create/event" element={<CreateEventView />} />
+          <Route path="create/market" element={<CreateMarketView />} />
+          <Route path="create/entity" element={<CreateEntityView />} />
+          <Route path="delete" element={<DeleteView />} />
+          <Route path="event-status" element={<EventStatusView />} />
+          {/* <Route path="seed/market" element={<SeedMarketView />} /> */}
+          <Route
+            path="*"
+            element={<Navigate to="/admin/create/topic" replace />}
+          />
+          <Route path="resolve/event" element={<ResolveEventView />} />
+          <Route path="subtopics" element={<SubtopicAdminView />} />
+        </Routes>
       </Box>
-    </AdminGuard>
+    </Box>
   );
 }

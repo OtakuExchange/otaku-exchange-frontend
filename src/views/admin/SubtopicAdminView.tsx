@@ -16,12 +16,16 @@ import Typography from "@mui/material/Typography";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import LinkIcon from "@mui/icons-material/Link";
 import type { Subtopic, Event, UUID } from "../../models/models";
-import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import {
+  useMultiTopicEventsQuery,
+  useTopicsQuery,
+} from "../../api/topic/topic.queries";
 import { useEventActionMutation } from "../../api/events/events.mutations";
 import { useSubtopicMutation } from "../../api/subtopic/subtopic.mutations";
 
 export default function SubtopicAdminView() {
-  const { linkEventToSubtopic, isLinkingToSubtopic: linking } = useEventActionMutation();
+  const { linkEventToSubtopic, isLinkingToSubtopic: linking } =
+    useEventActionMutation();
   const { createSubtopic, deleteSubtopic } = useSubtopicMutation();
 
   const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
@@ -56,7 +60,10 @@ export default function SubtopicAdminView() {
     setCreating(true);
     setCreateResult(null);
     try {
-      await createSubtopic({ topicId: createTopicId as UUID, name: createName.trim() });
+      await createSubtopic({
+        topicId: createTopicId as UUID,
+        name: createName.trim(),
+      });
       setCreateResult({ ok: true, msg: "Subtopic created." });
       setCreateName("");
     } catch (e) {
@@ -71,7 +78,10 @@ export default function SubtopicAdminView() {
   async function handleDeleteSubtopic(subtopic: Subtopic) {
     if (!confirm(`Delete subtopic "${subtopic.name}"?`)) return;
     try {
-      await deleteSubtopic({ subtopicId: subtopic.id, topicId: subtopic.topicId });
+      await deleteSubtopic({
+        subtopicId: subtopic.id,
+        topicId: subtopic.topicId,
+      });
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to delete";
       alert(message);
@@ -82,7 +92,11 @@ export default function SubtopicAdminView() {
     if (!linkSubtopicId || !linkEvent) return;
     setLinkResult(null);
     try {
-      await linkEventToSubtopic({eventId: linkEvent.id, topicId: linkEvent.topicId, subtopicId: linkSubtopicId as UUID});
+      await linkEventToSubtopic({
+        eventId: linkEvent.id,
+        topicId: linkEvent.topicId,
+        subtopicId: linkSubtopicId as UUID,
+      });
       setLinkResult({
         ok: true,
         msg: `Linked "${linkEvent.name}" successfully.`,
@@ -104,16 +118,16 @@ export default function SubtopicAdminView() {
   const filteredEvents = useMemo(() => {
     return selectedSubtopic
       ? events.filter(
-        (e) =>
-          e.topicId === selectedSubtopic.topicId &&
-          (e.status.toLowerCase() === "open" ||
-            e.status.toLowerCase() === "hidden"),
-      )
+          (e) =>
+            e.topicId === selectedSubtopic.topicId &&
+            (e.status.toLowerCase() === "open" ||
+              e.status.toLowerCase() === "hidden"),
+        )
       : events.filter(
-        (e) =>
-          e.status.toLowerCase() === "open" ||
-          e.status.toLowerCase() === "hidden",
-      );
+          (e) =>
+            e.status.toLowerCase() === "open" ||
+            e.status.toLowerCase() === "hidden",
+        );
   }, [events, selectedSubtopic]);
 
   if (topicsLoading || eventsLoading) {
@@ -126,9 +140,7 @@ export default function SubtopicAdminView() {
 
   if (eventsIsError || loadError) {
     return (
-      <Alert severity="error">
-        {loadError ?? "Failed to load events"}
-      </Alert>
+      <Alert severity="error">{loadError ?? "Failed to load events"}</Alert>
     );
   }
 

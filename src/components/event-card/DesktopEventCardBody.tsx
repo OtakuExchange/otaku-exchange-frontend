@@ -23,7 +23,10 @@ export function DesktopEventCardBody({
   pools: Pool[];
   totalVolume: number;
   isMulti: boolean;
-  onSelectPool: (e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>, poolId: string) => void;
+  onSelectPool: (
+    e: React.MouseEvent<HTMLButtonElement | HTMLDivElement>,
+    poolId: string,
+  ) => void;
   highlightWinnerPool?: boolean;
 }) {
   return (

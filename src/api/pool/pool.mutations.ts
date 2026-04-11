@@ -9,9 +9,24 @@ export function usePoolMutation() {
   const queryClient = useQueryClient();
 
   const createPoolMutation = useMutation({
-    mutationFn: (payload: { eventId: UUID; label: string; entityId: UUID | null }) => createMarketPool(payload.eventId, payload.label, payload.entityId, getToken),
-    onSuccess: (_, variables: { eventId: UUID; label: string; entityId: UUID | null }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.poolsByEventId(variables.eventId) });
+    mutationFn: (payload: {
+      eventId: UUID;
+      label: string;
+      entityId: UUID | null;
+    }) =>
+      createMarketPool(
+        payload.eventId,
+        payload.label,
+        payload.entityId,
+        getToken,
+      ),
+    onSuccess: (
+      _,
+      variables: { eventId: UUID; label: string; entityId: UUID | null },
+    ) => {
+      queryClient.invalidateQueries({
+        queryKey: queryKeys.poolsByEventId(variables.eventId),
+      });
     },
   });
 

@@ -15,7 +15,12 @@ import { useEventMutation } from "../../api/events/events.mutations";
 const FORMAT_OPTIONS = ["binary", "multi"];
 
 export default function CreateEventView() {
-  const { createEvent, isCreating: loading, createEventError: error, isCreated: success } = useEventMutation();
+  const {
+    createEvent,
+    isCreating: loading,
+    createEventError: error,
+    isCreated: success,
+  } = useEventMutation();
   const { data: topics = [] } = useTopicsQuery();
   const [topicId, setTopicId] = useState("");
   const [format, setFormat] = useState("binary");
@@ -40,7 +45,7 @@ export default function CreateEventView() {
         resolutionRule,
         logoPath: logoPath.trim() || undefined,
       });
-  
+
       resetForm();
     } catch {
       console.error("Failed to create event");
@@ -54,7 +59,7 @@ export default function CreateEventView() {
     setResolutionRule("");
     setLogoPath("");
     setAlias("");
-  }
+  };
 
   const canSubmit =
     !loading && !!topicId && !!name.trim() && !!closeTime?.isValid();

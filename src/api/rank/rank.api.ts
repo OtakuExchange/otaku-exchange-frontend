@@ -9,4 +9,3 @@ export async function fetchLeaderboard(
     headers: await authHeaders(getToken),
   }).then((r) => r.json());
 }
-

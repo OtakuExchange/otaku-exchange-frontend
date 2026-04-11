@@ -17,4 +17,3 @@ export function useLeaderboardQuery(
     refetchOnWindowFocus: false,
   });
 }
-

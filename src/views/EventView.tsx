@@ -4,7 +4,7 @@ import { DesktopEventView } from "../components/event/desktop/DesktopEventView";
 import { MobileEventView } from "../components/event/mobile/MobileEventView";
 import type { PoolStat } from "../components/event/types";
 import { useUserId } from "../contexts/UserContext";
-import { usePoolsQuery } from "../api/market/market.queries";
+import { usePoolsQuery } from "../api/pool/pool.queries";
 import type { Event, Pool } from "../models/models";
 import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
 import { useTopicsQuery } from "../api/topic/topic.queries";

@@ -1,47 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import type { Event, Market, Topic, UUID } from "../../models/models";
-import { useApi } from "../../hooks/useApi";
+import type { Event, Topic, UUID } from "../../models/models";
 import { useTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
 import { useTopicMutation } from "../../api/topic/topic.mutations";
 import { useEventMutation } from "../../api/events/events.mutations";
-import { queryKeys } from "../../api/queryKeys";
-import { useQueryClient } from "@tanstack/react-query";
 
 export default function DeleteView() {
-  const queryClient = useQueryClient();
-  const { fetchMarkets, deleteMarket } =
-    useApi();
+  const [eventId, setEventId] = useState<UUID | null>(null);
   const { deleteTopic } = useTopicMutation();
   const { deleteEvent } = useEventMutation();
-  const { data: topics = [] } = useTopicsQuery();
+  const { data: topics = [] } = useTopicsQuery(); 
   const [topicId, setTopicId] = useState<UUID | "">("");
   const { data: events = [] } = useTopicEventsQuery(topicId, null);
-  const [eventId, setEventId] = useState("");
-  const [markets, setMarkets] = useState<Market[]>([]);
-  const [marketId, setMarketId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!eventId) {
-      setMarkets([]);
-      setMarketId("");
-      return;
-    }
-    fetchMarkets(eventId as Event["id"])
-      .then(setMarkets)
-      .catch(console.error);
-  }, [eventId, fetchMarkets]);
-
-  const buttonLabel = marketId
-    ? "Delete Market"
-    : eventId
+  const buttonLabel = eventId
       ? "Delete Event"
       : topicId
         ? "Delete Topic"
@@ -53,23 +32,15 @@ export default function DeleteView() {
     setError(null);
     setSuccess(null);
     try {
-      if (marketId) {
-        await deleteMarket(marketId as Market["id"]);
-        setSuccess("Market deleted successfully.");
-        setMarketId("");
-        setMarkets((prev) => prev.filter((m) => m.id !== marketId));
-      } else if (eventId) {
+      if (eventId && topicId) {
         await deleteEvent({ eventId: eventId as UUID, topicId: topicId as UUID});
         setSuccess("Event deleted successfully.");
-        setEventId("");
-        setMarketId("");
-        queryClient.setQueryData(queryKeys.eventsByTopic(topicId as UUID), (prev: Event[] | undefined) => prev?.filter((e) => e.id !== eventId as UUID));
-      } else if(topicId !== null) {
+        setEventId(null);
+      } else if(topicId) {
         await deleteTopic(topicId as UUID);
         setSuccess("Topic deleted successfully.");
         setTopicId("");
-        setEventId("");
-        setMarketId("");
+        setEventId(null);
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Delete failed");
@@ -89,8 +60,7 @@ export default function DeleteView() {
         value={topicId}
         onChange={(e) => {
           setTopicId(e.target.value as UUID);
-          setEventId("");
-          setMarketId("");
+          setEventId(null);
         }}
         disabled={loading}
       >
@@ -105,8 +75,7 @@ export default function DeleteView() {
         label="Event"
         value={eventId}
         onChange={(e) => {
-          setEventId(e.target.value);
-          setMarketId("");
+          setEventId(e.target.value as UUID);
         }}
         disabled={loading || !topicId}
       >
@@ -116,22 +85,6 @@ export default function DeleteView() {
         {events.map((ev: Event) => (
           <MenuItem key={ev.id} value={ev.id}>
             {ev.name}
-          </MenuItem>
-        ))}
-      </TextField>
-      <TextField
-        select
-        label="Market"
-        value={marketId}
-        onChange={(e) => setMarketId(e.target.value)}
-        disabled={loading || !eventId}
-      >
-        <MenuItem value="">
-          <em>None</em>
-        </MenuItem>
-        {markets.map((m: Market) => (
-          <MenuItem key={m.id} value={m.id}>
-            {m.label}
           </MenuItem>
         ))}
       </TextField>

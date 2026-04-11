@@ -23,7 +23,7 @@ import type { UUID } from "./models/models";
 import { UserContext } from "./contexts/UserContext";
 import AdminView from "./views/AdminView";
 import UserView from "./views/UserView";
-import { usePoolsQuery } from "./api/market/market.queries";
+import { usePoolsQuery } from "./api/pool/pool.queries";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useEventQuery } from "./api/events/events.queries";
 import { useNavbarTopics } from "./components/navbar/useNavbarTopics";

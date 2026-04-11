@@ -4,7 +4,7 @@ import Stack from "@mui/material/Stack";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
 import type { Event, Pool, UUID } from "../models/models";
-import { usePoolsQuery } from "../api/market/market.queries";
+import { usePoolsQuery } from "../api/pool/pool.queries";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../api/queryKeys";
 import { EventCardLayout } from "./event-card/EventCardLayout";

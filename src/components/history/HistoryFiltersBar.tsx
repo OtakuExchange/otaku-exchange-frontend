@@ -5,7 +5,10 @@ import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { Subtopic, Topic, UUID } from "../../models/models";
-import type { HistorySortOption, HistoryMultiplierFilter } from "./useHistoryEventFilters";
+import type {
+  HistorySortOption,
+  HistoryMultiplierFilter,
+} from "./useHistoryEventFilters";
 
 export function HistoryFiltersBar({
   topics,
@@ -56,81 +59,151 @@ export function HistoryFiltersBar({
         >
           {resultsCount.toLocaleString("en-US")} results
         </Typography>
-
-        <TextField
-          select
-          label="Topic"
-          size="small"
-          value={topicValue}
-          onChange={(e) => onTopicChange(e.target.value as "all" | UUID)}
-          sx={{ minWidth: 220 }}
-        >
-          <MenuItem value="all">All topics</MenuItem>
-          {topics.map((t) => (
-            <MenuItem key={t.id} value={t.id}>
-              {t.topic}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          select
-          label="Division"
-          size="small"
-          value={divisionsDisabled ? "" : divisionValue}
-          onChange={(e) => onDivisionChange(e.target.value as "" | UUID)}
-          disabled={divisionsDisabled}
-          sx={{ minWidth: 220 }}
-        >
-          <MenuItem value="">All divisions</MenuItem>
-          {subtopics.map((s) => (
-            <MenuItem key={s.id} value={s.id}>
-              {s.name}
-            </MenuItem>
-          ))}
-        </TextField>
-
-        <TextField
-          select
-          label="Sort"
-          size="small"
-          value={sortOption}
-          onChange={(e) => onSortChange(e.target.value as HistorySortOption)}
-          sx={{ minWidth: 200 }}
-        >
-          <MenuItem value="date_desc">Date (newest)</MenuItem>
-          <MenuItem value="date_asc">Date (oldest)</MenuItem>
-          <MenuItem value="volume_desc">Volume (high)</MenuItem>
-          <MenuItem value="volume_asc">Volume (low)</MenuItem>
-        </TextField>
-
-        <TextField
-          select
-          label="Multiplier"
-          size="small"
-          value={multiplierFilter}
-          onChange={(e) =>
-            onMultiplierFilterChange(e.target.value as HistoryMultiplierFilter)
-          }
-          sx={{ minWidth: 180 }}
-        >
-          <MenuItem value="any">Any</MenuItem>
-          <MenuItem value="ge2">2x+</MenuItem>
-          <MenuItem value="ge3">3x+</MenuItem>
-          <MenuItem value="ge4">4x+</MenuItem>
-          <MenuItem value="ge5">5x+</MenuItem>
-        </TextField>
-
-        <Button
-          variant="text"
-          size="small"
-          onClick={onClearFilters}
-          sx={{ textTransform: "none", fontWeight: 700 }}
-        >
-          Clear filters
-        </Button>
+        <TopicFilter
+          topics={topics}
+          topicValue={topicValue}
+          onTopicChange={onTopicChange}
+        />
+        <SubtopicFilter
+          subtopics={subtopics}
+          divisionValue={divisionValue}
+          onDivisionChange={onDivisionChange}
+          divisionsDisabled={divisionsDisabled}
+        />
+        <SortFilter sortOption={sortOption} onSortChange={onSortChange} />
+        <MultiplierFilter
+          multiplierFilter={multiplierFilter}
+          onMultiplierFilterChange={onMultiplierFilterChange}
+        />
+        <ClearFiltersButton onClearFilters={onClearFilters} />
       </Stack>
     </Box>
   );
 }
 
+function TopicFilter({
+  topics,
+  topicValue,
+  onTopicChange,
+}: {
+  topics: Topic[];
+  topicValue: "all" | UUID;
+  onTopicChange: (topicId: "all" | UUID) => void;
+}) {
+  return (
+    <TextField
+      select
+      label="Topic"
+      size="small"
+      value={topicValue}
+      onChange={(e) => onTopicChange(e.target.value as "all" | UUID)}
+      sx={{ minWidth: 220 }}
+    >
+      <MenuItem value="all">All topics</MenuItem>
+      {topics.map((t) => (
+        <MenuItem key={t.id} value={t.id}>
+          {t.topic}
+        </MenuItem>
+      ))}
+    </TextField>
+  );
+}
+
+function SubtopicFilter({
+  subtopics,
+  divisionValue,
+  onDivisionChange,
+  divisionsDisabled,
+}: {
+  subtopics: Subtopic[];
+  divisionValue: "" | UUID;
+  onDivisionChange: (subtopicId: "" | UUID) => void;
+  divisionsDisabled: boolean;
+}) {
+  return (
+    <TextField
+      select
+      label="Division"
+      size="small"
+      value={divisionsDisabled ? "" : divisionValue}
+      onChange={(e) => onDivisionChange(e.target.value as "" | UUID)}
+      disabled={divisionsDisabled}
+      sx={{ minWidth: 220 }}
+    >
+      <MenuItem value="">All divisions</MenuItem>
+      {subtopics.map((s) => (
+        <MenuItem key={s.id} value={s.id}>
+          {s.name}
+        </MenuItem>
+      ))}
+    </TextField>
+  );
+}
+
+function SortFilter({
+  sortOption,
+  onSortChange,
+}: {
+  sortOption: HistorySortOption;
+  onSortChange: (next: HistorySortOption) => void;
+}) {
+  return (
+    <TextField
+      select
+      label="Sort"
+      size="small"
+      value={sortOption}
+      onChange={(e) => onSortChange(e.target.value as HistorySortOption)}
+      sx={{ minWidth: 200 }}
+    >
+      <MenuItem value="date_desc">Date (newest)</MenuItem>
+      <MenuItem value="date_asc">Date (oldest)</MenuItem>
+      <MenuItem value="volume_desc">Volume (high)</MenuItem>
+      <MenuItem value="volume_asc">Volume (low)</MenuItem>
+    </TextField>
+  );
+}
+
+function MultiplierFilter({
+  multiplierFilter,
+  onMultiplierFilterChange,
+}: {
+  multiplierFilter: HistoryMultiplierFilter;
+  onMultiplierFilterChange: (next: HistoryMultiplierFilter) => void;
+}) {
+  return (
+    <TextField
+      select
+      label="Multiplier"
+      size="small"
+      value={multiplierFilter}
+      onChange={(e) =>
+        onMultiplierFilterChange(e.target.value as HistoryMultiplierFilter)
+      }
+      sx={{ minWidth: 180 }}
+    >
+      <MenuItem value="any">Any</MenuItem>
+      <MenuItem value="ge2">2x+</MenuItem>
+      <MenuItem value="ge3">3x+</MenuItem>
+      <MenuItem value="ge4">4x+</MenuItem>
+      <MenuItem value="ge5">5x+</MenuItem>
+    </TextField>
+  );
+}
+
+function ClearFiltersButton({
+  onClearFilters,
+}: {
+  onClearFilters: () => void;
+}) {
+  return (
+    <Button
+      variant="text"
+      size="small"
+      onClick={onClearFilters}
+      sx={{ textTransform: "none", fontWeight: 700 }}
+    >
+      Clear filters
+    </Button>
+  );
+}

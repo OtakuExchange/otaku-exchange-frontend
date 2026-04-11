@@ -126,11 +126,8 @@ function App() {
               message={
                 <Typography sx={{ fontSize: "13px", color: "error.main" }}>
                   ⚠️{" "}
-                  <strong style={{ color: "#e8e8e8" }}>
-                    End of Service Announcment:
-                  </strong>{" "}
-                  We will be shutting down FillyB Exchange on April 23rd, 2026.
-                  Top 3 Leaderboard prizes will be awarded shortly after.
+                  We will be wrapping up the FillyB Exchange on May 6th after AML finals is done.
+                  Top 3 Leaderboard prizes will be awarded shortly after, stay tuned for FillyB Wrapped.
                 </Typography>
               }
             />

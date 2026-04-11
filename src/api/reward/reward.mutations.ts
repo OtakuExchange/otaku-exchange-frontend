@@ -11,6 +11,7 @@ export function useClaimDailyMutation() {
     mutationFn: () => claimDailyReward(getToken),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: queryKeys.user });
+      queryClient.invalidateQueries({ queryKey: queryKeys.dailyStreak });
     },
   });
 

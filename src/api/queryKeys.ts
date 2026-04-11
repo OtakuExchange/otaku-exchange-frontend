@@ -1,6 +1,9 @@
 import type { UUID } from "../models/models";
 
 export const queryKeys = {
+  // Rewards
+  dailyStreak: ["dailyStreak"] as const,
+
   // Entities
   entities: ["entities"] as const,
 

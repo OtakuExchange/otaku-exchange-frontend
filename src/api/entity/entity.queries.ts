@@ -8,5 +8,9 @@ export function useEntitiesQuery() {
   return useQuery({
     queryKey: queryKeys.entities,
     queryFn: () => fetchEntities(getToken),
+
+    staleTime: 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
   });
 }

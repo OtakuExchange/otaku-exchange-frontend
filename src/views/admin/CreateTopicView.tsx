@@ -27,7 +27,7 @@ export default function CreateTopicView() {
     } catch {
       console.error("Failed to create topic");
     }
-  }, [success]);
+  }
 
   return (
     <Box

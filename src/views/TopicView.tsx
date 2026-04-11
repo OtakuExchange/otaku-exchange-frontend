@@ -236,7 +236,8 @@ export default function TopicView({
     (events ?? []).filter((e: Event) => {
       const status = e.status.toLowerCase();
       if (status === "hidden") return isAdmin;
-      return status !== "resolved";
+      const show: boolean = status === "open" || status === "staking_closed";
+      return show;
     }),
   );
   const renderedEvents = filterBookmarked

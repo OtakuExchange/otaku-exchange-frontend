@@ -35,7 +35,10 @@ import { useUserQuery } from "./api/user/user.queries";
 import { useTopicsQuery } from "./api/topic/topic.queries";
 import { InfoBanner } from "./components/InfoBanner";
 import Stack from "@mui/material/Stack";
-import { AdminGuard } from "./components/admin/AdminGuard";
+import { AdminGuard } from "./components/guard/AdminGuard.tsx";
+import { Show } from "@clerk/react";
+import { SignedInGuard } from "./components/guard/SignedInGuard.tsx";
+
 
 const darkTheme = createTheme({
   palette: {
@@ -151,6 +154,7 @@ function App() {
           </Stack>
 
           <Routes>
+            {/* Topic Routes */}
             {navTabs.map((tab) => (
               <Route
                 key={tab.path}
@@ -166,43 +170,32 @@ function App() {
                 }
               />
             ))}
+
+            {/* Public Routes */}
+            <Route path="/events/:eventId" element={<EventViewRoute />} />
+            <Route path="/leaderboard" element={<LeaderboardView />} />
+            <Route path="/portfolio" element={<PortfolioView />} />
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="*" element={navTabs.length > 0 ? <Navigate to={navTabs[0].path} replace /> : <Box />}/>
+
+            {/* Signed In Routes */}
+            <Route element={<SignedInGuard />}>
+              <Route path="/users/:userId" element={<UserView />} />
+            </Route>
+
+            {/* Admin Routes */}
+            <Route element={<AdminGuard />}>
+              <Route path="/admin/*" element={<AdminView />} />
+              <Route path="/history/*" element={<HistoryView/>}/>
+            </Route>
+
+            {/* Fallback Route */}
             {navTabs.length > 0 && (
               <Route
                 path="/"
                 element={<Navigate to={navTabs[0].path} replace />}
               />
             )}
-            <Route path="/events/:eventId" element={<EventViewRoute />} />
-            <Route path="/portfolio" element={<PortfolioView />} />
-            <Route path="/leaderboard" element={<LeaderboardView />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/users/:userId" element={<UserView />} />
-            <Route
-              path="/admin/*"
-              element={
-                <AdminGuard>
-                  <AdminView />
-                </AdminGuard>
-              }
-            />
-            <Route
-              path="/history/*"
-              element={
-                <AdminGuard>
-                  <HistoryView />
-                </AdminGuard>
-              }
-            />
-            <Route
-              path="*"
-              element={
-                navTabs.length > 0 ? (
-                  <Navigate to={navTabs[0].path} replace />
-                ) : (
-                  <Box />
-                )
-              }
-            />
           </Routes>
         </Box>
       </ThemeProvider>

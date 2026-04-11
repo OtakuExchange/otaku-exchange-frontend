@@ -1,10 +1,10 @@
 import Box from "@mui/material/Box";
 import CircularProgress from "@mui/material/CircularProgress";
 import { useUser } from "@clerk/react";
-import { Navigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useUserQuery } from "../../api/user/user.queries";
 
-export function AdminGuard({ children }: { children: React.ReactNode }) {
+export function AdminGuard() {
   const { isSignedIn, isLoaded } = useUser();
   const { data: userData, isLoading: isLoadingUser } = useUserQuery();
   const effectiveIsAdmin = isSignedIn === true && (userData?.isAdmin ?? false);
@@ -33,5 +33,5 @@ export function AdminGuard({ children }: { children: React.ReactNode }) {
     return <Navigate to="/" replace />;
   }
 
-  return <>{children}</>;
+  return <Outlet />;
 }

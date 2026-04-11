@@ -22,6 +22,7 @@ export const EVENT_STATUSES = [
   "hidden",
   "staking_closed",
   "resolved",
+  "closed",
 ] as const;
 
 export type EventStatus = (typeof EVENT_STATUSES)[number];

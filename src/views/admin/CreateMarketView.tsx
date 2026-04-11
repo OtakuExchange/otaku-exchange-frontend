@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import Alert from "@mui/material/Alert";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -7,16 +7,17 @@ import Divider from "@mui/material/Divider";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
-import type { Entity, Topic, UUID } from "../../models/models";
-import { useApi } from "../../hooks/useApi";
+import type { Topic, UUID } from "../../models/models";
 import { useTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
+import { useEntitiesQuery } from "../../api/entity/entity.queries";
+import { usePoolMutation } from "../../api/pool/pool.mutations";
 
 export default function CreateMarketView() {
-  const { fetchEntities, createMarketPool } = useApi();
-  const { data: topics = [] } = useTopicsQuery();
+  const { createMarketPool } = usePoolMutation();
+  const { data: entities = [], isError: entitiesError } = useEntitiesQuery();
+  const { data: topics = [], isLoading: loadingTopics, isError: topicsError } = useTopicsQuery();
   const [topicId, setTopicId] = useState<UUID | "">("");
-  const { data: events = [], isLoading: loadingEvents } = useTopicEventsQuery(topicId, null);
-  const [entities, setEntities] = useState<Entity[]>([]);
+  const { data: events = [], isLoading: loadingEvents, isError: eventsError } = useTopicEventsQuery(topicId, null);
 
   const [pools, setPools] = useState([
     { label: "", entityId: "" as UUID | "" },
@@ -25,12 +26,13 @@ export default function CreateMarketView() {
 
   const [selectedEventId, setSelectedEventId] = useState<UUID | "">("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const error = useMemo(() => {
+    if (topicsError) return "Failed to load topics";
+    if (eventsError) return "Failed to load events";
+    if (entitiesError) return "Failed to load entities";
+    return null;
+  }, [topicsError, eventsError, entitiesError]);
   const [success, setSuccess] = useState(false);
-
-  useEffect(() => {
-    fetchEntities().then(setEntities).catch(console.error);
-  }, [fetchEntities]);
 
   function updatePool(
     index: number,
@@ -53,16 +55,15 @@ export default function CreateMarketView() {
   async function handleSubmit() {
     if (!selectedEventId) return;
     setLoading(true);
-    setError(null);
     setSuccess(false);
     try {
       await Promise.all(
         pools.map((p) =>
-          createMarketPool(
-            selectedEventId,
-            p.label,
-            p.entityId ? (p.entityId as UUID) : null,
-          ),
+          createMarketPool({
+            eventId: selectedEventId as UUID,
+            label: p.label,
+            entityId: p.entityId ? (p.entityId as UUID) : null,
+          }),
         ),
       );
       setSuccess(true);
@@ -72,7 +73,7 @@ export default function CreateMarketView() {
       ]);
       setSelectedEventId("");
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to create pools");
+      // setError(e instanceof Error ? e.message : "Failed to create pools");
     } finally {
       setLoading(false);
     }
@@ -95,7 +96,7 @@ export default function CreateMarketView() {
         label="Topic"
         value={topicId}
         onChange={(e) => setTopicId(e.target.value as UUID)}
-        disabled={loading}
+        disabled={loadingTopics}
       >
         {topics.map((t: Topic) => (
           <MenuItem key={t.id} value={t.id}>
@@ -112,7 +113,7 @@ export default function CreateMarketView() {
           label="Event"
           value={selectedEventId}
           onChange={(e) => setSelectedEventId(e.target.value as UUID)}
-          disabled={loading || !topicId || events.length === 0}
+          disabled={loadingEvents || !topicId || events.length === 0}
         >
           {events
             .filter(

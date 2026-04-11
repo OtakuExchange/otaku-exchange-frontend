@@ -91,7 +91,7 @@ function AdminSidebar() {
               sx={{ pl: 4 }}
               onClick={() => navigate("/admin/delete")}
             >
-              <ListItemText primary="Topic / Event / Market" />
+              <ListItemText primary="Topic / Event" />
             </ListItemButton>
           </List>
         </Collapse>

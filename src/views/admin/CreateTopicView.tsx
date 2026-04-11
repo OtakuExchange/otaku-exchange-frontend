@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -19,16 +19,15 @@ export default function CreateTopicView() {
   const [hidden, setHidden] = useState(false);
 
   async function handleSubmit() {
-    await createTopic({ topic, description, hidden });
-  }
-
-  useEffect(() => {
-    if (success) {
+    try {
+      await createTopic({ topic, description, hidden });
       setTopic("");
       setDescription("");
       setHidden(false);
+    } catch {
+      console.error("Failed to create topic");
     }
-  }, [success]);
+  }
 
   return (
     <Box

@@ -4,7 +4,7 @@ import { formatUsdFromCents } from "../utils/formatMoney";
 import { calcLegacyBasePayout, calcLegacyPayout } from "../utils/parimutuel";
 import { useUserQuery } from "../api/user/user.queries";
 import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
-import { useCreateStakeMutation } from "../api/events/events.mutations";
+import { useStakeMutation } from "../api/events/events.mutations";
 
 export function useTradeModel({
   eventMultiplier,
@@ -20,7 +20,7 @@ export function useTradeModel({
   isFirstStakeBonusEligible?: boolean;
 }) {
   const { data: user } = useUserQuery();
-  const { createStake } = useCreateStakeMutation();
+  const { createStake } = useStakeMutation();
   const [rawAmount, setRawAmount] = useState("");
   const [buying, setBuying] = useState(false);
   const [toastOpen, setToastOpen] = useState(false);

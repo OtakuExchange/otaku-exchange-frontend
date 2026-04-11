@@ -7,12 +7,10 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Divider from "@mui/material/Divider";
 import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
-import type { Event, EventStatus, UUID } from "../../models/models";
+import type { Event, UUID } from "../../models/models";
 import { EVENT_STATUSES } from "../../models/models";
-import { useApi } from "../../hooks/useApi";
 import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
-import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "../../api/queryKeys";
+import { useEventActionMutation } from "../../api/events/events.mutations";
 
 function statusColor(status: string): string {
   switch (status.toLowerCase()) {
@@ -37,8 +35,7 @@ function statusLabel(status: string): string {
 }
 
 export default function EventStatusView() {
-  const { updateEventStatus } = useApi();
-  const queryClient = useQueryClient();
+  const { updateEventStatus, updateEventStatusError: error } = useEventActionMutation();
 
   const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
   const topicIds = useMemo(() => topics.map((t) => t.id as UUID), [topics]);
@@ -49,7 +46,6 @@ export default function EventStatusView() {
   } = useMultiTopicEventsQuery(topicIds);
 
   const [togglingId, setTogglingId] = useState<UUID | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const eventsByTopic = useMemo(() => {
     return topics
@@ -67,21 +63,8 @@ export default function EventStatusView() {
   async function handleToggle(event: Event, newStatus: string) {
     if (event.status.toLowerCase() === newStatus) return;
     setTogglingId(event.id);
-    setError(null);
-    try {
-      await updateEventStatus(event.id, newStatus);
-      queryClient.setQueryData(
-        queryKeys.eventsByTopic(event.topicId),
-        (prev: Event[] | undefined) =>
-          prev?.map((e) =>
-            e.id === event.id ? { ...e, status: newStatus as EventStatus } : e,
-          ),
-      );
-    } catch {
-      setError(`Failed to update ${event.name}`);
-    } finally {
-      setTogglingId(null);
-    }
+    await updateEventStatus({eventId: event.id, topicId: event.topicId, status: newStatus});
+    setTogglingId(null);
   }
 
   if (topicsLoading || eventsLoading) return <CircularProgress />;

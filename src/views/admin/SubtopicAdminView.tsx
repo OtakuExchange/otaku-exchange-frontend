@@ -15,15 +15,14 @@ import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import DeleteOutlineIcon from "@mui/icons-material/DeleteOutline";
 import LinkIcon from "@mui/icons-material/Link";
-import { useApi } from "../../hooks/useApi";
 import type { Subtopic, Event, UUID } from "../../models/models";
 import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
-import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "../../api/queryKeys";
+import { useEventActionMutation } from "../../api/events/events.mutations";
+import { useSubtopicMutation } from "../../api/subtopic/subtopic.mutations";
 
 export default function SubtopicAdminView() {
-  const api = useApi();
-  const queryClient = useQueryClient();
+  const { linkEventToSubtopic, isLinkingToSubtopic: linking } = useEventActionMutation();
+  const { createSubtopic, deleteSubtopic } = useSubtopicMutation();
 
   const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
   const topicIds = useMemo(() => topics.map((t) => t.id as UUID), [topics]);
@@ -47,7 +46,6 @@ export default function SubtopicAdminView() {
   // link form
   const [linkSubtopicId, setLinkSubtopicId] = useState<UUID | "">("");
   const [linkEvent, setLinkEvent] = useState<Event | null>(null);
-  const [linking, setLinking] = useState(false);
   const [linkResult, setLinkResult] = useState<{
     ok: boolean;
     msg: string;
@@ -58,10 +56,9 @@ export default function SubtopicAdminView() {
     setCreating(true);
     setCreateResult(null);
     try {
-      await api.createSubtopic(createTopicId as UUID, createName.trim());
+      await createSubtopic({ topicId: createTopicId as UUID, name: createName.trim() });
       setCreateResult({ ok: true, msg: "Subtopic created." });
       setCreateName("");
-      await queryClient.invalidateQueries({ queryKey: queryKeys.topics });
     } catch (e) {
       const message =
         e instanceof Error ? e.message : "Failed to create subtopic.";
@@ -74,8 +71,7 @@ export default function SubtopicAdminView() {
   async function handleDeleteSubtopic(subtopic: Subtopic) {
     if (!confirm(`Delete subtopic "${subtopic.name}"?`)) return;
     try {
-      await api.deleteSubtopic(subtopic.id);
-      await queryClient.invalidateQueries({ queryKey: queryKeys.topics });
+      await deleteSubtopic({ subtopicId: subtopic.id, topicId: subtopic.topicId });
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to delete";
       alert(message);
@@ -84,10 +80,9 @@ export default function SubtopicAdminView() {
 
   async function handleLink() {
     if (!linkSubtopicId || !linkEvent) return;
-    setLinking(true);
     setLinkResult(null);
     try {
-      await api.linkEventToSubtopic(linkEvent.id, linkSubtopicId as UUID);
+      await linkEventToSubtopic({eventId: linkEvent.id, topicId: linkEvent.topicId, subtopicId: linkSubtopicId as UUID});
       setLinkResult({
         ok: true,
         msg: `Linked "${linkEvent.name}" successfully.`,
@@ -96,8 +91,6 @@ export default function SubtopicAdminView() {
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to link.";
       setLinkResult({ ok: false, msg: message });
-    } finally {
-      setLinking(false);
     }
   }
 

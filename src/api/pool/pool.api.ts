@@ -1,24 +1,5 @@
-import type { UUID, Market, Pool } from "../../models/models";
+import type { UUID, Pool } from "../../models/models";
 import { type GetToken, API_URL, authHeaders } from "../api";
-
-export async function fetchMarkets(
-  eventId: UUID,
-  getToken: GetToken,
-): Promise<Market[]> {
-  return fetch(`${API_URL}/events/${eventId}/markets`, {
-    headers: await authHeaders(getToken),
-  }).then((r) => r.json());
-}
-
-export async function deleteMarket(
-  marketId: UUID,
-  getToken: GetToken,
-): Promise<void> {
-  return fetch(`${API_URL}/markets/${marketId}`, {
-    method: "DELETE",
-    headers: await authHeaders(getToken),
-  }).then(() => undefined);
-}
 
 export async function createMarketPool(
   eventId: UUID,

@@ -8,14 +8,14 @@ import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { type Dayjs } from "dayjs";
-import { EVENT_STATUSES, type Topic } from "../../models/models";
-import { useApi } from "../../hooks/useApi";
+import { EVENT_STATUSES, type Topic, type UUID } from "../../models/models";
 import { useTopicsQuery } from "../../api/topic/topic.queries";
+import { useEventMutation } from "../../api/events/events.mutations";
 
 const FORMAT_OPTIONS = ["binary", "multi"];
 
 export default function CreateEventView() {
-  const { createEvent } = useApi();
+  const { createEvent, isCreating: loading, createEventError: error, isCreated: success } = useEventMutation();
   const { data: topics = [] } = useTopicsQuery();
   const [topicId, setTopicId] = useState("");
   const [format, setFormat] = useState("binary");
@@ -26,17 +26,11 @@ export default function CreateEventView() {
   const [status, setStatus] = useState("open");
   const [resolutionRule, setResolutionRule] = useState("");
   const [logoPath, setLogoPath] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   async function handleSubmit() {
-    setLoading(true);
-    setError(null);
-    setSuccess(false);
     try {
       await createEvent({
-        topicId: topicId as Topic["id"],
+        topicId: topicId as UUID,
         format,
         name,
         alias,
@@ -46,17 +40,20 @@ export default function CreateEventView() {
         resolutionRule,
         logoPath: logoPath.trim() || undefined,
       });
-      setSuccess(true);
-      setName("");
-      setDescription("");
-      setCloseTime(null);
-      setResolutionRule("");
-      setLogoPath("");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Failed to create event");
-    } finally {
-      setLoading(false);
+  
+      resetForm();
+    } catch {
+      console.error("Failed to create event");
     }
+  }
+
+  const resetForm = () => {
+    setName("");
+    setDescription("");
+    setCloseTime(null);
+    setResolutionRule("");
+    setLogoPath("");
+    setAlias("");
   }
 
   const canSubmit =

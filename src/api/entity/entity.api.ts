@@ -1,6 +1,13 @@
 import type { Entity } from "../../models/models";
 import { type GetToken, API_URL, authHeaders } from "../api";
 
+export interface CreateEntityPayload {
+  name: string;
+  abbreviatedName?: string;
+  logoPath: string;
+  color?: string;
+}
+
 export async function fetchEntities(getToken: GetToken): Promise<Entity[]> {
   return fetch(`${API_URL}/entities`, {
     headers: await authHeaders(getToken),
@@ -8,12 +15,7 @@ export async function fetchEntities(getToken: GetToken): Promise<Entity[]> {
 }
 
 export async function createEntity(
-  payload: {
-    name: string;
-    abbreviatedName?: string;
-    logoPath: string;
-    color?: string;
-  },
+  payload: CreateEntityPayload,
   getToken: GetToken,
 ): Promise<Entity> {
   return fetch(`${API_URL}/entities`, {

@@ -1,32 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip from "@mui/material/Tooltip";
 import EmojiEventsIcon from "@mui/icons-material/EmojiEvents";
-import type { StreakStatus } from "../models/models";
-import { useApi } from "../hooks/useApi";
 import { useClaimDailyMutation } from "../api/reward/reward.mutations";
+import { useDailyStreakQuery } from "../api/reward/reward.queries";
 
 export default function DailyRewardButton({
   variant = "desktop",
 }: {
   variant?: "desktop" | "mobile";
 }) {
-  const { fetchDailyStreak } = useApi();
+  const { data: status } = useDailyStreakQuery();
   const { claimDailyReward } = useClaimDailyMutation();
-  const [status, setStatus] = useState<StreakStatus | null>(null);
   const [claiming, setClaiming] = useState(false);
   const [justClaimed, setJustClaimed] = useState(false);
-
-  useEffect(() => {
-    fetchDailyStreak().then(setStatus).catch(console.error);
-  }, [fetchDailyStreak]);
 
   async function handleClaim() {
     setClaiming(true);
     try {
-      const result = await claimDailyReward();
-      setStatus(result);
+      await claimDailyReward();
       setJustClaimed(true);
     } catch (e) {
       console.error(e);

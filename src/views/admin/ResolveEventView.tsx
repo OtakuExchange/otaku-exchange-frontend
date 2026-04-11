@@ -8,14 +8,12 @@ import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import type { Event, Pool, UUID } from "../../models/models";
-import { useApi } from "../../hooks/useApi";
 import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
-import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "../../api/queryKeys";
+import { useEventActionMutation } from "../../api/events/events.mutations";
+import { usePoolsQuery } from "../../api/pool/pool.queries";
 
 export default function ResolveEventView() {
-  const { fetchPools, resolveEvent } = useApi();
-  const queryClient = useQueryClient();
+  const { resolveEvent } = useEventActionMutation();
   const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
   const topicIds = useMemo(() => topics.map((t) => t.id as UUID), [topics]);
   const { data: eventsByTopicData, isLoading: eventsLoading } =
@@ -26,30 +24,23 @@ export default function ResolveEventView() {
   );
 
   const [expandedEventId, setExpandedEventId] = useState<UUID | null>(null);
-  const [poolsMap, setPoolsMap] = useState<Record<UUID, Pool[]>>({});
-  const [loadingPoolsFor, setLoadingPoolsFor] = useState<UUID | null>(null);
+  const {
+    data: expandedPools,
+    isLoading: expandedPoolsLoading,
+    isError: expandedPoolsIsError,
+  } = usePoolsQuery(expandedEventId);
   const [winningPoolIds, setWinningPoolIds] = useState<Record<UUID, UUID>>({});
 
   const [resolvingId, setResolvingId] = useState<UUID | null>(null);
   const [successId, setSuccessId] = useState<UUID | null>(null);
   const [errorMap, setErrorMap] = useState<Record<UUID, string>>({});
 
-  async function handleExpand(event: Event) {
+  function handleExpand(event: Event) {
     if (expandedEventId === event.id) {
       setExpandedEventId(null);
       return;
     }
     setExpandedEventId(event.id);
-    if (poolsMap[event.id]) return;
-    setLoadingPoolsFor(event.id);
-    try {
-      const pools = await fetchPools(event.id);
-      setPoolsMap((prev) => ({ ...prev, [event.id]: pools }));
-    } catch {
-      setErrorMap((prev) => ({ ...prev, [event.id]: "Failed to load pools" }));
-    } finally {
-      setLoadingPoolsFor(null);
-    }
   }
 
   async function handleResolve(event: Event) {
@@ -59,13 +50,8 @@ export default function ResolveEventView() {
     setErrorMap((prev) => ({ ...prev, [event.id]: "" }));
     setSuccessId(null);
     try {
-      await resolveEvent(event.id, winningPoolId);
+      await resolveEvent({ eventId: event.id as UUID, topicId: event.topicId as UUID, winningPoolId: winningPoolId as UUID });
       setSuccessId(event.id);
-      queryClient.setQueryData(
-        queryKeys.eventsByTopic(event.topicId),
-        (prev: Event[] | undefined) =>
-          prev?.map((e) => (e.id === event.id ? { ...e, status: "resolved" } : e)),
-      );
     } catch (e) {
       setErrorMap((prev) => ({
         ...prev,
@@ -138,9 +124,11 @@ export default function ResolveEventView() {
                 gap: 1.5,
               }}
             >
-              {loadingPoolsFor === event.id ? (
+              {expandedPoolsLoading ? (
                 <CircularProgress size={20} />
-              ) : poolsMap[event.id]?.length > 0 ? (
+              ) : expandedPoolsIsError ? (
+                <Alert severity="error">Failed to load pools.</Alert>
+              ) : (expandedPools ?? []).length > 0 ? (
                 <>
                   <TextField
                     select
@@ -155,7 +143,7 @@ export default function ResolveEventView() {
                     }
                     sx={{ maxWidth: 320 }}
                   >
-                    {poolsMap[event.id].map((p) => (
+                    {(expandedPools ?? []).map((p: Pool) => (
                       <MenuItem key={p.id} value={p.id}>
                         {p.entity?.name ?? p.label}
                       </MenuItem>

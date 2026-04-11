@@ -1,15 +1,6 @@
 export type UUID = `${string}-${string}-${string}-${string}-${string}`;
 export const FIRST_BET_BONUS_STAKE_CENTS = 50_000;
 
-export type OrderSide = "YES" | "NO";
-export type OrderStatus =
-  | "OPEN"
-  | "PARTIAL"
-  | "PARTIALLY_FILLED"
-  | "FILLED"
-  | "CANCELLED";
-export type OrderType = "LIMIT" | "MARKET" | "NOTIONAL";
-
 export interface Subtopic {
   id: UUID;
   topicId: UUID;
@@ -68,19 +59,6 @@ export interface Entity {
   createdAt: string;
 }
 
-export interface Market {
-  id: UUID;
-  eventId: UUID;
-  entity?: Entity;
-  relatedEntity?: Entity;
-  label: string;
-  isMatch: boolean;
-  status: string;
-  tradeVolume: number;
-  forecast: number | null;
-  createdAt: string;
-}
-
 export interface Pool {
   id: UUID;
   eventId: UUID;
@@ -93,22 +71,6 @@ export interface Pool {
   updatedAt: string;
 }
 
-export interface CommentUser {
-  id: UUID;
-  username: string;
-}
-
-export interface Comment {
-  id: UUID;
-  eventId: UUID;
-  user: CommentUser;
-  parentId: UUID | null;
-  content: string;
-  createdAt: string;
-  likes: number;
-  likedByUser: boolean;
-}
-
 export interface Trade {
   id: UUID;
   marketId: UUID;
@@ -119,27 +81,6 @@ export interface Trade {
   quantity: number;
   escrowPerContract: number;
   executedAt: string;
-}
-
-export interface Order {
-  id: UUID;
-  userId: UUID;
-  marketId: UUID;
-  marketLabel: string;
-  eventId: UUID;
-  eventName: string;
-  topicId: UUID;
-  topicName: string;
-  side: OrderSide;
-  price: number;
-  quantity: number;
-  remaining: number;
-  lockedAmount: number;
-  notionalAmount: number | null;
-  status: OrderStatus;
-  orderType: OrderType;
-  createdAt: string;
-  updatedAt: string;
 }
 
 export interface PayoutPreview {

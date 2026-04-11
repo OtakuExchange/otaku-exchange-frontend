@@ -3,9 +3,8 @@ import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import useMediaQuery from "@mui/material/useMediaQuery";
 import { useTheme } from "@mui/material/styles";
-import type { Event, Pool } from "../models/models";
-import { useApi } from "../hooks/useApi";
-import { usePoolsQuery } from "../api/market/market.queries";
+import type { Event, Pool, UUID } from "../models/models";
+import { usePoolsQuery } from "../api/pool/pool.queries";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../api/queryKeys";
 import { EventCardLayout } from "./event-card/EventCardLayout";
@@ -16,6 +15,7 @@ import {
   EventCardHeaderSingle,
 } from "./event-card/EventCardHeader";
 import { MobileEventCardBody } from "./event-card/MobileEventCardBody";
+import { useBookmarkMutation } from "../api/events/events.mutations";
 
 function PoolsSkeleton() {
   return (
@@ -36,7 +36,7 @@ export default function EventCard({
   onBookmarkChange?: (id: Event["id"], bookmarked: boolean) => void;
 }) {
   const navigate = useNavigate();
-  const { bookmarkEvent, unbookmarkEvent } = useApi();
+  const { bookmarkEvent, unbookmarkEvent } = useBookmarkMutation();
   const queryClient = useQueryClient();
   const { data: pools, isLoading } = usePoolsQuery(event.id);
   const theme = useTheme();
@@ -46,8 +46,8 @@ export default function EventCard({
     e.stopPropagation();
     onBookmarkChange?.(event.id, !bookmarked);
     const action = bookmarked
-      ? unbookmarkEvent(event.id)
-      : bookmarkEvent(event.id);
+      ? unbookmarkEvent({ eventId: event.id as UUID, topicId: event.topicId as UUID })
+      : bookmarkEvent({ eventId: event.id as UUID, topicId: event.topicId as UUID });
     action.catch(console.error);
   }
 

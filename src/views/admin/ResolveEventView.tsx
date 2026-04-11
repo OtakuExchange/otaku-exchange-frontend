@@ -10,12 +10,11 @@ import Typography from "@mui/material/Typography";
 import type { Event, Pool, UUID } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
 import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
-import { useQueryClient } from "@tanstack/react-query";
-import { queryKeys } from "../../api/queryKeys";
+import { useEventActionMutation } from "../../api/events/events.mutations";
 
 export default function ResolveEventView() {
-  const { fetchPools, resolveEvent } = useApi();
-  const queryClient = useQueryClient();
+  const { fetchPools } = useApi();
+  const { resolveEvent } = useEventActionMutation();
   const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
   const topicIds = useMemo(() => topics.map((t) => t.id as UUID), [topics]);
   const { data: eventsByTopicData, isLoading: eventsLoading } =
@@ -59,13 +58,8 @@ export default function ResolveEventView() {
     setErrorMap((prev) => ({ ...prev, [event.id]: "" }));
     setSuccessId(null);
     try {
-      await resolveEvent(event.id, winningPoolId);
+      await resolveEvent({ eventId: event.id as UUID, topicId: event.topicId as UUID, winningPoolId: winningPoolId as UUID });
       setSuccessId(event.id);
-      queryClient.setQueryData(
-        queryKeys.eventsByTopic(event.topicId),
-        (prev: Event[] | undefined) =>
-          prev?.map((e) => (e.id === event.id ? { ...e, status: "resolved" } : e)),
-      );
     } catch (e) {
       setErrorMap((prev) => ({
         ...prev,

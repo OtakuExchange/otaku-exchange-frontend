@@ -20,9 +20,11 @@ import type { Subtopic, Event, UUID } from "../../models/models";
 import { useMultiTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
 import { useQueryClient } from "@tanstack/react-query";
 import { queryKeys } from "../../api/queryKeys";
+import { useEventActionMutation } from "../../api/events/events.mutations";
 
 export default function SubtopicAdminView() {
   const api = useApi();
+  const { linkEventToSubtopic, isLinkingToSubtopic: linking } = useEventActionMutation();
   const queryClient = useQueryClient();
 
   const { data: topics = [], isLoading: topicsLoading } = useTopicsQuery();
@@ -47,7 +49,6 @@ export default function SubtopicAdminView() {
   // link form
   const [linkSubtopicId, setLinkSubtopicId] = useState<UUID | "">("");
   const [linkEvent, setLinkEvent] = useState<Event | null>(null);
-  const [linking, setLinking] = useState(false);
   const [linkResult, setLinkResult] = useState<{
     ok: boolean;
     msg: string;
@@ -84,10 +85,9 @@ export default function SubtopicAdminView() {
 
   async function handleLink() {
     if (!linkSubtopicId || !linkEvent) return;
-    setLinking(true);
     setLinkResult(null);
     try {
-      await api.linkEventToSubtopic(linkEvent.id, linkSubtopicId as UUID);
+      await linkEventToSubtopic({eventId: linkEvent.id, topicId: linkEvent.topicId, subtopicId: linkSubtopicId as UUID});
       setLinkResult({
         ok: true,
         msg: `Linked "${linkEvent.name}" successfully.`,
@@ -96,8 +96,6 @@ export default function SubtopicAdminView() {
     } catch (e) {
       const message = e instanceof Error ? e.message : "Failed to link.";
       setLinkResult({ ok: false, msg: message });
-    } finally {
-      setLinking(false);
     }
   }
 

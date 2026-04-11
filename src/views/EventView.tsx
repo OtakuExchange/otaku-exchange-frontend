@@ -5,11 +5,10 @@ import { MobileEventView } from "../components/event/mobile/MobileEventView";
 import type { PoolStat } from "../components/event/types";
 import { useUserId } from "../contexts/UserContext";
 import { usePoolsQuery } from "../api/market/market.queries";
-import { useApi } from "../hooks/useApi";
-import { useQueryClient } from "@tanstack/react-query";
 import type { Event, Pool } from "../models/models";
 import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
 import { useTopicsQuery } from "../api/topic/topic.queries";
+import { useEventActionMutation } from "../api/events/events.mutations";
 
 export default function EventView({
   event,
@@ -20,9 +19,8 @@ export default function EventView({
   initialPools?: Pool[];
   initialPoolId?: string;
 }) {
-  const { markEventSeen } = useApi();
+  const { markEventSeen } = useEventActionMutation();
   const userId = useUserId();
-  const queryClient = useQueryClient();
   const { data: topics = [] } = useTopicsQuery();
   const { data: poolsData, refetch: refetchPools } = usePoolsQuery(event.id);
   const topicName = useMemo(() => topics.find((t) => t.id === event.topicId)?.topic, [topics, event.topicId]);
@@ -91,20 +89,13 @@ export default function EventView({
   }, [pools, selectedPool, effectiveStakeCents, displayTotalVolume]);
 
   useEffect(() => {
-    if (userId)
-      markEventSeen(event.id)
-        .then(() => {
-          queryClient.setQueriesData<Event[]>(
-            { queryKey: ["events"] },
-            (cached) =>
-              cached?.map((e) =>
-                e.id === event.id ? { ...e, isNew: false } : e,
-              ),
-          );
-          // refreshTopics();
-        })
-        .catch(console.error);
-  }, [event.id, markEventSeen, queryClient, userId]);
+    if (!userId || !event.isNew) return;
+    
+    const mark = async () => {
+      await markEventSeen({ eventId: event.id, topicId: event.topicId });
+    };
+    mark();
+  }, [event.id, markEventSeen, userId, event.isNew]);
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);

@@ -8,11 +8,16 @@ import type { Event, Market, Topic, UUID } from "../../models/models";
 import { useApi } from "../../hooks/useApi";
 import { useTopicEventsQuery, useTopicsQuery } from "../../api/topic/topic.queries";
 import { useTopicMutation } from "../../api/topic/topic.mutations";
+import { useEventMutation } from "../../api/events/events.mutations";
+import { queryKeys } from "../../api/queryKeys";
+import { useQueryClient } from "@tanstack/react-query";
 
 export default function DeleteView() {
-  const { fetchMarkets, deleteEvent, deleteMarket } =
+  const queryClient = useQueryClient();
+  const { fetchMarkets, deleteMarket } =
     useApi();
   const { deleteTopic } = useTopicMutation();
+  const { deleteEvent } = useEventMutation();
   const { data: topics = [] } = useTopicsQuery();
   const [topicId, setTopicId] = useState<UUID | "">("");
   const { data: events = [] } = useTopicEventsQuery(topicId, null);
@@ -54,11 +59,11 @@ export default function DeleteView() {
         setMarketId("");
         setMarkets((prev) => prev.filter((m) => m.id !== marketId));
       } else if (eventId) {
-        await deleteEvent(eventId as Event["id"]);
+        await deleteEvent({ eventId: eventId as UUID, topicId: topicId as UUID});
         setSuccess("Event deleted successfully.");
         setEventId("");
         setMarketId("");
-        // setEvents((prev) => prev.filter((e) => e.id !== eventId));
+        queryClient.setQueryData(queryKeys.eventsByTopic(topicId as UUID), (prev: Event[] | undefined) => prev?.filter((e) => e.id !== eventId as UUID));
       } else if(topicId !== null) {
         await deleteTopic(topicId as UUID);
         setSuccess("Topic deleted successfully.");

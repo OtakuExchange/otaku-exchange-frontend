@@ -28,6 +28,7 @@ let enabled = false;
 let initialized = false;
 
 export function initAnalytics() {
+  console.log("Initializing analytics...");
   if (initialized) return;
   initialized = true;
 
@@ -35,8 +36,8 @@ export function initAnalytics() {
     | string
     | undefined;
   enabled = Boolean(measurementId);
+  console.log("Analytics enabled:", enabled);
   if (!enabled || !measurementId) return;
-
   console.log("Initializing analytics with measurement ID:", measurementId);
   ReactGA.initialize(measurementId);
 }

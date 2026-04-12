@@ -34,6 +34,7 @@ export type EventFormat = (typeof EVENT_FORMATS)[number];
 export interface Event {
   id: UUID;
   topicId: UUID;
+  subtopicIds?: UUID[];
   format: EventFormat;
   name: string;
   alias?: string;

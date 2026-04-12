@@ -3,6 +3,16 @@ import type { UUID, Event } from "../../models/models";
 import { useAuth } from "@clerk/react";
 import { queryKeys } from "../queryKeys";
 import {
+  applyCreatedEventToCaches,
+  applyDeletedEventToCaches,
+  applyUpdatedEventToCaches,
+  invalidateAfterLinkEventToSubtopic,
+  invalidateEventRelatedQueries,
+  invalidatePortfolio,
+  invalidateUser,
+  optimisticallyResolveEventInCaches,
+} from "./events.util";
+import {
   bookmarkEvent,
   createEvent,
   createStake,
@@ -28,8 +38,8 @@ export function useStakeMutation() {
       amount: number;
     }) => createStake(marketPoolId, amount, getToken),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.user });
-      queryClient.invalidateQueries({ queryKey: queryKeys.portfolio });
+      invalidateUser(queryClient);
+      invalidatePortfolio(queryClient);
     },
   });
 
@@ -48,23 +58,11 @@ export function useEventMutation() {
   const createEventMutation = useMutation({
     mutationFn: (payload: CreateEventPayload) => createEvent(payload, getToken),
     onSuccess: (data: Event, variables: CreateEventPayload) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventsByTopic(variables.topicId),
+      invalidateEventRelatedQueries(queryClient, {
+        topicId: variables.topicId,
+        subtopicIds: data.subtopicIds,
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.topicEventCounts(variables.topicId),
-      });
-      // TODO: invalidate queries for events by subtopic
-
-      // optimistic update
-      queryClient.setQueryData(
-        queryKeys.eventsByTopic(variables.topicId),
-        (old: Event[]) => [...old, data],
-      );
-      queryClient.setQueriesData(
-        { queryKey: ["events", "subtopic"] },
-        (old: Event[] | undefined) => (old ? [...old, data] : [data]),
-      );
+      applyCreatedEventToCaches(queryClient, data);
     },
   });
 
@@ -72,27 +70,20 @@ export function useEventMutation() {
     mutationFn: (payload: { eventId: UUID; topicId: UUID }) =>
       deleteEvent(payload.eventId, getToken),
     onSuccess: (_, variables: { eventId: UUID; topicId: UUID }) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventById(variables.eventId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventsByTopic(variables.topicId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.topicEventCounts(variables.topicId),
-      });
-      // TODO: invalidate queries for events by subtopic
+      const cached = queryClient.getQueryData<Event>(
+        queryKeys.eventById(variables.eventId),
+      );
 
-      // optimistic update
-      queryClient.setQueryData(
-        queryKeys.eventsByTopic(variables.topicId),
-        (old: Event[]) => old.filter((e) => e.id !== variables.eventId),
-      );
-      queryClient.setQueriesData(
-        { queryKey: ["events", "subtopic"] },
-        (old: Event[] | undefined) =>
-          old ? old.filter((e) => e.id !== variables.eventId) : old,
-      );
+      invalidateEventRelatedQueries(queryClient, {
+        eventId: variables.eventId,
+        topicId: variables.topicId,
+        subtopicIds: cached?.subtopicIds,
+      });
+      applyDeletedEventToCaches(queryClient, {
+        eventId: variables.eventId,
+        topicId: variables.topicId,
+        subtopicIds: cached?.subtopicIds,
+      });
     },
   });
 
@@ -116,42 +107,13 @@ export function useEventActionMutation() {
   const markSeenMutation = useMutation({
     mutationFn: (payload: { eventId: UUID; topicId: UUID }) =>
       markEventSeen(payload.eventId, getToken),
-    onSuccess: (_, variables: { eventId: UUID; topicId: UUID }) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventById(variables.eventId),
+    onSuccess: (data: Event, variables: { eventId: UUID; topicId: UUID }) => {
+      invalidateEventRelatedQueries(queryClient, {
+        eventId: variables.eventId,
+        topicId: variables.topicId,
+        subtopicIds: data.subtopicIds,
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventsByTopic(variables.topicId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.topicEventCounts(variables.topicId),
-      });
-      // TODO: invalidate queries for events by subtopic
-
-      // optimistic update
-      queryClient.setQueryData(
-        queryKeys.eventById(variables.eventId),
-        (old: Event) => ({
-          ...old,
-          isNew: false,
-        }),
-      );
-      queryClient.setQueryData(
-        queryKeys.eventsByTopic(variables.topicId),
-        (old: Event[]) =>
-          old.map((e) =>
-            e.id === variables.eventId ? { ...e, isNew: false } : e,
-          ),
-      );
-      queryClient.setQueriesData(
-        { queryKey: ["events", "subtopic"] },
-        (old: Event[] | undefined) =>
-          old
-            ? old.map((e) =>
-                e.id === variables.eventId ? { ...e, isNew: false } : e,
-              )
-            : old,
-      );
+      applyUpdatedEventToCaches(queryClient, data);
     },
   });
 
@@ -162,18 +124,7 @@ export function useEventActionMutation() {
       _,
       variables: { eventId: UUID; topicId: UUID; subtopicId: UUID },
     ) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventById(variables.eventId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventsByTopic(variables.topicId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventsBySubtopic(variables.subtopicId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.topicEventCounts(variables.topicId),
-      });
+      invalidateAfterLinkEventToSubtopic(queryClient, variables);
     },
   });
 
@@ -181,46 +132,15 @@ export function useEventActionMutation() {
     mutationFn: (payload: { eventId: UUID; topicId: UUID; status: string }) =>
       updateEventStatus(payload.eventId, payload.status, getToken),
     onSuccess: (
-      _,
+      data,
       variables: { eventId: UUID; topicId: UUID; status: string },
     ) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventById(variables.eventId),
+      invalidateEventRelatedQueries(queryClient, {
+        eventId: variables.eventId,
+        topicId: variables.topicId,
+        subtopicIds: data.subtopicIds,
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventsByTopic(variables.topicId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.topicEventCounts(variables.topicId),
-      });
-      // TODO: invalidate queries for events by subtopic
-
-      // optimistic update
-      queryClient.setQueryData(
-        queryKeys.eventById(variables.eventId),
-        (old: Event) => ({
-          ...old,
-          status: variables.status,
-        }),
-      );
-      queryClient.setQueryData(
-        queryKeys.eventsByTopic(variables.topicId),
-        (old: Event[]) =>
-          old.map((e) =>
-            e.id === variables.eventId ? { ...e, status: variables.status } : e,
-          ),
-      );
-      queryClient.setQueriesData(
-        { queryKey: ["events", "subtopic"] },
-        (old: Event[] | undefined) =>
-          old
-            ? old.map((e) =>
-                e.id === variables.eventId
-                  ? { ...e, status: variables.status }
-                  : e,
-              )
-            : old,
-      );
+      applyUpdatedEventToCaches(queryClient, data);
     },
   });
 
@@ -234,42 +154,21 @@ export function useEventActionMutation() {
       _,
       variables: { eventId: UUID; topicId: UUID; winningPoolId: UUID },
     ) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventById(variables.eventId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventsByTopic(variables.topicId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.topicEventCounts(variables.topicId),
-      });
-      queryClient.invalidateQueries({ queryKey: queryKeys.portfolio });
-      // TODO: invalidate queries for events by subtopic
-
-      // optimistic update
-      queryClient.setQueryData(
+      const cached = queryClient.getQueryData<Event>(
         queryKeys.eventById(variables.eventId),
-        (old: Event) => ({
-          ...old,
-          status: "resolved",
-        }),
       );
-      queryClient.setQueryData(
-        queryKeys.eventsByTopic(variables.topicId),
-        (old: Event[]) =>
-          old.map((e) =>
-            e.id === variables.eventId ? { ...e, status: "resolved" } : e,
-          ),
-      );
-      queryClient.setQueriesData(
-        { queryKey: ["events", "subtopic"] },
-        (old: Event[] | undefined) =>
-          old
-            ? old.map((e) =>
-                e.id === variables.eventId ? { ...e, status: "resolved" } : e,
-              )
-            : old,
-      );
+
+      invalidateEventRelatedQueries(queryClient, {
+        eventId: variables.eventId,
+        topicId: variables.topicId,
+        subtopicIds: cached?.subtopicIds,
+        includePortfolio: true,
+      });
+      optimisticallyResolveEventInCaches(queryClient, {
+        eventId: variables.eventId,
+        topicId: variables.topicId,
+        cached,
+      });
     },
   });
 
@@ -303,62 +202,26 @@ export function useBookmarkMutation() {
   const bookmarkMutation = useMutation({
     mutationFn: (payload: { eventId: UUID; topicId: UUID }) =>
       bookmarkEvent(payload.eventId, getToken),
-    onSuccess: (_, variables: { eventId: UUID; topicId: UUID }) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventById(variables.eventId),
+    onSuccess: (data: Event, variables: { eventId: UUID; topicId: UUID }) => {
+      invalidateEventRelatedQueries(queryClient, {
+        eventId: variables.eventId,
+        topicId: variables.topicId,
+        subtopicIds: data.subtopicIds,
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventsByTopic(variables.topicId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.topicEventCounts(variables.topicId),
-      });
-      // TODO: invalidate queries for events by subtopic
-
-      // optimistic update
-      queryClient.setQueryData(
-        queryKeys.eventById(variables.eventId),
-        (old: Event) => ({
-          ...old,
-          bookmarked: true,
-        }),
-      );
-      queryClient.setQueryData(["events"], (old: Event[]) =>
-        old.map((e) =>
-          e.id === variables.eventId ? { ...e, bookmarked: true } : e,
-        ),
-      );
+      applyUpdatedEventToCaches(queryClient, data);
     },
   });
 
   const unBookmarkMutation = useMutation({
     mutationFn: (payload: { eventId: UUID; topicId: UUID }) =>
       unbookmarkEvent(payload.eventId, getToken),
-    onSuccess: (_, variables: { eventId: UUID; topicId: UUID }) => {
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventById(variables.eventId),
+    onSuccess: (data: Event, variables: { eventId: UUID; topicId: UUID }) => {
+      invalidateEventRelatedQueries(queryClient, {
+        eventId: variables.eventId,
+        topicId: variables.topicId,
+        subtopicIds: data.subtopicIds,
       });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.eventsByTopic(variables.topicId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: queryKeys.topicEventCounts(variables.topicId),
-      });
-      // TODO: invalidate queries for events by subtopic
-
-      // optimistic update
-      queryClient.setQueryData(
-        queryKeys.eventById(variables.eventId),
-        (old: Event) => ({
-          ...old,
-          bookmarked: false,
-        }),
-      );
-      queryClient.setQueryData(["events"], (old: Event[]) =>
-        old.map((e) =>
-          e.id === variables.eventId ? { ...e, bookmarked: false } : e,
-        ),
-      );
+      applyUpdatedEventToCaches(queryClient, data);
     },
   });
 

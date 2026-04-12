@@ -27,14 +27,16 @@ export async function createEvent(
   payload: CreateEventPayload,
   getToken: GetToken,
 ): Promise<Event> {
-  return fetch(`${API_URL}/events`, {
+  const res = await fetch(`${API_URL}/events`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       ...(await authHeaders(getToken)),
     },
     body: JSON.stringify(payload),
-  }).then((r) => r.json());
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
 
 export async function deleteEvent(
@@ -66,19 +68,21 @@ export async function resolveEvent(
 export async function markEventSeen(
   eventId: UUID,
   getToken: GetToken,
-): Promise<void> {
+): Promise<Event> {
   const headers = await authHeaders(getToken);
-  await fetch(`${API_URL}/events/${eventId}/seen`, {
+  const res = await fetch(`${API_URL}/events/${eventId}/seen`, {
     method: "POST",
     headers,
   });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
 
 export async function updateEventStatus(
   eventId: UUID,
   status: string,
   getToken: GetToken,
-): Promise<void> {
+): Promise<Event> {
   const res = await fetch(`${API_URL}/events/${eventId}/status`, {
     method: "PATCH",
     headers: {
@@ -88,6 +92,7 @@ export async function updateEventStatus(
     body: JSON.stringify({ status }),
   });
   if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
 
 export async function linkEventToSubtopic(
@@ -107,21 +112,25 @@ export async function linkEventToSubtopic(
 export async function bookmarkEvent(
   eventId: UUID,
   getToken: GetToken,
-): Promise<void> {
-  return fetch(`${API_URL}/events/${eventId}/bookmark`, {
+): Promise<Event> {
+  const res = await fetch(`${API_URL}/events/${eventId}/bookmark`, {
     method: "POST",
     headers: await authHeaders(getToken),
-  }).then(() => undefined);
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
 
 export async function unbookmarkEvent(
   eventId: UUID,
   getToken: GetToken,
-): Promise<void> {
-  return fetch(`${API_URL}/events/${eventId}/bookmark`, {
+): Promise<Event> {
+  const res = await fetch(`${API_URL}/events/${eventId}/bookmark`, {
     method: "DELETE",
     headers: await authHeaders(getToken),
-  }).then(() => undefined);
+  });
+  if (!res.ok) throw new Error(await res.text());
+  return res.json();
 }
 
 // STAKES

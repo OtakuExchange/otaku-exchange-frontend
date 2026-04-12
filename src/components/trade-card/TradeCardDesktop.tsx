@@ -100,7 +100,17 @@ export function TradeCardDesktop({
           {isFirstStakeBonusEligible && <FirstBetBonusBadge />}
         </Stack>
 
-        <Stack direction="row" spacing={1} sx={{ mb: 2 }}>
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            mb: 2,
+            overflowX: "auto",
+            "&::-webkit-scrollbar": { display: "none" },
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }}
+        >
           {pools.map((pool) => {
             const color = pool.entity?.color ?? "#1565c0";
             return (

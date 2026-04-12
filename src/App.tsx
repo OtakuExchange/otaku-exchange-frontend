@@ -37,7 +37,9 @@ import { InfoBanner } from "./components/InfoBanner";
 import Stack from "@mui/material/Stack";
 import { AdminGuard } from "./components/guard/AdminGuard.tsx";
 import { SignedInGuard } from "./components/guard/SignedInGuard.tsx";
+import ReactGA from "react-ga4";
 
+ReactGA.initialize(import.meta.env.VITE_GA4_MEASUREMENT_ID);
 
 const darkTheme = createTheme({
   palette: {

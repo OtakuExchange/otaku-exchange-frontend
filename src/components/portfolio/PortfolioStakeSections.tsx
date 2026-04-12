@@ -5,7 +5,7 @@ import Stack from "@mui/material/Stack";
 import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
 import type { PortfolioItem } from "../../models/models";
-import { PortfolioStakeRow } from "./PortfolioStakeRow";
+import { PortfolioStakeRow } from "./stake-row/PortfolioStakeRow";
 
 export function PortfolioStakeSections({
   items,

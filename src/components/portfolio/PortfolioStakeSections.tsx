@@ -6,17 +6,20 @@ import Typography from "@mui/material/Typography";
 import { useNavigate } from "react-router-dom";
 import type { PortfolioItem } from "../../models/models";
 import { PortfolioStakeRow } from "./stake-row/PortfolioStakeRow";
+import { trackEvent, type AnalyticsSource } from "../../analytics/ga4";
 
 export function PortfolioStakeSections({
   items,
   loading,
   maxWidth = 800,
   onRowClick,
+  analyticsSource = "portfolio_row",
 }: {
   items: PortfolioItem[];
   loading: boolean;
   maxWidth?: number;
   onRowClick?: (eventId: string, poolId: string) => void;
+  analyticsSource?: AnalyticsSource;
 }) {
   const navigate = useNavigate();
 
@@ -43,7 +46,14 @@ export function PortfolioStakeSections({
 
   function handleRowClick(eventId: string, poolId: string) {
     if (onRowClick) return onRowClick(eventId, poolId);
-    navigate(`/events/${eventId}`, { state: { selectedPoolId: poolId } });
+    trackEvent("event_opened", {
+      event_id: eventId,
+      source: analyticsSource,
+      selected_pool_id: poolId,
+    });
+    navigate(`/events/${eventId}`, {
+      state: { selectedPoolId: poolId, source: analyticsSource },
+    });
   }
 
   return (

@@ -1,5 +1,5 @@
 import Box from "@mui/material/Box";
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { DesktopEventView } from "../components/event/desktop/DesktopEventView";
 import { MobileEventView } from "../components/event/mobile/MobileEventView";
 import type { PoolStat } from "../components/event/types";
@@ -9,6 +9,7 @@ import type { Event, Pool } from "../models/models";
 import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
 import { useTopicsQuery } from "../api/topic/topic.queries";
 import { useEventActionMutation } from "../api/events/events.mutations";
+import { trackEvent } from "../analytics/ga4";
 
 export default function EventView({
   event,
@@ -36,6 +37,7 @@ export default function EventView({
     initialPoolId ?? initialPools?.[0]?.id ?? null,
   );
   const [infoTabIdx, setInfoTabIdx] = useState<number>(0);
+  const lastTrackedPoolId = useRef<string | null>(null);
 
   const effectiveSelectedPoolId = selectedPoolId ?? pools[0]?.id ?? null;
   const selectedPool = useMemo(() => {
@@ -99,6 +101,21 @@ export default function EventView({
     };
     mark();
   }, [event.id, markEventSeen, userId, event.isNew, event.topicId]);
+
+  useEffect(() => {
+    if (!effectiveSelectedPoolId) return;
+    if (lastTrackedPoolId.current == null) {
+      lastTrackedPoolId.current = effectiveSelectedPoolId;
+      return;
+    }
+    if (lastTrackedPoolId.current === effectiveSelectedPoolId) return;
+    lastTrackedPoolId.current = effectiveSelectedPoolId;
+    trackEvent("pool_selected", {
+      event_id: event.id,
+      pool_id: effectiveSelectedPoolId,
+      source: "event_view",
+    });
+  }, [effectiveSelectedPoolId, event.id, lastTrackedPoolId]);
 
   function handleChangeTab(_event: React.SyntheticEvent, newValue: number) {
     setInfoTabIdx(newValue);

@@ -70,7 +70,11 @@ export default function UserView() {
           )
         )}
       </Stack>
-      <PortfolioStakeSections items={data?.pools ?? []} loading={isLoading} />
+      <PortfolioStakeSections
+        items={data?.pools ?? []}
+        loading={isLoading}
+        analyticsSource="user_portfolio_row"
+      />
     </Box>
   );
 }

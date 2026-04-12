@@ -7,6 +7,11 @@ import {
 } from "../../api/topic/topic.queries";
 import { useHistoryEventFilters } from "./useHistoryEventFilters";
 import { usePoolsVolumesByEventIds } from "./usePoolsVolumesByEventIds";
+import { trackEvent } from "../../analytics/ga4";
+import type {
+  HistoryMultiplierFilter,
+  HistorySortOption,
+} from "./useHistoryEventFilters";
 
 function toSlug(name: string) {
   return name.toLowerCase().replace(/\s+/g, "-");
@@ -100,27 +105,66 @@ export function useHistoryController(topics: Topic[]) {
 
   function setTopic(next: "all" | UUID) {
     if (next === "all") {
+      trackEvent("history_filter_changed", {
+        filter: "topic",
+        value: "all",
+      });
       navigate("/history/all");
       return;
     }
     const nextTopic = topics.find((t) => t.id === next);
     if (!nextTopic) return;
+    trackEvent("history_filter_changed", {
+      filter: "topic",
+      value: String(next),
+    });
     navigate(`/history/${toSlug(nextTopic.topic)}`);
   }
 
   function setDivision(next: "" | UUID) {
     if (!selectedTopic) return;
     if (!next) {
+      trackEvent("history_filter_changed", {
+        filter: "division",
+        value: "all",
+        topic_id: String(selectedTopic.id),
+      });
       navigate(`/history/${toSlug(selectedTopic.topic)}`);
       return;
     }
     const sub = subtopics.find((s) => s.id === next);
     if (!sub) return;
+    trackEvent("history_filter_changed", {
+      filter: "subtopic",
+      value: String(next),
+      topic_id: String(selectedTopic.id),
+    });
     navigate(`/history/${toSlug(selectedTopic.topic)}/${toSlug(sub.name)}`);
+  }
+
+  function setSortOption(next: HistorySortOption) {
+    filters.setSortOption(next);
+    trackEvent("history_filter_changed", {
+      filter: "sort",
+      value: next,
+      topic_id: selectedTopic ? String(selectedTopic.id) : "all",
+      division_id: selectedSubtopicId ? String(selectedSubtopicId) : "all",
+    });
+  }
+
+  function setMultiplierFilter(next: HistoryMultiplierFilter) {
+    filters.setMultiplierFilter(next);
+    trackEvent("history_filter_changed", {
+      filter: "multiplier",
+      value: next,
+      topic_id: selectedTopic ? String(selectedTopic.id) : "all",
+      division_id: selectedSubtopicId ? String(selectedSubtopicId) : "all",
+    });
   }
 
   function clearAll() {
     filters.clearFilters();
+    trackEvent("history_filter_changed", { filter: "clear_all", value: "1" });
     navigate("/history/all");
   }
 
@@ -130,9 +174,9 @@ export function useHistoryController(topics: Topic[]) {
     divisionValue,
 
     sortOption: filters.sortOption,
-    setSortOption: filters.setSortOption,
+    setSortOption,
     multiplierFilter: filters.multiplierFilter,
-    setMultiplierFilter: filters.setMultiplierFilter,
+    setMultiplierFilter,
 
     resolvedEvents,
     resultsCount: resolvedEvents.length,

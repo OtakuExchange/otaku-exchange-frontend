@@ -18,6 +18,7 @@ import {
 import Skeleton from "@mui/material/Skeleton";
 import Stack from "@mui/material/Stack";
 import { StakeLine } from "./StakeLine";
+import { trackEvent } from "../../analytics/ga4";
 
 function PoolsSkeleton() {
   return (
@@ -56,7 +57,8 @@ export function HistoryEventCard({ event }: { event: Event }) {
 
   function openEvent() {
     primeEventRouteCache();
-    navigate(`/events/${event.id}`);
+    trackEvent("event_opened", { event_id: event.id, source: "history_card" });
+    navigate(`/events/${event.id}`, { state: { source: "history_card" } });
   }
 
   function selectPool(
@@ -65,7 +67,14 @@ export function HistoryEventCard({ event }: { event: Event }) {
   ) {
     e.stopPropagation();
     primeEventRouteCache();
-    navigate(`/events/${event.id}`, { state: { selectedPoolId: poolId } });
+    trackEvent("event_opened", {
+      event_id: event.id,
+      source: "history_card",
+      selected_pool_id: poolId,
+    });
+    navigate(`/events/${event.id}`, {
+      state: { selectedPoolId: poolId, source: "history_card" },
+    });
   }
 
   const winnerPoolId = poolsList.find((p) => p.isWinner)?.id ?? null;

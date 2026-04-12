@@ -11,7 +11,10 @@ export default function PortfolioView() {
       <Typography variant="h4" fontWeight="bold" gutterBottom>
         Portfolio
       </Typography>
-      <PortfolioStakeSections items={data?.pools ?? []} loading={loading} />
+      <PortfolioStakeSections
+        items={data?.pools ?? []}
+        loading={loading}
+      />
     </Box>
   );
 }

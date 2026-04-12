@@ -12,6 +12,8 @@ import {
   invalidateUser,
   optimisticallyResolveEventInCaches,
 } from "./events.util";
+import type { AnalyticsSource } from "../../analytics/ga4";
+import { trackEvent } from "../../analytics/ga4";
 import {
   bookmarkEvent,
   createEvent,
@@ -200,28 +202,52 @@ export function useBookmarkMutation() {
   const queryClient = useQueryClient();
 
   const bookmarkMutation = useMutation({
-    mutationFn: (payload: { eventId: UUID; topicId: UUID }) =>
-      bookmarkEvent(payload.eventId, getToken),
-    onSuccess: (data: Event, variables: { eventId: UUID; topicId: UUID }) => {
+    mutationFn: (payload: {
+      eventId: UUID;
+      topicId: UUID;
+      source?: AnalyticsSource;
+    }) => bookmarkEvent(payload.eventId, getToken),
+    onSuccess: (
+      data: Event,
+      variables: { eventId: UUID; topicId: UUID; source?: AnalyticsSource },
+    ) => {
       invalidateEventRelatedQueries(queryClient, {
         eventId: variables.eventId,
         topicId: variables.topicId,
         subtopicIds: data.subtopicIds,
       });
       applyUpdatedEventToCaches(queryClient, data);
+      trackEvent("bookmark_toggled", {
+        event_id: variables.eventId,
+        topic_id: variables.topicId,
+        bookmarked: true,
+        source: variables.source ?? "direct",
+      });
     },
   });
 
   const unBookmarkMutation = useMutation({
-    mutationFn: (payload: { eventId: UUID; topicId: UUID }) =>
-      unbookmarkEvent(payload.eventId, getToken),
-    onSuccess: (data: Event, variables: { eventId: UUID; topicId: UUID }) => {
+    mutationFn: (payload: {
+      eventId: UUID;
+      topicId: UUID;
+      source?: AnalyticsSource;
+    }) => unbookmarkEvent(payload.eventId, getToken),
+    onSuccess: (
+      data: Event,
+      variables: { eventId: UUID; topicId: UUID; source?: AnalyticsSource },
+    ) => {
       invalidateEventRelatedQueries(queryClient, {
         eventId: variables.eventId,
         topicId: variables.topicId,
         subtopicIds: data.subtopicIds,
       });
       applyUpdatedEventToCaches(queryClient, data);
+      trackEvent("bookmark_toggled", {
+        event_id: variables.eventId,
+        topic_id: variables.topicId,
+        bookmarked: false,
+        source: variables.source ?? "direct",
+      });
     },
   });
 

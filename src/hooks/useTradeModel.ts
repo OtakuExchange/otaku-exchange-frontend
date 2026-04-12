@@ -5,6 +5,7 @@ import { calcLegacyBasePayout, calcLegacyPayout } from "../utils/parimutuel";
 import { useUserQuery } from "../api/user/user.queries";
 import { FIRST_BET_BONUS_STAKE_CENTS } from "../models/models";
 import { useStakeMutation } from "../api/events/events.mutations";
+import { trackEvent } from "../analytics/ga4";
 
 export function useTradeModel({
   eventMultiplier,

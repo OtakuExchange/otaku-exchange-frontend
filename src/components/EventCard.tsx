@@ -16,6 +16,7 @@ import {
 } from "./event-card/EventCardHeader";
 import { MobileEventCardBody } from "./event-card/MobileEventCardBody";
 import { useBookmarkMutation } from "../api/events/events.mutations";
+import { trackEvent } from "../analytics/ga4";
 
 function PoolsSkeleton() {
   return (
@@ -49,10 +50,12 @@ export default function EventCard({
       ? unbookmarkEvent({
           eventId: event.id as UUID,
           topicId: event.topicId as UUID,
+          source: "event_card",
         })
       : bookmarkEvent({
           eventId: event.id as UUID,
           topicId: event.topicId as UUID,
+          source: "event_card",
         });
     action.catch(console.error);
   }
@@ -72,7 +75,8 @@ export default function EventCard({
 
   function openEvent() {
     primeEventRouteCache();
-    navigate(`/events/${event.id}`);
+    trackEvent("event_opened", { event_id: event.id, source: "event_card" });
+    navigate(`/events/${event.id}`, { state: { source: "event_card" } });
   }
 
   function selectPool(
@@ -81,7 +85,14 @@ export default function EventCard({
   ) {
     e.stopPropagation();
     primeEventRouteCache();
-    navigate(`/events/${event.id}`, { state: { selectedPoolId: poolId } });
+    trackEvent("event_opened", {
+      event_id: event.id,
+      source: "event_card",
+      selected_pool_id: poolId,
+    });
+    navigate(`/events/${event.id}`, {
+      state: { selectedPoolId: poolId, source: "event_card" },
+    });
   }
 
   return (

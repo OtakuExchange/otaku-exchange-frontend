@@ -37,9 +37,8 @@ import { InfoBanner } from "./components/InfoBanner";
 import Stack from "@mui/material/Stack";
 import { AdminGuard } from "./components/guard/AdminGuard.tsx";
 import { SignedInGuard } from "./components/guard/SignedInGuard.tsx";
-import ReactGA from "react-ga4";
-
-ReactGA.initialize(import.meta.env.VITE_GA4_MEASUREMENT_ID);
+import { RouteAnalyticsListener } from "./analytics/RouteAnalyticsListener";
+import { trackEvent } from "./analytics/ga4";
 
 const darkTheme = createTheme({
   palette: {
@@ -82,6 +81,16 @@ function EventViewRoute() {
     isError: poolsError,
   } = usePoolsQuery(eventId);
 
+  useEffect(() => {
+    const source = (state as any)?.source as string | undefined;
+    if (source) return; // click-side tracking already sent
+    trackEvent("event_opened", {
+      event_id: eventId,
+      source: "direct",
+      selected_pool_id: (state as any)?.selectedPoolId,
+    });
+  }, [eventId, state]);
+
   if (eventLoading || poolsLoading) return <CircularProgress />;
   if (eventError || poolsError || !event || !pools)
     return <Navigate to="/" replace />;
@@ -115,6 +124,7 @@ function App() {
       <ThemeProvider theme={darkTheme}>
         <Box sx={{ minHeight: "100vh", bgcolor: "background.default" }}>
           <CssBaseline />
+          <RouteAnalyticsListener />
           <TopNavLayout>
             <Toolbar>
               <Navbar isSignedIn={isSignedIn ?? false} />

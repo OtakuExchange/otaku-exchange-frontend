@@ -156,7 +156,10 @@ export async function createStake(
     },
     body: JSON.stringify({ marketPoolId, amount }),
   });
-  if (!res.ok) throw new Error(`${res.status}`);
+  if (!res.ok) {
+    const message = await res.text();
+    throw new Error(message);
+  }
 }
 
 export interface Stake {

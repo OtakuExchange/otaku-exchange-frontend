@@ -108,7 +108,8 @@ export function useTradeModel({
       setRawAmount("");
     } catch (e) {
       console.error(e);
-      const message = e?.response?.data ?? e?.message ?? "Failed to place order";
+      const err = e as { response?: { data?: string }; message?: string };
+      const message = err?.response?.data ?? err?.message ?? "Failed to place order";
       setToast({ message, severity: "error" });
       setToastOpen(true);
     } finally {

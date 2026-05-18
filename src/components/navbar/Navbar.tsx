@@ -91,7 +91,7 @@ function NavbarBrand() {
           whiteSpace: "nowrap",
         }}
       >
-        FillyB Exchange
+        CCS Exchange
       </Typography>
     </Stack>
   );

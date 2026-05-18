@@ -33,8 +33,6 @@ import { Navbar } from "./components/navbar/Navbar";
 import { TopicTabs } from "./components/navbar/TopicTabs";
 import { useUserQuery } from "./api/user/user.queries";
 import { useTopicsQuery } from "./api/topic/topic.queries";
-import { InfoBanner } from "./components/InfoBanner";
-import Stack from "@mui/material/Stack";
 import { AdminGuard } from "./components/guard/AdminGuard.tsx";
 import { SignedInGuard } from "./components/guard/SignedInGuard.tsx";
 import { RouteAnalyticsListener } from "./analytics/RouteAnalyticsListener";
@@ -133,37 +131,6 @@ function App() {
           </TopNavLayout>
           <Toolbar />
           <Box sx={{ height: 48 }} />
-          <Stack direction="column" spacing={0.5} sx={{ mb: 1 }}>
-            <InfoBanner
-              storageKey="end-of-service"
-              variant="warning"
-              message={
-                <Typography sx={{ fontSize: "13px", color: "error.main" }}>
-                  ⚠️{" "}
-                  We will be wrapping up the FillyB Exchange on May 6th after AML finals is done.
-                  Top 3 Leaderboard prizes will be awarded shortly after, stay tuned for FillyB Wrapped.
-                </Typography>
-              }
-            />
-            <InfoBanner
-              storageKey="payouts"
-              variant="info"
-              message={
-                <Typography sx={{ fontSize: "13px", color: "#7B8996" }}>
-                  💡{" "}
-                  <strong style={{ color: "#e8e8e8" }}>
-                    How payouts work:
-                  </strong>{" "}
-                  Your slice of the winning pool is the percentage of the total
-                  volume you will win if the FillyGod chooses your team. You
-                  should aim to bet according to how much faith you have in your
-                  team. The FillyGod himself will double your first bet on an
-                  event up to $500.
-                </Typography>
-              }
-            />
-          </Stack>
-
           <Routes>
             {/* Topic Routes */}
             {navTabs.map((tab) => (

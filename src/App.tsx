@@ -135,17 +135,6 @@ function App() {
           <Box sx={{ height: 48 }} />
           <Stack direction="column" spacing={0.5} sx={{ mb: 1 }}>
             <InfoBanner
-              storageKey="end-of-service"
-              variant="warning"
-              message={
-                <Typography sx={{ fontSize: "13px", color: "error.main" }}>
-                  ⚠️{" "}
-                  We will be wrapping up the FillyB Exchange on May 6th after AML finals is done.
-                  Top 3 Leaderboard prizes will be awarded shortly after, stay tuned for FillyB Wrapped.
-                </Typography>
-              }
-            />
-            <InfoBanner
               storageKey="payouts"
               variant="info"
               message={

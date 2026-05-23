@@ -32,7 +32,7 @@ function NavbarCashDisplayDesktop({ cash }: { cash: number | null }) {
           lineHeight: 1.2,
         }}
       >
-        FillyBucks
+        Flay Funds
       </Typography>
       <Typography
         sx={{

@@ -45,7 +45,7 @@ export default function UserView() {
               <Typography
                 sx={{ color: "#7B8996", fontSize: "12px", lineHeight: 1.2 }}
               >
-                FillyBucks
+                Flay Funds
               </Typography>
               <Typography
                 sx={{

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Tooltip from "@mui/material/Tooltip";
@@ -15,11 +15,13 @@ export default function DailyRewardButton({
   const { claimDailyReward } = useClaimDailyMutation();
   const [claiming, setClaiming] = useState(false);
   const [justClaimed, setJustClaimed] = useState(false);
+  const [claimedAmt, setClaimedAmt] = useState(0);
 
   async function handleClaim() {
     setClaiming(true);
     try {
-      await claimDailyReward();
+      const status = await claimDailyReward();
+      setClaimedAmt(status.rewardCents)
       setJustClaimed(true);
     } catch (e) {
       console.error(e);
@@ -30,27 +32,27 @@ export default function DailyRewardButton({
 
   const fmt = (cents: number) => `$${(cents / 100).toFixed(0)}`;
 
-  const base = status?.rewardCents ?? 0;
-  const bonus = status?.comebackBonusCents ?? 0;
-  const total = base + bonus;
-  const hasBonus = bonus > 0;
+  const total = status?.rewardCents ?? 0;
 
   const buttonLabel = (() => {
     if (!status) return "…";
     if (claiming) return "Claiming...";
-    if (justClaimed) return `+${fmt(total)} claimed!`;
+    if (justClaimed) return `+${fmt(claimedAmt)} claimed!`;
     if (!status.canClaim) return `🔥 ${status.streak}`;
-    if (hasBonus) return `Claim ${fmt(base)} + ${fmt(bonus)} boost`;
-    return `Claim ${fmt(base)}`;
+    return `Claim ${fmt(total)}`;
   })();
 
-  const tooltipText = !status
-    ? "Loading daily reward…"
-    : status.canClaim
-      ? hasBonus
-        ? `Day ${status.streak + 1} streak — ${fmt(base)} base + ${fmt(bonus)} comeback bonus (20% of gap to #1)`
-        : `Day ${status.streak + 1} — claim ${fmt(base)}`
-      : `Come back tomorrow! 🔥 ${status.streak} day streak`;
+  const tooltipText = useMemo(() => {
+    if (!status) {
+      return "Loading daily reward…"
+    }
+
+    if (!status.canClaim) {
+      return `Come back tomorrow! 🔥 ${status.streak} day streak`;
+    }
+
+    return `Day ${status.streak + 1} — claim ${fmt(total)}`
+  }, [status, total])
 
   const mobileLabel = (() => {
     if (!status) return "";
@@ -80,9 +82,7 @@ export default function DailyRewardButton({
             minWidth: variant === "mobile" ? 36 : undefined,
             px: variant === "mobile" ? 1.25 : undefined,
             bgcolor: status?.canClaim
-              ? hasBonus
-                ? "#7b1fa2"
-                : "#f5a623"
+              ? "#7b1fa2"
               : "transparent",
             color: status?.canClaim ? "#fff" : "#7B8996",
             fontWeight: 700,
@@ -90,9 +90,7 @@ export default function DailyRewardButton({
             textTransform: "none",
             "&:hover": {
               bgcolor: status?.canClaim
-                ? hasBonus
-                  ? "#6a1b9a"
-                  : "#e09510"
+                ? "#6a1b9a"
                 : "action.hover",
             },
             "&.Mui-disabled": {

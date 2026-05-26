@@ -139,5 +139,4 @@ export interface StreakStatus {
   streak: number;
   rewardCents: number;
   canClaim: boolean;
-  comebackBonusCents: number;
 }

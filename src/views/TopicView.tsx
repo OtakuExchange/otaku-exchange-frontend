@@ -229,7 +229,7 @@ export default function TopicView({
       if (formatDiff !== 0) return formatDiff;
       const timeDiff =
         new Date(a.closeTime).getTime() - new Date(b.closeTime).getTime();
-      return timeDiff !== 0 ? timeDiff : b.tradeVolume - a.tradeVolume;
+      return timeDiff;
     });
 
   const visibleEvents = sortEvents(

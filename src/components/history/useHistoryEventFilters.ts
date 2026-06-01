@@ -66,8 +66,8 @@ export function useHistoryEventFilters() {
       const aId = a.id;
       const bId = b.id;
 
-      const aVol = safeNumber(volumeByEventId?.get(aId) ?? a.tradeVolume);
-      const bVol = safeNumber(volumeByEventId?.get(bId) ?? b.tradeVolume);
+      const aVol = safeNumber(volumeByEventId?.get(aId) ?? 0);
+      const bVol = safeNumber(volumeByEventId?.get(bId) ?? 0);
 
       switch (sortOption) {
         case "date_desc": {

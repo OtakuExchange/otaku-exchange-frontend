@@ -46,7 +46,6 @@ export interface Event {
   pandaScoreId: string | null;
   bookmarked: boolean;
   createdAt: string;
-  tradeVolume: number;
   multiplier: number;
   isNew: boolean;
   isFirstStakeBonusEligible: boolean;
